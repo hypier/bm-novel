@@ -2,7 +2,7 @@ package domain
 
 import "bm-novel/internal/domain/user"
 
-type UserServer interface {
+type IUserServer interface {
 	Get(userId string)
 	Create(user *user.User)
 	SetRole(roleCode string)
