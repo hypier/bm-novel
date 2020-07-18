@@ -1,0 +1,7 @@
+.vscode/
+.DS_Store
+debug
+log/
+.log
+go.sum
+.idea/

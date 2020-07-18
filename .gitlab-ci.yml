@@ -1,0 +1,26 @@
+include:
+  - project: 'sre/ci-template'
+    ref: master
+    file: 'templates/golang-pipline.yml'
+
+stages:
+  - test
+  - build
+
+variables: 
+  RUN_GOLANG_REVIVE: "yes"  # 是否运行revive     yes/no
+  RUN_GOLANG_TEST: "yes"   # 是否运行go test    yes/no
+  BUILD_AWS_IMAGE: "no"    # 是否构建aws环境镜像 yes/no
+
+# 默认任何分支
+test:
+  stage: test
+  extends: .test
+
+build:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_REF_NAME =~ /^dev$/ || $CI_COMMIT_REF_NAME =~ /^test$/  # 用于控制分支或Tag执行构建docker镜像
+      when: always
+    - when: never
+  extends: .build
