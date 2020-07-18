@@ -6,8 +6,8 @@ type User struct {
 	UserId string `json:"userId"`
 	// 用户名
 	UserName string `json:"userName"`
-	// 是否锁定
-	Lock bool `json:"lock"`
+	// 用户状态
+	Stats int `json:"stats"`
 	// 密码
 	Password string `json:"password"`
 	// 盐值

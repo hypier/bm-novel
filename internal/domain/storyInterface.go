@@ -1,6 +1,6 @@
 package domain
 
-import "bm-story/internal/domain/story"
+import "bm-novel/internal/domain/story"
 
 type StoryService interface {
 
