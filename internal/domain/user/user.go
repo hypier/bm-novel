@@ -2,34 +2,35 @@ package user
 
 import (
 	"bm-novel/internal/infrastructure/security"
+	"context"
+	"github.com/joyparty/entity"
 	"github.com/pkg/errors"
+	"time"
 )
 
 // 用户基本信息
 type User struct {
 	// 用户id
-	UserId string `json:"userId"`
+	UserId string `json:"userId" db:"user_id,primaryKey"`
 	// 用户名
-	UserName string `json:"userName"`
+	UserName string `json:"userName" db:"user_name"`
 	// 用户状态
-	UserLock bool `json:"stats"`
+	UserLock bool `json:"userLock" db:"user_lock"`
 	// 密码
-	Password string `json:"password"`
+	Password string `json:"password" db:"password"`
 	// 角色代码
-	RoleCode string `json:"roleCode"`
+	RoleCode string `json:"roleCode" db:"role_code"`
 	// 姓名
-	TrueName string `json:"trueName"`
+	TrueName string `json:"trueName" db:"true_name"`
+	// 首次密码
+	FirstPassword bool `json:"firstPassword" db:"first_password"`
 
 	// 是否持久化，内部参数
-	isPersistence bool
-	// 首次密码
-	FirstPassword bool
+	isPersistence bool  `db:"-"`
+	CreateAt      int64 `db:"create_at,refuseUpdate"`
+	UpdateAt      int64 `db:"update_at"`
 
 	repo IUserRepository
-}
-
-func (u *User) Get(userId string) (*User, error) {
-	return u.repo.FindOne(userId)
 }
 
 func (u *User) Create(user *User) error {
@@ -121,4 +122,20 @@ func (u *User) CheckPassword(password string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (u *User) TableName() string {
+	return "db_user"
+}
+
+// OnEntityEvent 存储事件回调方法，entity.Entity接口方法
+func (u *User) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+	switch ev {
+	case entity.EventBeforeInsert:
+		u.CreateAt = time.Now().Unix()
+	case entity.EventBeforeUpdate:
+		u.UpdateAt = time.Now().Unix()
+	}
+
+	return nil
 }
