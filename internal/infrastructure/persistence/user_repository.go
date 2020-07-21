@@ -3,12 +3,19 @@ package persistence
 import (
 	"bm-novel/internal/domain/user"
 	"context"
-	"errors"
+	"fmt"
+	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql" // 载入 goqu mysql驱动
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
+	"github.com/pkg/errors"
 )
 
 var defaultDB *sqlx.DB
+
+func init() {
+	defaultDB, _ = connectMysql()
+}
 
 type UserRepository struct {
 	ctx context.Context
@@ -23,7 +30,15 @@ func (u UserRepository) FindOne(id string) (*user.User, error) {
 }
 
 func (u UserRepository) FindByName(name string) (*user.User, error) {
-	panic("implement me")
+	usr := &user.User{UserName: name}
+	sql, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
+
+	fmt.Println(sql, params, err)
+
+	if err := DoQuery(u.ctx, sql, usr, defaultDB); err != nil {
+		return nil, errors.New(err.Error())
+	}
+	return usr, nil
 }
 
 func (u UserRepository) Create(user *user.User) error {

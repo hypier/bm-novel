@@ -1,13 +1,13 @@
-package story
+package novel
 
-type StoryService interface {
+type INovelService interface {
 
 	// 创建小说
-	Create(story *Story) error
+	Create(novel *Novel) error
 	// 删除小说
 	Delete() error
 	// 指派责编
-	AssignResponsibleEditor(userId int) error
+	AssignResponsibleEditor(userId string) error
 	// 设置章节解析格式
 	SetChapterFormat(format *ChapterFormat) error
 	// 上传源文
@@ -16,7 +16,7 @@ type StoryService interface {
 	ParseChapters(format *ChapterFormat) (*[]Chapter, error)
 }
 
-type ChapterService interface {
+type IChapterService interface {
 	// 保存章节
 	Save(chapter *[]Chapter)
 	// 编辑原文章节
@@ -29,7 +29,7 @@ type ChapterService interface {
 	ParseParagraph() (*[]Paragraph, error)
 }
 
-type ParagraphService interface {
+type IParagraphService interface {
 	// 编辑段落
 	Edit(source string) error
 	// 删除段落
@@ -40,7 +40,7 @@ type ParagraphService interface {
 	MergeRole(sourceRoleCode, targetRoleCode string) error
 }
 
-type RoleService interface {
+type IRoleService interface {
 	// 创建角色
 	Create(role *Role) error
 	// 编辑角色
@@ -49,7 +49,7 @@ type RoleService interface {
 	Delete(roleCode string) error
 }
 
-type EpisodeService interface {
+type IEpisodeService interface {
 	// 定集
 	Create(paragraphCode *[]string)
 	// 提审

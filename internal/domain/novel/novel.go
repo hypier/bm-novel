@@ -1,7 +1,7 @@
-package story
+package novel
 
 // 小说
-type Story struct {
+type Novel struct {
 }
 
 type ChapterFormat struct {

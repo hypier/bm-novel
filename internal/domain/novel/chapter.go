@@ -1,4 +1,4 @@
-package story
+package novel
 
 // 章节
 type Chapter struct {
