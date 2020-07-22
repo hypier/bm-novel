@@ -11,7 +11,7 @@ import (
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 用户id
-		UserId string `schema:"userId" valid:"required"`
+		UserID string `schema:"userId" valid:"required"`
 		// 用户名
 		UserName string `schema:"userName" valid:"required"`
 		// 角色代码
@@ -23,7 +23,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	httpkit.MustScanJSON(&params, r.Body)
 
 	userRepo := persistence.UserRepository{Ctx: r.Context()}
-	u := user.User{UserId: params.UserId,
+	u := user.User{UserID: params.UserID,
 		UserName: params.UserName,
 		RoleCode: params.RoleCode,
 		RealName: params.TrueName,

@@ -3,7 +3,7 @@ package notice
 import "time"
 
 type Notice struct {
-	NoticeId    string
+	NoticeID    string
 	NoticeTitle string
 	Context     string
 	NoticeTime  time.Time

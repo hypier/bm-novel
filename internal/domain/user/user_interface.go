@@ -3,7 +3,7 @@ package user
 type IUserServer interface {
 	Create(user *User) error
 	SetRole(roleCode []string) error
-	InitPassword(password string) error
+	ChangePassword(password string) error
 	ResetPassword() error
 	Lock() error
 	Unlock() error

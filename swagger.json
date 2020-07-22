@@ -1,0 +1,780 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "北冥有声小说",
+    "description": "这是SWAGGER_2生成的接口文档",
+    "version": "v1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8888",
+      "description": "Inferred Url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "用户管理",
+      "description": "User Controller"
+    }
+  ],
+  "paths": {
+    "/user": {
+      "get": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "用户查询列表",
+        "operationId": "findListUsingGET",
+        "parameters": [
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "description": "页码",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页条数",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult«List«UserQueryRes»»"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "创建用户",
+        "operationId": "createUsingPOST",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "正常返回",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "用户已创建"
+          },
+          "401": {
+            "description": "用户未登陆"
+          },
+          "403": {
+            "description": "没有权限访问"
+          },
+          "404": {
+            "description": "资源不存在"
+          },
+          "502": {
+            "description": "系统错误"
+          }
+        }
+      }
+    },
+    "/user/session": {
+      "post": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "用户登陆",
+        "operationId": "loginUsingPOST",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "password",
+                  "userName"
+                ],
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "密码"
+                  },
+                  "userName": {
+                    "type": "string",
+                    "description": "用户名"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult«UserLoginRes»"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "用户退出",
+        "operationId": "logoutUsingDELETE",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "get": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "查询用户",
+        "operationId": "queryUsingGET",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult«UserQueryRes»"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "删除用户",
+        "operationId": "deleteUsingDELETE",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "编辑用户",
+        "operationId": "editUsingPATCH",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEditReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/{userId}/lock": {
+      "post": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "用户锁定",
+        "operationId": "lockUsingPOST",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户Id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "用户解锁",
+        "operationId": "unLockUsingDELETE",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户Id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/{userId}/password": {
+      "put": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "修改密码",
+        "operationId": "changePasswordUsingPUT",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户Id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "密码"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "用户管理"
+        ],
+        "summary": "重置密码",
+        "operationId": "resetPasswordUsingDELETE",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户Id",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseResult"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResponseResult": {
+        "title": "ResponseResult",
+        "type": "object",
+        "properties": {
+          "errCode": {
+            "type": "string",
+            "description": "错误代码-成功时返回:000",
+            "example": "000"
+          },
+          "httpStats": {
+            "type": "integer",
+            "description": "http状态码",
+            "format": "int32",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "description": "错误描述-成功时返回:ok",
+            "example": "ok"
+          },
+          "payload": {
+            "type": "object",
+            "description": "返回结果对象"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "执行时间",
+            "format": "int64",
+            "example": 1594954108020
+          }
+        },
+        "description": "下行结果对象"
+      },
+      "ResponseResult«List«UserQueryRes»»": {
+        "title": "ResponseResult«List«UserQueryRes»»",
+        "type": "object",
+        "properties": {
+          "errCode": {
+            "type": "string",
+            "description": "错误代码-成功时返回:000",
+            "example": "000"
+          },
+          "httpStats": {
+            "type": "integer",
+            "description": "http状态码",
+            "format": "int32",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "description": "错误描述-成功时返回:ok",
+            "example": "ok"
+          },
+          "payload": {
+            "type": "array",
+            "description": "返回结果对象",
+            "items": {
+              "$ref": "#/components/schemas/UserQueryRes"
+            }
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "执行时间",
+            "format": "int64",
+            "example": 1594954108020
+          }
+        },
+        "description": "下行结果对象"
+      },
+      "ResponseResult«UserLoginRes»": {
+        "title": "ResponseResult«UserLoginRes»",
+        "type": "object",
+        "properties": {
+          "errCode": {
+            "type": "string",
+            "description": "错误代码-成功时返回:000",
+            "example": "000"
+          },
+          "httpStats": {
+            "type": "integer",
+            "description": "http状态码",
+            "format": "int32",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "description": "错误描述-成功时返回:ok",
+            "example": "ok"
+          },
+          "payload": {
+            "description": "返回结果对象",
+            "$ref": "#/components/schemas/UserLoginRes"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "执行时间",
+            "format": "int64",
+            "example": 1594954108020
+          }
+        },
+        "description": "下行结果对象"
+      },
+      "ResponseResult«UserQueryRes»": {
+        "title": "ResponseResult«UserQueryRes»",
+        "type": "object",
+        "properties": {
+          "errCode": {
+            "type": "string",
+            "description": "错误代码-成功时返回:000",
+            "example": "000"
+          },
+          "httpStats": {
+            "type": "integer",
+            "description": "http状态码",
+            "format": "int32",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "description": "错误描述-成功时返回:ok",
+            "example": "ok"
+          },
+          "payload": {
+            "description": "返回结果对象",
+            "$ref": "#/components/schemas/UserQueryRes"
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "执行时间",
+            "format": "int64",
+            "example": 1594954108020
+          }
+        },
+        "description": "下行结果对象"
+      },
+      "UserCreateReq": {
+        "title": "UserCreateReq",
+        "type": "object",
+        "properties": {
+          "roleCode": {
+            "type": "array",
+            "description": "角色代码",
+            "example": "admin",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trueName": {
+            "type": "string",
+            "description": "姓名",
+            "example": "陈凡"
+          },
+          "userName": {
+            "type": "string",
+            "description": "账号",
+            "example": "chengfan"
+          }
+        },
+        "description": "用户创建上行"
+      },
+      "UserEditReq": {
+        "title": "UserEditReq",
+        "type": "object",
+        "properties": {
+          "roleCode": {
+            "type": "string",
+            "description": "角色代码",
+            "example": "admin"
+          },
+          "trueName": {
+            "type": "string",
+            "description": "姓名",
+            "example": "陈凡"
+          },
+          "userName": {
+            "type": "string",
+            "description": "账号",
+            "example": "chengfan"
+          }
+        },
+        "description": "用户编辑上行"
+      },
+      "UserLoginRes": {
+        "title": "UserLoginRes",
+        "type": "object",
+        "properties": {
+          "initPassword": {
+            "type": "boolean",
+            "description": "是否是初始密码",
+            "example": false
+          },
+          "lock": {
+            "type": "boolean",
+            "description": "是否锁定",
+            "example": false
+          },
+          "trueName": {
+            "type": "string",
+            "description": "姓名",
+            "example": "陈凡"
+          },
+          "userId": {
+            "type": "string",
+            "description": "用户id",
+            "example": "adc8d0b4-5bee-41b9-a88a-599b6323ba8f"
+          },
+          "userName": {
+            "type": "string",
+            "description": "用户名",
+            "example": "chengfan"
+          }
+        },
+        "description": "用户登陆下行"
+      },
+      "UserQueryRes": {
+        "title": "UserQueryRes",
+        "type": "object",
+        "properties": {
+          "lock": {
+            "type": "boolean",
+            "description": "是否锁定",
+            "example": false
+          },
+          "roleCode": {
+            "type": "string",
+            "description": "角色代码",
+            "example": "admin"
+          },
+          "roleName": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "外包编辑"
+          },
+          "trueName": {
+            "type": "string",
+            "description": "姓名",
+            "example": "陈凡"
+          },
+          "userId": {
+            "type": "string",
+            "description": "用户id",
+            "example": "adc8d0b4-5bee-41b9-a88a-599b6323ba8f"
+          },
+          "userName": {
+            "type": "string",
+            "description": "账号",
+            "example": "chengfan"
+          }
+        },
+        "description": "用户查询下行"
+      }
+    }
+  }
+}

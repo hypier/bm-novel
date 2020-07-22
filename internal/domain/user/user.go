@@ -13,7 +13,7 @@ import (
 // 用户基本信息
 type User struct {
 	// 用户id
-	UserId string `json:"userId" db:"user_id,primaryKey"`
+	UserID string `json:"userId" db:"user_id,primaryKey"`
 	// 用户名
 	UserName string `json:"userName" db:"user_name"`
 	// 用户状态
@@ -24,8 +24,8 @@ type User struct {
 	RoleCode pq.StringArray `json:"roleCode" db:"role_code"`
 	// 姓名
 	RealName string `json:"realName" db:"real_name"`
-	// 是否需要重设密码
-	NeedResetPassword bool `json:"needResetPassword" db:"need_reset_password"`
+	// 是否需要修改密码
+	NeedChangePassword bool `json:"needChangePassword" db:"need_change_password"`
 
 	// 是否持久化，内部参数
 	isPersistence bool      `db:"-"`
@@ -41,9 +41,9 @@ func (u *User) Create(user *User) error {
 		return err
 	}
 	u.Password = string(hashPassword)
-	u.UserId = uuid.NewV4().String()
+	u.UserID = uuid.NewV4().String()
 
-	u.NeedResetPassword = true
+	u.NeedChangePassword = true
 	return u.Repo.Create(user)
 }
 
@@ -56,12 +56,12 @@ func (u *User) SetRole(roleCode []string) error {
 	return u.Repo.Update(u)
 }
 
-func (u *User) InitPassword(password string) error {
+func (u *User) ChangePassword(password string) error {
 	if !u.isPersistence {
 		return errors.New("没有持久化对象")
 	}
 
-	if !u.NeedResetPassword {
+	if !u.NeedChangePassword {
 		return errors.New("不能重复初始化密码")
 	}
 
@@ -70,7 +70,7 @@ func (u *User) InitPassword(password string) error {
 		return errors.New(err.Error())
 	}
 	u.Password = string(hashPassword)
-	u.NeedResetPassword = false
+	u.NeedChangePassword = false
 	return u.Repo.Update(u)
 }
 
@@ -84,7 +84,7 @@ func (u *User) ResetPassword() error {
 		return errors.New(err.Error())
 	}
 	u.Password = string(hashPassword)
-	u.NeedResetPassword = true
+	u.NeedChangePassword = true
 
 	return u.Repo.Update(u)
 }
