@@ -26,7 +26,7 @@ func TestUserRepository_FindByName(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
 	repo := &UserRepository{Ctx: ctx}
 
-	usr, _ := repo.FindByName("123")
+	usr, _ := repo.FindByName("chengfan")
 
 	fmt.Println(usr)
 }

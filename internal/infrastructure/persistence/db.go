@@ -5,24 +5,23 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
 	_ "github.com/joyparty/entity"
+	_ "github.com/lib/pq"
 )
 
 var (
-	userName  string = "root"
-	password  string = "root"
+	userName  string = "postgres"
+	password  string = "123456"
 	ipAddress string = "localhost"
-	port      int    = 3306
-	dbName    string = "db_admin"
-	charset   string = "utf8"
+	port      int    = 5432
+	dbName    string = "db_novel"
 )
 
 func connectMysql() (*sqlx.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s", userName, password, ipAddress, port, dbName, charset)
-	db, err := sqlx.Open("mysql", dsn)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", userName, password, ipAddress, port, dbName)
+	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}

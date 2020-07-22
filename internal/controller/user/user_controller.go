@@ -15,7 +15,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		// 用户名
 		UserName string `schema:"userName" valid:"required"`
 		// 角色代码
-		RoleCode string `schema:"roleCode" valid:"required"`
+		RoleCode []string `schema:"roleCode" valid:"required"`
 		// 姓名
 		TrueName string `schema:"trueName" valid:"required"`
 	}{}

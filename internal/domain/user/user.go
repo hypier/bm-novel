@@ -4,6 +4,7 @@ import (
 	"bm-novel/internal/infrastructure/security"
 	"context"
 	"github.com/joyparty/entity"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"time"
@@ -20,7 +21,7 @@ type User struct {
 	// 密码
 	Password string `json:"password" db:"password"`
 	// 角色代码
-	RoleCode string `json:"roleCode" db:"role_code"`
+	RoleCode pq.StringArray `json:"roleCode" db:"role_code"`
 	// 姓名
 	RealName string `json:"realName" db:"real_name"`
 	// 是否需要重设密码
@@ -46,7 +47,7 @@ func (u *User) Create(user *User) error {
 	return u.Repo.Create(user)
 }
 
-func (u *User) SetRole(roleCode string) error {
+func (u *User) SetRole(roleCode []string) error {
 	if !u.isPersistence {
 		return errors.New("没有持久化对象")
 	}
