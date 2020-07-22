@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/doug-martin/goqu/v9"
-	_ "github.com/doug-martin/goqu/v9/dialect/mysql" // 载入 goqu mysql驱动
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
 	"github.com/pkg/errors"
@@ -22,7 +21,7 @@ type UserRepository struct {
 }
 
 func (u UserRepository) FindOne(id string) (*user.User, error) {
-	usr := &user.User{UserId: id}
+	usr := &user.User{UserID: id}
 	if err := entity.Load(u.Ctx, usr, defaultDB); err != nil {
 		return nil, errors.New(err.Error())
 	}

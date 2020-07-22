@@ -10,7 +10,7 @@ import (
 
 func TestUserRepository_Create(t *testing.T) {
 	u1 := uuid.NewV4()
-	usr := &user.User{UserId: u1.String(), UserName: "2222", IsLock: true}
+	usr := &user.User{UserID: u1.String(), UserName: "2222", IsLock: true}
 	ctx, _ := context.WithCancel(context.Background())
 	repo := &UserRepository{Ctx: ctx}
 
