@@ -10,9 +10,9 @@ import (
 
 func TestUserRepository_Create(t *testing.T) {
 	u1 := uuid.NewV4()
-	usr := &user.User{UserId: u1.String(), UserName: "2222", UserLock: true}
+	usr := &user.User{UserId: u1.String(), UserName: "2222", IsLock: true}
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &UserRepository{ctx: ctx}
+	repo := &UserRepository{Ctx: ctx}
 
 	_ = repo.Create(usr)
 
@@ -24,7 +24,7 @@ func TestUserRepository_Create(t *testing.T) {
 
 func TestUserRepository_FindByName(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &UserRepository{ctx: ctx}
+	repo := &UserRepository{Ctx: ctx}
 
 	usr, _ := repo.FindByName("123")
 

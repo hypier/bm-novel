@@ -1,16 +1,14 @@
-package controller
+package user
 
 import (
+	"bm-novel/internal/domain/user"
 	"bm-novel/internal/infrastructure/persistence"
+	"fmt"
 	"github.com/joyparty/httpkit"
 	"net/http"
 )
 
-type UserController struct {
-	userRepo persistence.UserRepository
-}
-
-func (u *UserController) CreatePost(w http.Response, r *http.Request) {
+func CreatePost(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 用户id
 		UserId string `schema:"userId" valid:"required"`
@@ -24,4 +22,17 @@ func (u *UserController) CreatePost(w http.Response, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
+	userRepo := persistence.UserRepository{Ctx: r.Context()}
+	u := user.User{UserId: params.UserId,
+		UserName: params.UserName,
+		RoleCode: params.RoleCode,
+		RealName: params.TrueName,
+		Repo:     &userRepo,
+	}
+
+	err := u.Create(&u)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }

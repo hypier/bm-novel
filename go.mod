@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/doug-martin/goqu/v9 v9.9.0
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joyparty/entity v0.1.0

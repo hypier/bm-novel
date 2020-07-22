@@ -5,6 +5,7 @@ import (
 	"context"
 	"github.com/joyparty/entity"
 	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
@@ -15,22 +16,22 @@ type User struct {
 	// 用户名
 	UserName string `json:"userName" db:"user_name"`
 	// 用户状态
-	UserLock bool `json:"userLock" db:"user_lock"`
+	IsLock bool `json:"isLock" db:"is_lock"`
 	// 密码
 	Password string `json:"password" db:"password"`
 	// 角色代码
 	RoleCode string `json:"roleCode" db:"role_code"`
 	// 姓名
-	TrueName string `json:"trueName" db:"true_name"`
-	// 首次密码
-	FirstPassword bool `json:"firstPassword" db:"first_password"`
+	RealName string `json:"realName" db:"real_name"`
+	// 是否需要重设密码
+	NeedResetPassword bool `json:"needResetPassword" db:"need_reset_password"`
 
 	// 是否持久化，内部参数
-	isPersistence bool  `db:"-"`
-	CreateAt      int64 `db:"create_at,refuseUpdate"`
-	UpdateAt      int64 `db:"update_at"`
+	isPersistence bool      `db:"-"`
+	CreateAt      time.Time `db:"create_at,refuseUpdate"`
+	UpdateAt      time.Time `db:"update_at"`
 
-	repo IUserRepository
+	Repo IUserRepository `db:"-"`
 }
 
 func (u *User) Create(user *User) error {
@@ -39,9 +40,10 @@ func (u *User) Create(user *User) error {
 		return err
 	}
 	u.Password = string(hashPassword)
+	u.UserId = uuid.NewV4().String()
 
-	u.FirstPassword = true
-	return u.repo.Create(user)
+	u.NeedResetPassword = true
+	return u.Repo.Create(user)
 }
 
 func (u *User) SetRole(roleCode string) error {
@@ -50,7 +52,7 @@ func (u *User) SetRole(roleCode string) error {
 	}
 
 	u.RoleCode = roleCode
-	return u.repo.Update(u)
+	return u.Repo.Update(u)
 }
 
 func (u *User) InitPassword(password string) error {
@@ -58,7 +60,7 @@ func (u *User) InitPassword(password string) error {
 		return errors.New("没有持久化对象")
 	}
 
-	if !u.FirstPassword {
+	if !u.NeedResetPassword {
 		return errors.New("不能重复初始化密码")
 	}
 
@@ -67,8 +69,8 @@ func (u *User) InitPassword(password string) error {
 		return errors.New(err.Error())
 	}
 	u.Password = string(hashPassword)
-	u.FirstPassword = false
-	return u.repo.Update(u)
+	u.NeedResetPassword = false
+	return u.Repo.Update(u)
 }
 
 func (u *User) ResetPassword() error {
@@ -81,8 +83,9 @@ func (u *User) ResetPassword() error {
 		return errors.New(err.Error())
 	}
 	u.Password = string(hashPassword)
+	u.NeedResetPassword = true
 
-	return u.repo.Update(u)
+	return u.Repo.Update(u)
 }
 
 func (u *User) Lock() error {
@@ -90,12 +93,12 @@ func (u *User) Lock() error {
 		return errors.New("没有持久化对象")
 	}
 
-	if u.UserLock {
+	if u.IsLock {
 		return errors.New("此用户已锁定")
 	}
 
-	u.UserLock = true
-	return u.repo.Update(u)
+	u.IsLock = true
+	return u.Repo.Update(u)
 }
 
 func (u *User) Unlock() error {
@@ -103,12 +106,12 @@ func (u *User) Unlock() error {
 		return errors.New("没有持久化对象")
 	}
 
-	if !u.UserLock {
+	if !u.IsLock {
 		return errors.New("此用户未锁定")
 	}
 
-	u.UserLock = false
-	return u.repo.Update(u)
+	u.IsLock = false
+	return u.Repo.Update(u)
 }
 
 func (u *User) CheckPassword(password string) (bool, error) {
@@ -125,16 +128,17 @@ func (u *User) CheckPassword(password string) (bool, error) {
 }
 
 func (u *User) TableName() string {
-	return "db_user"
+	return "user"
 }
 
 // OnEntityEvent 存储事件回调方法，entity.Entity接口方法
 func (u *User) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:
-		u.CreateAt = time.Now().Unix()
+		u.CreateAt = time.Now()
+		u.UpdateAt = time.Now()
 	case entity.EventBeforeUpdate:
-		u.UpdateAt = time.Now().Unix()
+		u.UpdateAt = time.Now()
 	}
 
 	return nil
