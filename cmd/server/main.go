@@ -10,7 +10,7 @@ import (
 func main() {
 
 	r := chi.NewRouter()
-	r.Post("/user", user.CreatePost)
+	r.Post("/user", user.PostUsers)
 
 	fmt.Println("Start Server(8888)...")
 	http.ListenAndServe(":8888", r)

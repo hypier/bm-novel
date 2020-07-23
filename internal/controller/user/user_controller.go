@@ -3,15 +3,12 @@ package user
 import (
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/infrastructure/persistence"
-	"fmt"
 	"github.com/joyparty/httpkit"
 	"net/http"
 )
 
-func CreatePost(w http.ResponseWriter, r *http.Request) {
+func PostUsers(w http.ResponseWriter, r *http.Request) {
 	params := struct {
-		// 用户id
-		UserID string `schema:"userId" valid:"required"`
 		// 用户名
 		UserName string `schema:"userName" valid:"required"`
 		// 角色代码
@@ -23,7 +20,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	httpkit.MustScanJSON(&params, r.Body)
 
 	userRepo := persistence.UserRepository{Ctx: r.Context()}
-	u := user.User{UserID: params.UserID,
+	u := user.User{
 		UserName: params.UserName,
 		RoleCode: params.RoleCode,
 		RealName: params.TrueName,
@@ -32,7 +29,11 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	err := u.Create(&u)
 
-	if err != nil {
-		fmt.Println(err)
+	if err == user.ErrUserConflict {
+		w.WriteHeader(409)
+	} else if err != nil {
+		w.WriteHeader(500)
+	} else {
+		w.WriteHeader(201)
 	}
 }

@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+var ErrUserConflict = errors.New("User Conflict")
+
 // 用户基本信息
 type User struct {
 	// 用户id
@@ -35,11 +37,24 @@ type User struct {
 	Repo IUserRepository `db:"-"`
 }
 
+func (u *User) SetPersistence() {
+	u.isPersistence = true
+}
+
 func (u *User) Create(user *User) error {
 	hashPassword, err := security.Hash(u.Password)
 	if err != nil {
 		return err
 	}
+
+	dbUser, err := u.Repo.FindByName(user.UserName)
+
+	if err != nil {
+		return err
+	} else if dbUser != nil && dbUser.UserName == user.UserName {
+		return ErrUserConflict
+	}
+
 	u.Password = string(hashPassword)
 	u.UserID = uuid.NewV4().String()
 

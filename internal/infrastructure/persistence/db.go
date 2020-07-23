@@ -3,12 +3,11 @@ package persistence
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
-	_ "github.com/joyparty/entity"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 var (
