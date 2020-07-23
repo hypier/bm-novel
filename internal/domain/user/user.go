@@ -10,7 +10,12 @@ import (
 	"time"
 )
 
-var ErrUserConflict = errors.New("User Conflict")
+var (
+	ErrUserConflict  = errors.New("User Conflict")
+	ErrUserNotFound  = errors.New("User Not Found")
+	ErrUserLocked    = errors.New("User Locked")
+	ErrNotAcceptable = errors.New("Not Acceptable")
+)
 
 // 用户基本信息
 type User struct {
@@ -34,46 +39,65 @@ type User struct {
 	CreateAt      time.Time `db:"create_at,refuseUpdate"`
 	UpdateAt      time.Time `db:"update_at"`
 
-	Repo IUserRepository `db:"-"`
+	repo IUserRepository `db:"-"`
 }
 
 func (u *User) SetPersistence() {
 	u.isPersistence = true
 }
 
-func (u *User) Create(user *User) error {
+func (u *User) Construction(repo IUserRepository) *User {
+	u.repo = repo
+	return u
+}
+
+func New(repo IUserRepository, userId string) (*User, error) {
+	user := &User{repo: repo}
+
+	if u, err := user.repo.FindOne(userId); err != nil {
+		return u, nil
+	} else {
+		return nil, ErrUserNotFound
+	}
+}
+
+func (u *User) Create() error {
 	hashPassword, err := security.Hash(u.Password)
 	if err != nil {
 		return err
 	}
 
-	dbUser, err := u.Repo.FindByName(user.UserName)
+	dbUser, err := u.repo.FindByName(u.UserName)
 
 	if err != nil {
 		return err
-	} else if dbUser != nil && dbUser.UserName == user.UserName {
+	} else if dbUser != nil && dbUser.UserName == u.UserName {
 		return ErrUserConflict
 	}
 
 	u.Password = string(hashPassword)
 	u.UserID = uuid.NewV4().String()
-
 	u.NeedChangePassword = true
-	return u.Repo.Create(user)
+
+	return u.repo.Create(u)
 }
 
-func (u *User) SetRole(roleCode []string) error {
+func (u *User) Edit(user *User) error {
 	if !u.isPersistence {
-		return errors.New("没有持久化对象")
+		return ErrUserNotFound
 	}
 
-	u.RoleCode = roleCode
-	return u.Repo.Update(u)
+	u.RealName = user.RealName
+	u.RoleCode = user.RoleCode
+	u.UserName = user.UserName
+
+	// todo 查询是否重复
+	return u.repo.Update(u)
 }
 
-func (u *User) ChangePassword(password string) error {
+func (u *User) ChangeInitPassword(password string) error {
 	if !u.isPersistence {
-		return errors.New("没有持久化对象")
+		return ErrUserNotFound
 	}
 
 	if !u.NeedChangePassword {
@@ -86,12 +110,12 @@ func (u *User) ChangePassword(password string) error {
 	}
 	u.Password = string(hashPassword)
 	u.NeedChangePassword = false
-	return u.Repo.Update(u)
+	return u.repo.Update(u)
 }
 
 func (u *User) ResetPassword() error {
 	if !u.isPersistence {
-		return errors.New("没有持久化对象")
+		return ErrUserNotFound
 	}
 
 	hashPassword, err := security.Hash("123456")
@@ -101,38 +125,38 @@ func (u *User) ResetPassword() error {
 	u.Password = string(hashPassword)
 	u.NeedChangePassword = true
 
-	return u.Repo.Update(u)
+	return u.repo.Update(u)
 }
 
 func (u *User) Lock() error {
 	if !u.isPersistence {
-		return errors.New("没有持久化对象")
+		return ErrUserNotFound
 	}
 
 	if u.IsLock {
-		return errors.New("此用户已锁定")
+		return ErrNotAcceptable
 	}
 
 	u.IsLock = true
-	return u.Repo.Update(u)
+	return u.repo.Update(u)
 }
 
 func (u *User) Unlock() error {
 	if !u.isPersistence {
-		return errors.New("没有持久化对象")
+		return ErrUserNotFound
 	}
 
 	if !u.IsLock {
-		return errors.New("此用户未锁定")
+		return ErrNotAcceptable
 	}
 
 	u.IsLock = false
-	return u.Repo.Update(u)
+	return u.repo.Update(u)
 }
 
 func (u *User) CheckPassword(password string) (bool, error) {
 	if !u.isPersistence {
-		return false, errors.New("没有持久化对象")
+		return false, ErrUserNotFound
 	}
 
 	err := security.VerifyPassword(u.Password, password)

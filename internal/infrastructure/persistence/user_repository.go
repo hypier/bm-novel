@@ -20,6 +20,11 @@ type UserRepository struct {
 	Ctx context.Context
 }
 
+func (u *UserRepository) FindList(roleCode string, realName string, pageIndex int, pageSize int) (*[]user.User, error) {
+
+	panic("implement me")
+}
+
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
 	usr := &user.User{UserID: id}
 	if err := entity.Load(u.Ctx, usr, defaultDB); err != nil {

@@ -1,9 +1,9 @@
 package user
 
 type IUserServer interface {
-	Create(user *User) error
-	SetRole(roleCode []string) error
-	ChangePassword(password string) error
+	Create() error
+	Edit(user *User) error
+	ChangeInitPassword(password string) error
 	ResetPassword() error
 	Lock() error
 	Unlock() error
@@ -11,6 +11,7 @@ type IUserServer interface {
 }
 
 type IUserRepository interface {
+	FindList(roleCode string, realName string, pageIndex int, pageSize int) (*[]User, error)
 	FindOne(id string) (*User, error)
 	FindByName(name string) (*User, error)
 	Create(user *User) error
