@@ -46,43 +46,44 @@ func (u *User) SetPersistence() {
 	u.isPersistence = true
 }
 
-func (u *User) Construction(repo IUserRepository) *User {
-	u.repo = repo
-	return u
+func New(repo IUserRepository) *User {
+	return &User{repo: repo}
 }
 
-func New(repo IUserRepository, userId string) (*User, error) {
-	user := &User{repo: repo}
+func (u *User) Load(userId string) (IUserServer, error) {
 
-	if u, err := user.repo.FindOne(userId); err != nil {
+	if u, err := u.repo.FindOne(userId); err != nil {
 		return u, nil
 	} else {
 		return nil, ErrUserNotFound
 	}
 }
 
-func (u *User) Create() error {
-	hashPassword, err := security.Hash(u.Password)
+func (u *User) Create(user User) error {
+	hashPassword, err := security.Hash(user.Password)
 	if err != nil {
 		return err
 	}
 
-	dbUser, err := u.repo.FindByName(u.UserName)
+	dbUser, err := u.repo.FindByName(user.UserName)
 
 	if err != nil {
 		return err
-	} else if dbUser != nil && dbUser.UserName == u.UserName {
+	} else if dbUser != nil && dbUser.UserName == user.UserName {
 		return ErrUserConflict
 	}
 
 	u.Password = string(hashPassword)
 	u.UserID = uuid.NewV4().String()
 	u.NeedChangePassword = true
+	u.UserName = user.UserName
+	u.RoleCode = user.RoleCode
+	u.RealName = user.RealName
 
 	return u.repo.Create(u)
 }
 
-func (u *User) Edit(user *User) error {
+func (u *User) Edit(user User) error {
 	if !u.isPersistence {
 		return ErrUserNotFound
 	}

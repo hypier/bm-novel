@@ -1,8 +1,8 @@
 package user
 
 type IUserServer interface {
-	Create() error
-	Edit(user *User) error
+	Create(user User) error
+	Edit(user User) error
 	ChangeInitPassword(password string) error
 	ResetPassword() error
 	Lock() error

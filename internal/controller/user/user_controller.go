@@ -28,7 +28,8 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	err := u.Construction(&persistence.UserRepository{Ctx: r.Context()}).Create()
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	err := user.New(userRepo).Create(u)
 
 	if err == nil {
 		w.WriteHeader(201)
@@ -88,10 +89,11 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := user.New(&persistence.UserRepository{Ctx: r.Context()}, userId)
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	usr, err := user.New(userRepo).Load(userId)
 
 	if err == nil {
-		err = usr.Edit(&u)
+		err = usr.Edit(u)
 	}
 
 	writeStats(w, err)
@@ -106,7 +108,8 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := user.New(&persistence.UserRepository{Ctx: r.Context()}, userId)
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	usr, err := user.New(userRepo).Load(userId)
 
 	if err == nil {
 		err = usr.Lock()
@@ -124,7 +127,8 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := user.New(&persistence.UserRepository{Ctx: r.Context()}, userId)
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	usr, err := user.New(userRepo).Load(userId)
 
 	if err == nil {
 		err = usr.Unlock()
@@ -141,7 +145,8 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := user.New(&persistence.UserRepository{Ctx: r.Context()}, userId)
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	usr, err := user.New(userRepo).Load(userId)
 
 	if err == nil {
 		err = usr.ResetPassword()
@@ -196,7 +201,8 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := user.New(&persistence.UserRepository{Ctx: r.Context()}, userId)
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	usr, err := user.New(userRepo).Load(userId)
 
 	if err == nil {
 		err = usr.ChangeInitPassword(params.Password)
