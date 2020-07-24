@@ -42,15 +42,19 @@ type User struct {
 	repo IUserRepository `db:"-"`
 }
 
+func New(repo IUserRepository) IUserServer {
+	return &User{repo: repo}
+}
+
 func (u *User) SetPersistence() {
 	u.isPersistence = true
 }
 
-func New(repo IUserRepository) *User {
-	return &User{repo: repo}
+func (u *User) SetRepo(repo IUserRepository) {
+	u.repo = repo
 }
 
-func (u *User) Load(userId string) (IUserServer, error) {
+func (u *User) Load(userId string) (*User, error) {
 
 	if u, err := u.repo.FindOne(userId); err != nil {
 		return u, nil
@@ -59,18 +63,18 @@ func (u *User) Load(userId string) (IUserServer, error) {
 	}
 }
 
-func (u *User) Create(user User) error {
+func (u *User) Create(user User) (*User, error) {
 	hashPassword, err := security.Hash(user.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	dbUser, err := u.repo.FindByName(user.UserName)
 
 	if err != nil {
-		return err
+		return nil, err
 	} else if dbUser != nil && dbUser.UserName == user.UserName {
-		return ErrUserConflict
+		return nil, ErrUserConflict
 	}
 
 	u.Password = string(hashPassword)
@@ -80,7 +84,7 @@ func (u *User) Create(user User) error {
 	u.RoleCode = user.RoleCode
 	u.RealName = user.RealName
 
-	return u.repo.Create(u)
+	return u, u.repo.Create(u)
 }
 
 func (u *User) Edit(user User) error {

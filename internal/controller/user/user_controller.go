@@ -29,7 +29,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	err := user.New(userRepo).Create(u)
+	_, err := user.New(userRepo).Create(u)
 
 	if err == nil {
 		w.WriteHeader(201)
@@ -166,23 +166,25 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
+	// 查询用户
+	var flag bool
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
 	usr, err := userRepo.FindByName(params.UserName)
-	var flag bool
 
 	if err == nil && usr.IsLock {
 		err = user.ErrUserLocked
+	} else if err != nil {
+		writeStats(w, err)
+		return
 	}
 
-	if err == nil {
-		flag, err = usr.CheckPassword(params.Password)
-	}
-
+	// 验证密码
+	usr.SetRepo(userRepo)
+	flag, err = usr.CheckPassword(params.Password)
 	// todo 下行构建, 下发Cookie, 判断是否已登陆
 
 	fmt.Println(flag, err)
 
-	writeStats(w, err)
 }
 
 // 登陆后重设密码
