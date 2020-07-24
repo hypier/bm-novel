@@ -11,6 +11,7 @@ import (
 	"github.com/joyparty/entity"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 )
 
 var defaultDB *sqlx.DB
@@ -75,10 +76,17 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 }
 
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
-	usr := &user.User{UserID: id}
+	userId, err := uuid.FromString(id)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	usr := &user.User{UserID: userId}
 	if err := entity.Load(u.Ctx, usr, defaultDB); err != nil {
 		return nil, errors.New(err.Error())
 	}
+
+	usr.SetPersistence()
 	return usr, nil
 }
 

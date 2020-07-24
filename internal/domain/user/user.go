@@ -20,7 +20,7 @@ var (
 // 用户基本信息
 type User struct {
 	// 用户id
-	UserID string `json:"userId" db:"user_id,primaryKey"`
+	UserID uuid.UUID `json:"userId" db:"user_id,primaryKey"`
 	// 用户名
 	UserName string `json:"userName" db:"user_name"`
 	// 用户状态
@@ -60,7 +60,7 @@ func (u *User) SetRepo(repo IUserRepository) {
 
 func (u *User) Load(userId string) (*User, error) {
 
-	if u, err := u.repo.FindOne(userId); err != nil {
+	if u, err := u.repo.FindOne(userId); err == nil {
 		return u, nil
 	} else {
 		return nil, ErrUserNotFound
@@ -82,7 +82,7 @@ func (u *User) Create(user User) (*User, error) {
 	}
 
 	u.Password = string(hashPassword)
-	u.UserID = uuid.NewV4().String()
+	u.UserID = uuid.NewV4()
 	u.NeedChangePassword = true
 	u.UserName = user.UserName
 	u.RoleCode = user.RoleCode

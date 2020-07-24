@@ -14,11 +14,11 @@ import (
 func PostUsers(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 用户名
-		UserName string `schema:"user_name" valid:"required"`
+		UserName string `json:"user_name" valid:"required"`
 		// 角色代码
-		RoleCode []string `schema:"role_code" valid:"required"`
+		RoleCode []string `json:"role_code" valid:"required"`
 		// 姓名
-		RealName string `schema:"real_name" valid:"required"`
+		RealName string `json:"real_name" valid:"required"`
 	}{}
 
 	httpkit.MustScanJSON(&params, r.Body)
@@ -46,13 +46,13 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	params := struct {
 		// 角色名
-		RoleCode []string `schema:"role_code"`
+		RoleCode []string `json:"role_code"`
 		// 姓名
-		RealName string `schema:"real_name"`
+		RealName string `json:"real_name"`
 		// 当前页码
-		PageIndex int `schema:"page_index"`
+		PageIndex int `json:"page_index"`
 		// 每页数量
-		PageSize int `schema:"page_size"`
+		PageSize int `json:"page_size"`
 	}{}
 
 	httpkit.MustScanJSON(&params, r.Body)
@@ -78,11 +78,11 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 func PatchUsers(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 账号名
-		UserName string `schema:"user_name" valid:"required"`
+		UserName string `json:"user_name" valid:"required"`
 		// 角色代码
-		RoleCode []string `schema:"role_code" valid:"required"`
+		RoleCode []string `json:"role_code" valid:"required"`
 		// 姓名
-		RealName string `schema:"real_name" valid:"required"`
+		RealName string `json:"real_name" valid:"required"`
 	}{}
 
 	httpkit.MustScanJSON(&params, r.Body)
@@ -169,9 +169,9 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 账号名
-		UserName string `schema:"user_name" valid:"required"`
+		UserName string `json:"user_name" valid:"required"`
 		// 密码
-		Password string `schema:"password" valid:"required"`
+		Password string `json:"password" valid:"required"`
 	}{}
 
 	httpkit.MustScanJSON(&params, r.Body)
@@ -201,7 +201,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 密码
-		Password string `schema:"password" valid:"required"`
+		Password string `json:"password" valid:"required"`
 	}{}
 
 	httpkit.MustScanJSON(&params, r.Body)
@@ -261,7 +261,7 @@ func toUserQueryResp(userList []user.User) []userQueryResp {
 	res := make([]userQueryResp, 0, len(userList))
 	for _, v := range userList {
 		re := userQueryResp{
-			UserId:   v.UserID,
+			UserId:   v.UserID.String(),
 			UserName: v.UserName,
 			RoleCode: v.RoleCode,
 			RealName: v.RealName,

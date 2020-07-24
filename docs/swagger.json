@@ -18,7 +18,7 @@
     }
   ],
   "paths": {
-    "/user": {
+    "/users": {
       "get": {
         "tags": [
           "用户管理"
@@ -27,9 +27,29 @@
         "operationId": "findListUsingGET",
         "parameters": [
           {
+            "name": "role_code",
+            "in": "query",
+            "description": "role_code",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "real_name",
+            "in": "query",
+            "description": "real_name",
+            "required": true,
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "pageIndex",
             "in": "query",
-            "description": "页码",
+            "description": "pageIndex",
             "required": true,
             "style": "form",
             "schema": {
@@ -40,7 +60,7 @@
           {
             "name": "pageSize",
             "in": "query",
-            "description": "每页条数",
+            "description": "pageSize",
             "required": true,
             "style": "form",
             "schema": {
@@ -55,7 +75,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResponseResult«List«UserQueryRes»»"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserQueryRes"
+                  }
                 }
               }
             }
@@ -115,7 +138,7 @@
         }
       }
     },
-    "/user/session": {
+    "/users/session": {
       "post": {
         "tags": [
           "用户管理"
@@ -199,7 +222,7 @@
         }
       }
     },
-    "/user/{userId}": {
+    "/users/{userId}": {
       "get": {
         "tags": [
           "用户管理"
@@ -333,7 +356,7 @@
         }
       }
     },
-    "/user/{userId}/lock": {
+    "/users/{userId}/lock": {
       "post": {
         "tags": [
           "用户管理"
@@ -418,7 +441,7 @@
         }
       }
     },
-    "/user/{userId}/password": {
+    "/users/{userId}/password": {
       "put": {
         "tags": [
           "用户管理"
@@ -557,42 +580,6 @@
         },
         "description": "下行结果对象"
       },
-      "ResponseResult«List«UserQueryRes»»": {
-        "title": "ResponseResult«List«UserQueryRes»»",
-        "type": "object",
-        "properties": {
-          "errCode": {
-            "type": "string",
-            "description": "错误代码-成功时返回:000",
-            "example": "000"
-          },
-          "httpStats": {
-            "type": "integer",
-            "description": "http状态码",
-            "format": "int32",
-            "example": 200
-          },
-          "message": {
-            "type": "string",
-            "description": "错误描述-成功时返回:ok",
-            "example": "ok"
-          },
-          "payload": {
-            "type": "array",
-            "description": "返回结果对象",
-            "items": {
-              "$ref": "#/components/schemas/UserQueryRes"
-            }
-          },
-          "timestamp": {
-            "type": "integer",
-            "description": "执行时间",
-            "format": "int64",
-            "example": 1594954108020
-          }
-        },
-        "description": "下行结果对象"
-      },
       "ResponseResult«UserLoginRes»": {
         "title": "ResponseResult«UserLoginRes»",
         "type": "object",
@@ -663,7 +650,12 @@
         "title": "UserCreateReq",
         "type": "object",
         "properties": {
-          "roleCode": {
+          "real_name": {
+            "type": "string",
+            "description": "姓名",
+            "example": "陈凡"
+          },
+          "role_code": {
             "type": "array",
             "description": "角色代码",
             "example": "admin",
@@ -671,12 +663,7 @@
               "type": "string"
             }
           },
-          "trueName": {
-            "type": "string",
-            "description": "姓名",
-            "example": "陈凡"
-          },
-          "userName": {
+          "user_name": {
             "type": "string",
             "description": "账号",
             "example": "chengfan"
@@ -688,17 +675,17 @@
         "title": "UserEditReq",
         "type": "object",
         "properties": {
-          "roleCode": {
-            "type": "string",
-            "description": "角色代码",
-            "example": "admin"
-          },
-          "trueName": {
+          "real_name": {
             "type": "string",
             "description": "姓名",
             "example": "陈凡"
           },
-          "userName": {
+          "role_code": {
+            "type": "string",
+            "description": "角色代码",
+            "example": "admin"
+          },
+          "user_name": {
             "type": "string",
             "description": "账号",
             "example": "chengfan"
@@ -710,7 +697,7 @@
         "title": "UserLoginRes",
         "type": "object",
         "properties": {
-          "initPassword": {
+          "init_password": {
             "type": "boolean",
             "description": "是否是初始密码",
             "example": false
@@ -720,17 +707,17 @@
             "description": "是否锁定",
             "example": false
           },
-          "trueName": {
+          "real_name": {
             "type": "string",
             "description": "姓名",
             "example": "陈凡"
           },
-          "userId": {
+          "user_id": {
             "type": "string",
             "description": "用户id",
             "example": "adc8d0b4-5bee-41b9-a88a-599b6323ba8f"
           },
-          "userName": {
+          "user_name": {
             "type": "string",
             "description": "用户名",
             "example": "chengfan"
@@ -747,27 +734,22 @@
             "description": "是否锁定",
             "example": false
           },
-          "roleCode": {
-            "type": "string",
-            "description": "角色代码",
-            "example": "admin"
-          },
-          "roleName": {
-            "type": "string",
-            "description": "角色名称",
-            "example": "外包编辑"
-          },
-          "trueName": {
+          "real_name": {
             "type": "string",
             "description": "姓名",
             "example": "陈凡"
           },
-          "userId": {
+          "role_code": {
+            "type": "string",
+            "description": "角色代码",
+            "example": "admin"
+          },
+          "user_id": {
             "type": "string",
             "description": "用户id",
             "example": "adc8d0b4-5bee-41b9-a88a-599b6323ba8f"
           },
-          "userName": {
+          "user_name": {
             "type": "string",
             "description": "账号",
             "example": "chengfan"
