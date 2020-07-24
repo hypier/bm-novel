@@ -18,6 +18,8 @@ var (
 	dbName    string = "db_novel"
 )
 
+type rowMapper func(ent entity.Entity) entity.Entity
+
 func connectMysql() (*sqlx.DB, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", userName, password, ipAddress, port, dbName)
 	db, err := sqlx.Open("postgres", dsn)
@@ -33,7 +35,7 @@ func connectMysql() (*sqlx.DB, error) {
 
 }
 
-func DoQuery(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB) ([]entity.Entity, error) {
+func DoQuery(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB, mapper rowMapper) ([]entity.Entity, error) {
 
 	var list []entity.Entity
 
@@ -50,9 +52,7 @@ func DoQuery(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB)
 			return nil, fmt.Errorf("scan struct, %w", err)
 		}
 
-		fmt.Printf("%p %s", ent, ent)
-		fmt.Println()
-		list = append(list, ent)
+		list = append(list, mapper(ent))
 	}
 
 	return list, rows.Err()

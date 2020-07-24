@@ -50,6 +50,10 @@ func (u *User) SetPersistence() {
 	u.isPersistence = true
 }
 
+func (u *User) New() interface{} {
+	return &User{}
+}
+
 func (u *User) SetRepo(repo IUserRepository) {
 	u.repo = repo
 }

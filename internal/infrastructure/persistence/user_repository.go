@@ -52,7 +52,9 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 		return nil, errors.New(err.Error())
 	}
 
-	list, err := DoQuery(u.Ctx, strSql, usr, defaultDB)
+	list, err := DoQuery(u.Ctx, strSql, usr, defaultDB, func(ent entity.Entity) entity.Entity {
+
+	})
 	if err != nil {
 		return nil, nil
 	}
@@ -65,6 +67,10 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 	}
 
 	return userList, nil
+}
+
+func callback(entity entity.Entity) {
+
 }
 
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
