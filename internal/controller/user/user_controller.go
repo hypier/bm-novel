@@ -107,7 +107,6 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeStats(w, err)
-
 }
 
 // 锁定用户
@@ -246,6 +245,8 @@ func writeStats(w http.ResponseWriter, err error) {
 	default:
 		w.WriteHeader(500)
 	}
+
+	fmt.Println(err)
 }
 
 type userQueryResp struct {

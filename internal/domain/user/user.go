@@ -50,17 +50,14 @@ func (u *User) SetPersistence() {
 	u.isPersistence = true
 }
 
-func (u *User) New() interface{} {
-	return &User{}
-}
-
 func (u *User) SetRepo(repo IUserRepository) {
 	u.repo = repo
 }
 
 func (u *User) Load(userId string) (*User, error) {
-
+	repo := u.repo
 	if u, err := u.repo.FindOne(userId); err == nil {
+		u.repo = repo
 		return u, nil
 	} else {
 		return nil, ErrUserNotFound

@@ -1,13 +1,19 @@
-CREATE TABLE `user` (
-  `user_id` varchar(32) NOT NULL,
-  `create_at` datetime DEFAULT NULL,
-  `is_lock` bit(1) DEFAULT NULL,
-  `need_change_password` bit(1) DEFAULT NULL,
-  `password` varchar(64) NOT NULL,
-  `real_name` varchar(12) NOT NULL,
-  `role_code` varchar(12) NOT NULL,
-  `update_at` datetime DEFAULT NULL,
-  `user_name` varchar(32) NOT NULL,
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `UK_lqjrcobrh9jc8wpcar64q1bfh` (`user_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+create table if not exists "user"
+(
+	user_id uuid not null
+		constraint user_pk
+			primary key,
+	user_name varchar(16) not null,
+	password varchar(32) not null,
+	role_code varchar(64) not null,
+	real_name varchar(16),
+	need_change_password boolean,
+	is_lock boolean,
+	create_at timestamp with time zone,
+	update_at timestamp with time zone
+);
+
+alter table "user" owner to postgres;
+
+create unique index if not exists user_user_name_uindex
+	on "user" (user_name);
