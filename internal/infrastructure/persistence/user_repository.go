@@ -4,6 +4,7 @@ import (
 	"bm-novel/internal/domain/user"
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/jmoiron/sqlx"
@@ -40,20 +41,24 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 	if pageSize == 0 {
 		pageSize = 10
 	}
-
 	if pageIndex > 0 {
 		pageIndex = pageIndex - 1
 	}
 
 	offset := pageSize * pageIndex
 
-	strSql, _, err := goqu.From(usr.TableName()).Where(expressions...).Limit(uint(pageSize)).Offset(uint(offset)).ToSQL()
+	strSql, _, err := goqu.From(usr.TableName()).
+		Where(expressions...).
+		Limit(uint(pageSize)).
+		Offset(uint(offset)).Order(goqu.I("create_at").Desc()).ToSQL()
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
 
-	list, err := DoQuery(u.Ctx, strSql, usr, defaultDB, func(ent entity.Entity) entity.Entity {
+	fmt.Println(strSql)
 
+	list, err := DoQuery(u.Ctx, strSql, defaultDB, func() entity.Entity {
+		return &user.User{}
 	})
 	if err != nil {
 		return nil, nil
@@ -67,10 +72,6 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 	}
 
 	return userList, nil
-}
-
-func callback(entity entity.Entity) {
-
 }
 
 func (u *UserRepository) FindOne(id string) (*user.User, error) {

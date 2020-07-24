@@ -3,6 +3,7 @@ package user
 import (
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/infrastructure/persistence"
+	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/joyparty/httpkit"
@@ -41,6 +42,8 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 
 // 查询用户列表
 func GetUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+
 	params := struct {
 		// 角色名
 		RoleCode []string `schema:"role_code"`
@@ -56,13 +59,19 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	userRepo := persistence.UserRepository{Ctx: r.Context()}
 
-	_, err := userRepo.FindList(params.RoleCode, params.RealName, params.PageIndex, params.PageSize)
+	users, err := userRepo.FindList(params.RoleCode, params.RealName, params.PageIndex, params.PageSize)
 
 	if err != nil {
 		w.WriteHeader(500)
+		return
 	}
-
-	return
+	resp := toUserQueryResp(users)
+	b, err := json.Marshal(resp)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	_, _ = w.Write(b)
 }
 
 // 编辑用户
@@ -237,4 +246,28 @@ func writeStats(w http.ResponseWriter, err error) {
 	default:
 		w.WriteHeader(500)
 	}
+}
+
+type userQueryResp struct {
+	UserId   string   `json:"user_id"`
+	UserName string   `json:"user_name"`
+	RoleCode []string `json:"role_code"`
+	RealName string   `json:"real_name"`
+	Lock     bool     `json:"lock,bool"`
+}
+
+func toUserQueryResp(userList []user.User) []userQueryResp {
+
+	res := make([]userQueryResp, 0, len(userList))
+	for _, v := range userList {
+		re := userQueryResp{
+			UserId:   v.UserID,
+			UserName: v.UserName,
+			RoleCode: v.RoleCode,
+			RealName: v.RealName,
+			Lock:     v.IsLock,
+		}
+		res = append(res, re)
+	}
+	return res
 }

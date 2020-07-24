@@ -3,7 +3,6 @@ package user
 type IUserServer interface {
 	Load(userId string) (*User, error)
 	Create(user User) (*User, error)
-
 	Edit(user User) error
 	ChangeInitPassword(password string) error
 	ResetPassword() error
