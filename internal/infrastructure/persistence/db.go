@@ -33,7 +33,32 @@ func connectMysql() (*sqlx.DB, error) {
 
 }
 
-func DoQuery(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB) error {
+func DoQuery(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB) ([]entity.Entity, error) {
+
+	var list []entity.Entity
+
+	rows, err := sqlx.NamedQueryContext(ctx, db, strSql, ent)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	fmt.Println(strSql)
+
+	for rows.Next() {
+		if err := rows.StructScan(ent); err != nil {
+			return nil, fmt.Errorf("scan struct, %w", err)
+		}
+
+		fmt.Printf("%p %s", ent, ent)
+		fmt.Println()
+		list = append(list, ent)
+	}
+
+	return list, rows.Err()
+}
+
+func DoQueryOne(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB) error {
 
 	rows, err := sqlx.NamedQueryContext(ctx, db, strSql, ent)
 	if err != nil {

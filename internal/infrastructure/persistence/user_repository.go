@@ -5,8 +5,10 @@ import (
 	"context"
 	"database/sql"
 	"github.com/doug-martin/goqu/v9"
+	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
@@ -20,9 +22,49 @@ type UserRepository struct {
 	Ctx context.Context
 }
 
-func (u *UserRepository) FindList(roleCode string, realName string, pageIndex int, pageSize int) (*[]user.User, error) {
+func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) ([]user.User, error) {
 
-	panic("implement me")
+	var r pq.StringArray = roleCode
+	usr := &user.User{}
+
+	var expressions []exp.Expression
+
+	if roleCode != nil {
+		expressions = append(expressions, goqu.L(`role_code @> ?`, r))
+	}
+
+	if realName != "" {
+		expressions = append(expressions, goqu.L(`real_name = ?`, realName))
+	}
+
+	if pageSize == 0 {
+		pageSize = 10
+	}
+
+	if pageIndex > 0 {
+		pageIndex = pageIndex - 1
+	}
+
+	offset := pageSize * pageIndex
+
+	strSql, _, err := goqu.From(usr.TableName()).Where(expressions...).Limit(uint(pageSize)).Offset(uint(offset)).ToSQL()
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	list, err := DoQuery(u.Ctx, strSql, usr, defaultDB)
+	if err != nil {
+		return nil, nil
+	}
+
+	var userList []user.User
+	for _, v := range list {
+		if u2, ok := v.(*user.User); ok {
+			userList = append(userList, *u2)
+		}
+	}
+
+	return userList, nil
 }
 
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
@@ -41,7 +83,7 @@ func (u *UserRepository) FindByName(name string) (*user.User, error) {
 		return nil, errors.New(err.Error())
 	}
 
-	if err := DoQuery(u.Ctx, strSql, usr, defaultDB); err != nil {
+	if err := DoQueryOne(u.Ctx, strSql, usr, defaultDB); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}

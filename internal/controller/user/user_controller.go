@@ -39,10 +39,11 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 	writeStats(w, err)
 }
 
+// 查询用户列表
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 角色名
-		RoleCode string `schema:"role_code"`
+		RoleCode []string `schema:"role_code"`
 		// 姓名
 		RealName string `schema:"real_name"`
 		// 当前页码

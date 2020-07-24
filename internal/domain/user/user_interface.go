@@ -13,7 +13,7 @@ type IUserServer interface {
 }
 
 type IUserRepository interface {
-	FindList(roleCode string, realName string, pageIndex int, pageSize int) (*[]User, error)
+	FindList(roleCode []string, realName string, pageIndex int, pageSize int) ([]User, error)
 	FindOne(id string) (*User, error)
 	FindByName(name string) (*User, error)
 	Create(user *User) error
