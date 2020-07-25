@@ -4,7 +4,6 @@ import (
 	"bm-novel/internal/controller"
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/infrastructure/auth"
-	"bm-novel/internal/infrastructure/cookie"
 	"bm-novel/internal/infrastructure/persistence"
 	"encoding/json"
 	"github.com/go-chi/chi"
@@ -67,13 +66,8 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	resp := toUserQueryResp(users)
-	b, err := json.Marshal(resp)
-	if err != nil {
-		w.WriteHeader(500)
-		return
-	}
-	_, _ = w.Write(b)
+
+	writeUsersResp(users, w)
 }
 
 // 编辑用户
@@ -183,7 +177,9 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 
 	if err == nil && usr.IsLock {
 		err = user.ErrUserLocked
-	} else if err != nil {
+	}
+
+	if err != nil {
 		controller.WriteStats(w, err)
 		return
 	}
@@ -191,7 +187,6 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	// 验证密码
 	usr.SetRepo(userRepo)
 	err = usr.CheckPassword(params.Password)
-
 	if err != nil {
 		// 验证失败
 		controller.WriteStats(w, err)
@@ -199,17 +194,54 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 下发cookie
-	if token, err := auth.SetToken(usr); err == nil {
-		cookie.AddCookie("jwt", token, w)
-	} else {
+	if err = auth.SetAuth(usr, w); err != nil {
 		controller.WriteStats(w, err)
 		return
 	}
 
-	writeLoginReq(w, usr)
+	// 下发结构
+	writeLoginResp(usr, w)
 }
 
-func writeLoginReq(w http.ResponseWriter, usr *user.User) {
+// 登陆后重设密码
+func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
+	params := struct {
+		// 密码
+		Password string `json:"password" valid:"required"`
+	}{}
+
+	httpkit.MustScanJSON(&params, r.Body)
+
+	userId, err := auth.GetAuth(r)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	usr, err := user.New(userRepo).Load(userId)
+
+	if err == nil {
+		err = usr.ChangeInitPassword(params.Password)
+	}
+
+	controller.WriteStats(w, err)
+}
+
+// 用户注销
+func DeleteUsersSession(w http.ResponseWriter, r *http.Request) {
+	auth.ClearAuth(r, w)
+}
+
+type userQueryResp struct {
+	UserId   string   `json:"user_id"`
+	UserName string   `json:"user_name"`
+	RoleCode []string `json:"role_code"`
+	RealName string   `json:"real_name"`
+	Lock     bool     `json:"lock,bool"`
+}
+
+func writeLoginResp(usr *user.User, w http.ResponseWriter) {
 	rep := &struct {
 		UserId             string `json:"user_id"`
 		UserName           string `json:"user_name"`
@@ -230,50 +262,10 @@ func writeLoginReq(w http.ResponseWriter, usr *user.User) {
 	_, _ = w.Write(b)
 }
 
-// 登陆后重设密码
-func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
-	params := struct {
-		// 密码
-		Password string `json:"password" valid:"required"`
-	}{}
+func writeUsersResp(users []user.User, w http.ResponseWriter) {
 
-	httpkit.MustScanJSON(&params, r.Body)
-
-	// todo 获取cookie
-	userId := "123"
-	if userId == "" {
-		w.WriteHeader(404)
-		return
-	}
-
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userId)
-
-	if err == nil {
-		err = usr.ChangeInitPassword(params.Password)
-	}
-
-	controller.WriteStats(w, err)
-}
-
-// 用户注销
-func DeleteUsersSession(w http.ResponseWriter, r *http.Request) {
-
-	// todo 获取cookie，删除cookie
-}
-
-type userQueryResp struct {
-	UserId   string   `json:"user_id"`
-	UserName string   `json:"user_name"`
-	RoleCode []string `json:"role_code"`
-	RealName string   `json:"real_name"`
-	Lock     bool     `json:"lock,bool"`
-}
-
-func toUserQueryResp(userList []user.User) []userQueryResp {
-
-	res := make([]userQueryResp, 0, len(userList))
-	for _, v := range userList {
+	res := make([]userQueryResp, 0, len(users))
+	for _, v := range users {
 		re := userQueryResp{
 			UserId:   v.UserID.String(),
 			UserName: v.UserName,
@@ -283,5 +275,11 @@ func toUserQueryResp(userList []user.User) []userQueryResp {
 		}
 		res = append(res, re)
 	}
-	return res
+
+	b, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+	_, _ = w.Write(b)
 }

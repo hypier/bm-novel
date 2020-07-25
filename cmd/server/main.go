@@ -21,6 +21,7 @@ func APIRouter() http.Handler {
 	r.Route("/users", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
 		r.Use(jwtauth.Authenticator)
+		r.Use(auth.LoginAuthenticator)
 
 		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
 			_, claims, _ := jwtauth.FromContext(r.Context())
@@ -37,7 +38,7 @@ func APIRouter() http.Handler {
 			r.Delete("/password", user.DeleteUsersPassword)
 		})
 
-		r.Route("/session", func(r chi.Router) {
+		r.Route("/redis", func(r chi.Router) {
 			r.Post("/", user.PostUsersSession)
 			r.Delete("/", user.DeleteUsersSession)
 			r.Put("/password", user.PutUsersSessionPassword)
