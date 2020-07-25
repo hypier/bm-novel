@@ -2,7 +2,7 @@ package main
 
 import (
 	"bm-novel/internal/controller/user"
-	"bm-novel/internal/infrastructure/auth"
+	"bm-novel/internal/http/auth"
 	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"

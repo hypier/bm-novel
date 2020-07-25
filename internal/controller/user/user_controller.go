@@ -1,9 +1,9 @@
 package user
 
 import (
-	"bm-novel/internal/controller"
 	"bm-novel/internal/domain/user"
-	"bm-novel/internal/infrastructure/auth"
+	http2 "bm-novel/internal/http"
+	"bm-novel/internal/http/auth"
 	"bm-novel/internal/infrastructure/persistence"
 	"encoding/json"
 	"github.com/go-chi/chi"
@@ -38,7 +38,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	controller.WriteStats(w, err)
+	http2.WriteStats(w, err)
 }
 
 // 查询用户列表
@@ -102,7 +102,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		err = usr.Edit(u)
 	}
 
-	controller.WriteStats(w, err)
+	http2.WriteStats(w, err)
 }
 
 // 锁定用户
@@ -120,7 +120,7 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 		err = usr.Lock()
 	}
 
-	controller.WriteStats(w, err)
+	http2.WriteStats(w, err)
 
 }
 
@@ -139,7 +139,7 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 		err = usr.Unlock()
 	}
 
-	controller.WriteStats(w, err)
+	http2.WriteStats(w, err)
 }
 
 // 重置密码
@@ -157,7 +157,7 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 		err = usr.ResetPassword()
 	}
 
-	controller.WriteStats(w, err)
+	http2.WriteStats(w, err)
 }
 
 // 用户登陆
@@ -182,7 +182,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		controller.WriteStats(w, err)
+		http2.WriteStats(w, err)
 		return
 	}
 
@@ -191,13 +191,13 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	err = usr.CheckPassword(params.Password)
 	if err != nil {
 		// 验证失败
-		controller.WriteStats(w, err)
+		http2.WriteStats(w, err)
 		return
 	}
 
 	// 下发cookie
 	if err = auth.SetAuth(usr, w); err != nil {
-		controller.WriteStats(w, err)
+		http2.WriteStats(w, err)
 		return
 	}
 
@@ -227,7 +227,7 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		err = usr.ChangeInitPassword(params.Password)
 	}
 
-	controller.WriteStats(w, err)
+	http2.WriteStats(w, err)
 }
 
 // 用户注销
@@ -258,7 +258,7 @@ func writeLoginResp(usr *user.User, w http.ResponseWriter) {
 
 	b, err := json.Marshal(rep)
 	if err != nil {
-		controller.WriteStats(w, err)
+		http2.WriteStats(w, err)
 		return
 	}
 	_, _ = w.Write(b)

@@ -1,4 +1,4 @@
-package controller
+package http
 
 import (
 	"bm-novel/internal/domain/user"
