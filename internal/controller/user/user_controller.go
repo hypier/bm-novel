@@ -162,6 +162,8 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 
 // 用户登陆
 func PostUsersSession(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+
 	params := struct {
 		// 账号名
 		UserName string `json:"user_name" valid:"required"`

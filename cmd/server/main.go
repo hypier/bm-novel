@@ -18,6 +18,11 @@ func main() {
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
+	r.Route("/users/session", func(r chi.Router) {
+		r.Post("/", user.PostUsersSession)
+		r.Delete("/", user.DeleteUsersSession)
+	})
+
 	r.Route("/users", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
 		r.Use(jwtauth.Authenticator)
@@ -25,7 +30,7 @@ func APIRouter() http.Handler {
 
 		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
 			_, claims, _ := jwtauth.FromContext(r.Context())
-			w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["name"])))
+			_, _ = w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["name"])))
 		})
 
 		r.Get("/", user.GetUsers)
@@ -38,9 +43,9 @@ func APIRouter() http.Handler {
 			r.Delete("/password", user.DeleteUsersPassword)
 		})
 
-		r.Route("/redis", func(r chi.Router) {
-			r.Post("/", user.PostUsersSession)
-			r.Delete("/", user.DeleteUsersSession)
+		r.Route("/session", func(r chi.Router) {
+			//r.Post("/", user.PostUsersSession)
+			//r.Delete("/", user.DeleteUsersSession)
 			r.Put("/password", user.PutUsersSessionPassword)
 		})
 

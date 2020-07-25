@@ -16,6 +16,8 @@ var (
 	ErrUserLocked        = errors.New("User Locked")
 	ErrNotAcceptable     = errors.New("Not Acceptable")
 	ErrPasswordIncorrect = errors.New("username or password is incorrect")
+
+	DefaultPassword = "123456"
 )
 
 // 用户基本信息
@@ -66,7 +68,7 @@ func (u *User) Load(userId string) (*User, error) {
 }
 
 func (u *User) Create(user User) (*User, error) {
-	hashPassword, err := security.Hash(user.Password)
+	hashPassword, err := security.Hash(DefaultPassword)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +134,7 @@ func (u *User) ResetPassword() error {
 		return ErrUserNotFound
 	}
 
-	hashPassword, err := security.Hash("123456")
+	hashPassword, err := security.Hash(DefaultPassword)
 	if err != nil {
 		return errors.New(err.Error())
 	}

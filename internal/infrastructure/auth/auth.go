@@ -63,15 +63,15 @@ func GetAuth(r *http.Request) (userId string, err error) {
 	return
 }
 
-func getAuthUid(r *http.Request) (userId string, err error) {
+func getAuthUid(r *http.Request) (uid string, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 
 	if err != nil {
 		return
 	}
 
-	if id, err := claims["uid"]; err {
-		userId = id.(string)
+	if id, err := claims["jti"]; err {
+		uid = id.(string)
 	}
 
 	return
@@ -100,11 +100,12 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 
 		// 从redis里获取uid
 		key := fmt.Sprintf("bm:login:%s", userId)
-		serverUid, err := redis.GetChcher().Get(key)
-		if err != nil || serverUid == nil {
+		sUid, err := redis.GetChcher().Get(key)
+		if err != nil || sUid == nil {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
+		serverUid := string(sUid)
 
 		// 从jwt中获取用户uid
 		clientUid, err := getAuthUid(r)
@@ -114,7 +115,7 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 		}
 
 		// 比较客户端的uid 是否等于 redis中的uid , 不相等则为session过期或被踢掉
-		if string(serverUid) != clientUid {
+		if serverUid != clientUid {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
