@@ -1,0 +1,98 @@
+internal/domain/user/user.go:43:2: tag on not-exported field isPersistence
+29 internal/domain/user/user.go:47:2: tag on not-exported field repo
+30 internal/infrastructure/security/password.go:5:1: exported function Hash should have comment or be unexported
+31 internal/infrastructure/security/password.go:9:1: exported function VerifyPassword should have comment or be unexported
+32 internal/domain/novel/novel.go:3:1: comment on exported type Novel should be of the form "Novel ..." (with optional leading article)
+33 internal/domain/novel/novel.go:7:6: exported type ChapterFormat should have comment or be unexported
+34 internal/controller/user/user_controller.go:243:20: unknown option 'bool' in JSON tag
+35 internal/domain/novel/role.go:3:1: comment on exported type Role should be of the form "Role ..." (with optional leading article)
+36 internal/domain/novel/novel_service.go:10:26: interface method parameter userId should be userID
+37 internal/domain/novel/novel_service.go:27:23: interface method parameter userId should be userID
+38 internal/domain/novel/episode.go:3:1: comment on exported type Episode should be of the form "Episode ..." (with optional leading article)
+39 internal/domain/novel/novel_service.go:3:6: exported type INovelService should have comment or be unexported
+40 internal/domain/novel/paragraph.go:3:1: comment on exported type Paragraph should be of the form "Paragraph ..." (with optional leading article)
+41 internal/domain/novel/novel_service.go:19:6: exported type IChapterService should have comment or be unexported
+42 internal/domain/novel/novel_service.go:32:6: exported type IParagraphService should have comment or be unexported
+43 internal/domain/novel/novel_service.go:43:6: exported type IRoleService should have comment or be unexported
+44 internal/domain/novel/novel_service.go:52:6: exported type IEpisodeService should have comment or be unexported
+45 internal/domain/notice/notice.go:11:2: struct field UserId should be UserID
+46 internal/domain/notice/notice.go:5:6: exported type Notice should have comment or be unexported
+47 internal/domain/novel/chapter.go:3:1: comment on exported type Chapter should be of the form "Chapter ..." (with optional leading article)
+48 internal/domain/notice/notice_service.go:3:6: exported type INoticeService should have comment or be unexported
+49 internal/domain/user/user_interface.go:4:7: interface method parameter userId should be userID
+50 internal/domain/user/user.go:62:21: method parameter userId should be userID
+51 internal/domain/user/user_interface.go:3:6: exported type IUserServer should have comment or be unexported
+52 internal/domain/user/user_interface.go:14:6: exported type IUserRepository should have comment or be unexported
+53 internal/domain/user/user.go:14:2: exported var ErrUserConflict should have comment or be unexported
+54 internal/domain/user/user.go:23:6: exported type Users should have comment or be unexported
+55 internal/domain/user/user.go:25:1: comment on exported type User should be of the form "User ..." (with optional leading article)
+56 internal/domain/user/user.go:50:1: exported function New should have comment or be unexported
+57 internal/domain/user/user.go:54:1: exported method User.SetPersistence should have comment or be unexported
+58 internal/domain/user/user.go:58:1: exported method User.SetRepo should have comment or be unexported
+59 internal/domain/user/user.go:62:1: exported method User.Load should have comment or be unexported
+60 internal/domain/user/user.go:72:1: exported method User.Create should have comment or be unexported
+61 internal/domain/user/user.go:96:1: exported method User.Edit should have comment or be unexported
+62 internal/domain/user/user.go:116:1: exported method User.ChangeInitPassword should have comment or be unexported
+63 internal/domain/user/user.go:134:1: exported method User.ResetPassword should have comment or be unexported
+64 internal/domain/user/user.go:149:1: exported method User.Lock should have comment or be unexported
+65 internal/domain/user/user.go:162:1: exported method User.Unlock should have comment or be unexported
+66 internal/domain/user/user.go:175:1: exported method User.CheckPassword should have comment or be unexported
+67 internal/domain/user/user.go:188:1: exported method User.TableName should have comment or be unexported
+68 internal/domain/user/user.go:67:9: if block ends with a return statement, so drop this else and outdent its block (move short variable declaration to its own line if necessary)
+69 internal/infrastructure/persistence/db.go:11:12: should omit type string from declaration of var userName; it will be inferred from the right-hand side
+70 internal/infrastructure/persistence/user_repository.go:50:2: var strSql should be strSQL
+71 internal/infrastructure/persistence/db.go:12:12: should omit type string from declaration of var password; it will be inferred from the right-hand side
+72 internal/infrastructure/persistence/db.go:13:12: should omit type string from declaration of var ipAddress; it will be inferred from the right-hand side
+73 internal/infrastructure/persistence/user_repository.go:67:2: var userId should be userID
+74 internal/infrastructure/persistence/user_repository.go:83:2: var strSql should be strSQL
+75 internal/infrastructure/persistence/db.go:14:12: should omit type int from declaration of var port; it will be inferred from the right-hand side
+76 internal/infrastructure/persistence/db.go:15:12: should omit type string from declaration of var dbName; it will be inferred from the right-hand side
+77 cmd/server/main.go:18:1: exported function APIRouter should have comment or be unexported
+78 internal/infrastructure/persistence/db.go:6:2: a blank import should be only in a main or test package, or have a comment justifying it
+79 internal/infrastructure/persistence/user_repository.go:22:6: exported type UserRepository should have comment or be unexported
+80 internal/infrastructure/persistence/user_repository.go:26:1: exported method UserRepository.FindList should have comment or be unexported
+81 internal/infrastructure/persistence/user_repository.go:66:1: exported method UserRepository.FindOne should have comment or be unexported
+82 internal/infrastructure/persistence/user_repository.go:81:1: exported method UserRepository.FindByName should have comment or be unexported
+83 internal/infrastructure/persistence/user_repository.go:102:1: exported method UserRepository.Create should have comment or be unexported
+84 internal/infrastructure/persistence/user_repository.go:110:1: exported method UserRepository.Update should have comment or be unexported
+85 internal/infrastructure/cookie/cookie.go:7:1: comment on exported function AddCookie should be of the form "AddCookie ..."
+86 internal/infrastructure/cookie/cookie.go:14:1: comment on exported function GetCookie should be of the form "GetCookie ..."
+87 internal/infrastructure/cookie/cookie.go:26:1: comment on exported function ClearCookie should be of the form "ClearCookie ..."
+88 internal/infrastructure/persistence/user_repository.go:105:9: if block ends with a return statement, so drop this else and outdent its block (move short variable declaration to its own line if necessary)
+89 internal/infrastructure/persistence/user_repository.go:113:9: if block ends with a return statement, so drop this else and outdent its block (move short variable declaration to its own line if necessary)
+90 internal/infrastructure/cookie/cookie.go:20:9: if block ends with a return statement, so drop this else and outdent its block
+91 internal/infrastructure/redis/redis.go:26:6: exported type Cacher should have comment or be unexported
+92 internal/infrastructure/redis/redis.go:29:1: exported function GetChcher should have comment or be unexported
+93 internal/infrastructure/redis/redis.go:33:1: exported method Cacher.Get should have comment or be unexported
+94 internal/infrastructure/redis/redis.go:37:1: exported method Cacher.Put should have comment or be unexported
+95 internal/infrastructure/redis/redis.go:41:1: exported method Cacher.Delete should have comment or be unexported
+96 internal/infrastructure/auth/auth.go:52:32: func result userId should be userID
+97 internal/infrastructure/auth/auth.go:66:6: func getAuthUid should be getAuthUID
+98 internal/infrastructure/auth/auth.go:81:2: var userId should be userID
+99 internal/infrastructure/auth/auth.go:95:3: var userId should be userID
+100 internal/infrastructure/auth/auth.go:103:3: var sUid should be sUID
+101 internal/infrastructure/auth/auth.go:108:3: var serverUid should be serverUID
+102 internal/infrastructure/auth/auth.go:111:3: var clientUid should be clientUID
+103 internal/infrastructure/auth/auth.go:15:5: exported var TokenAuth should have comment or be unexported
+104 internal/infrastructure/auth/auth.go:33:1: exported function SetAuth should have comment or be unexported
+105 internal/infrastructure/auth/auth.go:52:1: exported function GetAuth should have comment or be unexported
+106 internal/infrastructure/auth/auth.go:80:1: exported function ClearAuth should have comment or be unexported
+107 internal/infrastructure/auth/auth.go:92:1: exported function LoginAuthenticator should have comment or be unexported
+108 internal/infrastructure/auth/auth.go:47:9: if block ends with a return statement, so drop this else and outdent its block (move short variable declaration to its own line if necessary)
+109 internal/controller/response.go:9:1: exported function WriteStats should have comment or be unexported
+110 internal/controller/user/user_controller.go:92:2: var userId should be userID
+111 internal/controller/user/user_controller.go:110:2: var userId should be userID
+112 internal/controller/user/user_controller.go:129:2: var userId should be userID
+113 internal/controller/user/user_controller.go:147:2: var userId should be userID
+114 internal/controller/user/user_controller.go:217:2: var userId should be userID
+115 internal/controller/user/user_controller.go:239:2: struct field UserId should be UserID
+116 internal/controller/user/user_controller.go:248:3: struct field UserId should be UserID
+117 internal/controller/user/user_controller.go:14:1: comment on exported function PostUsers should be of the form "PostUsers ..."
+118 internal/controller/user/user_controller.go:44:1: comment on exported function GetUsers should be of the form "GetUsers ..."
+119 internal/controller/user/user_controller.go:73:1: comment on exported function PatchUsers should be of the form "PatchUsers ..."
+120 internal/controller/user/user_controller.go:108:1: comment on exported function PostUsersLock should be of the form "PostUsersLock ..."
+121 internal/controller/user/user_controller.go:127:1: comment on exported function DeleteUsersLock should be of the form "DeleteUsersLock ..."
+122 internal/controller/user/user_controller.go:145:1: comment on exported function DeleteUsersPassword should be of the form "DeleteUsersPassword ..."
+123 internal/controller/user/user_controller.go:163:1: comment on exported function PostUsersSession should be of the form "PostUsersSession ..."
+124 internal/controller/user/user_controller.go:208:1: comment on exported function PutUsersSessionPassword should be of the form "PutUsersSessionPassword ..."
+125 internal/controller/user/user_controller.go:233:1: comment on exported function DeleteUsersSession should be of the form "DeleteUsersSession ..."
