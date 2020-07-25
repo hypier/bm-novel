@@ -18,10 +18,7 @@ func main() {
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Route("/users/session", func(r chi.Router) {
-		r.Post("/", user.PostUsersSession)
-		r.Delete("/", user.DeleteUsersSession)
-	})
+	r.Post("/users/session", user.PostUsersSession)
 
 	r.Route("/users", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
@@ -45,7 +42,7 @@ func APIRouter() http.Handler {
 
 		r.Route("/session", func(r chi.Router) {
 			//r.Post("/", user.PostUsersSession)
-			//r.Delete("/", user.DeleteUsersSession)
+			r.Delete("/", user.DeleteUsersSession)
 			r.Put("/password", user.PutUsersSessionPassword)
 		})
 
