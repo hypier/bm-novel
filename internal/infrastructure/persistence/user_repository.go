@@ -3,7 +3,6 @@ package persistence
 import (
 	"bm-novel/internal/domain/user"
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
@@ -24,7 +23,7 @@ type UserRepository struct {
 	Ctx context.Context
 }
 
-func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) ([]user.User, error) {
+func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) (user.Users, error) {
 
 	var r pq.StringArray = roleCode
 	usr := &user.User{}
@@ -48,7 +47,7 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 
 	offset := pageSize * pageIndex
 
-	strSql, _, err := goqu.From(usr.TableName()).
+	strSql, params, err := goqu.From(usr.TableName()).
 		Where(expressions...).
 		Limit(uint(pageSize)).
 		Offset(uint(offset)).Order(goqu.I("create_at").Desc()).ToSQL()
@@ -58,21 +57,10 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 
 	fmt.Println(strSql)
 
-	list, err := DoQuery(u.Ctx, strSql, defaultDB, func() entity.Entity {
-		return &user.User{}
-	})
-	if err != nil {
-		return nil, nil
-	}
+	users := &user.Users{}
+	err = defaultDB.SelectContext(u.Ctx, users, strSql, params...)
 
-	var userList []user.User
-	for _, v := range list {
-		if u2, ok := v.(*user.User); ok {
-			userList = append(userList, *u2)
-		}
-	}
-
-	return userList, nil
+	return *users, err
 }
 
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
@@ -91,22 +79,24 @@ func (u *UserRepository) FindOne(id string) (*user.User, error) {
 }
 
 func (u *UserRepository) FindByName(name string) (*user.User, error) {
-	usr := &user.User{UserName: name}
-	strSql, _, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
-
+	usr := user.User{}
+	strSql, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
 
-	if err := DoQueryOne(u.Ctx, strSql, usr, defaultDB); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
+	users := &user.Users{}
+	err = defaultDB.SelectContext(u.Ctx, users, strSql, params...)
+	if err != nil {
 		return nil, errors.New(err.Error())
 	}
 
-	usr.SetPersistence()
-	return usr, nil
+	for _, v := range *users {
+		v.SetPersistence()
+		return v, nil
+	}
+
+	return nil, err
 }
 
 func (u *UserRepository) Create(user *user.User) error {

@@ -20,6 +20,8 @@ var (
 	DefaultPassword = "123456"
 )
 
+type Users []*User
+
 // 用户基本信息
 type User struct {
 	// 用户id

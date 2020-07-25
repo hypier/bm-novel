@@ -1,11 +1,8 @@
 package persistence
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/joyparty/entity"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 )
@@ -17,8 +14,6 @@ var (
 	port      int    = 5432
 	dbName    string = "db_novel"
 )
-
-type newEntity func() entity.Entity
 
 func connectMysql() (*sqlx.DB, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", userName, password, ipAddress, port, dbName)
@@ -33,45 +28,4 @@ func connectMysql() (*sqlx.DB, error) {
 
 	return db, nil
 
-}
-
-// todo 修改实现方式
-func DoQuery(ctx context.Context, strSql string, db *sqlx.DB, ne newEntity) ([]entity.Entity, error) {
-	var list []entity.Entity
-
-	rows, err := sqlx.NamedQueryContext(ctx, db, strSql, ne())
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		ent := ne()
-		if err := rows.StructScan(ent); err != nil {
-			return nil, fmt.Errorf("ne struct, %w", err)
-		}
-
-		list = append(list, ent)
-	}
-
-	return list, rows.Err()
-}
-
-func DoQueryOne(ctx context.Context, strSql string, ent entity.Entity, db *sqlx.DB) error {
-
-	rows, err := sqlx.NamedQueryContext(ctx, db, strSql, ent)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		return sql.ErrNoRows
-	}
-
-	if err := rows.StructScan(ent); err != nil {
-		return fmt.Errorf("scan struct, %w", err)
-	}
-
-	return rows.Err()
 }

@@ -264,7 +264,7 @@ func writeLoginResp(usr *user.User, w http.ResponseWriter) {
 	_, _ = w.Write(b)
 }
 
-func writeUsersResp(users []user.User, w http.ResponseWriter) {
+func writeUsersResp(users user.Users, w http.ResponseWriter) {
 
 	res := make([]userQueryResp, 0, len(users))
 	for _, v := range users {

@@ -25,11 +25,6 @@ func APIRouter() http.Handler {
 		r.Use(jwtauth.Authenticator)
 		r.Use(auth.LoginAuthenticator)
 
-		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
-			_, claims, _ := jwtauth.FromContext(r.Context())
-			_, _ = w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["name"])))
-		})
-
 		r.Get("/", user.GetUsers)
 		r.Post("/", user.PostUsers)
 
