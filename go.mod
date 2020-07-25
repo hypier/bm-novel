@@ -3,8 +3,10 @@ module bm-novel
 go 1.14
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/doug-martin/goqu/v9 v9.9.0
 	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-chi/jwtauth v4.0.4+incompatible
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joyparty/entity v0.1.0
 	github.com/joyparty/httpkit v0.0.0-20200715085111-3d21287b2aca

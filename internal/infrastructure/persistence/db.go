@@ -35,6 +35,7 @@ func connectMysql() (*sqlx.DB, error) {
 
 }
 
+// todo 修改实现方式
 func DoQuery(ctx context.Context, strSql string, db *sqlx.DB, ne newEntity) ([]entity.Entity, error) {
 	var list []entity.Entity
 

@@ -8,7 +8,7 @@ type IUserServer interface {
 	ResetPassword() error
 	Lock() error
 	Unlock() error
-	CheckPassword(password string) (bool, error)
+	CheckPassword(password string) error
 }
 
 type IUserRepository interface {

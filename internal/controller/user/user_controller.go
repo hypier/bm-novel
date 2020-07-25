@@ -1,10 +1,12 @@
 package user
 
 import (
+	"bm-novel/internal/controller"
 	"bm-novel/internal/domain/user"
+	"bm-novel/internal/infrastructure/auth"
+	"bm-novel/internal/infrastructure/cookie"
 	"bm-novel/internal/infrastructure/persistence"
 	"encoding/json"
-	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/joyparty/httpkit"
 	"net/http"
@@ -37,7 +39,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeStats(w, err)
+	controller.WriteStats(w, err)
 }
 
 // 查询用户列表
@@ -106,7 +108,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		err = usr.Edit(u)
 	}
 
-	writeStats(w, err)
+	controller.WriteStats(w, err)
 }
 
 // 锁定用户
@@ -124,7 +126,7 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 		err = usr.Lock()
 	}
 
-	writeStats(w, err)
+	controller.WriteStats(w, err)
 
 }
 
@@ -143,7 +145,7 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 		err = usr.Unlock()
 	}
 
-	writeStats(w, err)
+	controller.WriteStats(w, err)
 }
 
 // 重置密码
@@ -161,7 +163,7 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 		err = usr.ResetPassword()
 	}
 
-	writeStats(w, err)
+	controller.WriteStats(w, err)
 }
 
 // 用户登陆
@@ -176,24 +178,56 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	httpkit.MustScanJSON(&params, r.Body)
 
 	// 查询用户
-	var flag bool
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
 	usr, err := userRepo.FindByName(params.UserName)
 
 	if err == nil && usr.IsLock {
 		err = user.ErrUserLocked
 	} else if err != nil {
-		writeStats(w, err)
+		controller.WriteStats(w, err)
 		return
 	}
 
 	// 验证密码
 	usr.SetRepo(userRepo)
-	flag, err = usr.CheckPassword(params.Password)
-	// todo 下行构建, 下发Cookie, 判断是否已登陆
+	err = usr.CheckPassword(params.Password)
 
-	fmt.Println(flag, err)
+	if err != nil {
+		// 验证失败
+		controller.WriteStats(w, err)
+		return
+	}
 
+	// 下发cookie
+	if token, err := auth.SetToken(usr); err == nil {
+		cookie.AddCookie("jwt", token, w)
+	} else {
+		controller.WriteStats(w, err)
+		return
+	}
+
+	writeLoginReq(w, usr)
+}
+
+func writeLoginReq(w http.ResponseWriter, usr *user.User) {
+	rep := &struct {
+		UserId             string `json:"user_id"`
+		UserName           string `json:"user_name"`
+		RealName           string `json:"real_name"`
+		NeedChangePassword bool   `json:"need_change_password"`
+	}{
+		UserId:             usr.UserID.String(),
+		UserName:           usr.UserName,
+		RealName:           usr.RealName,
+		NeedChangePassword: usr.NeedChangePassword,
+	}
+
+	b, err := json.Marshal(rep)
+	if err != nil {
+		controller.WriteStats(w, err)
+		return
+	}
+	_, _ = w.Write(b)
 }
 
 // 登陆后重设密码
@@ -219,34 +253,13 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		err = usr.ChangeInitPassword(params.Password)
 	}
 
-	writeStats(w, err)
+	controller.WriteStats(w, err)
 }
 
 // 用户注销
 func DeleteUsersSession(w http.ResponseWriter, r *http.Request) {
 
 	// todo 获取cookie，删除cookie
-}
-
-func writeStats(w http.ResponseWriter, err error) {
-	if err == nil {
-		return
-	}
-
-	switch err {
-	case user.ErrUserNotFound:
-		w.WriteHeader(404)
-	case user.ErrNotAcceptable:
-		w.WriteHeader(406)
-	case user.ErrUserLocked:
-		w.WriteHeader(423)
-	case user.ErrUserConflict:
-		w.WriteHeader(409)
-	default:
-		w.WriteHeader(500)
-	}
-
-	fmt.Println(err)
 }
 
 type userQueryResp struct {

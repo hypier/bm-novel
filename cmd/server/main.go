@@ -2,8 +2,10 @@ package main
 
 import (
 	"bm-novel/internal/controller/user"
+	"bm-novel/internal/infrastructure/auth"
 	"fmt"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"net/http"
 )
 
@@ -17,6 +19,14 @@ func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/users", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(auth.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+
+		r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+			_, claims, _ := jwtauth.FromContext(r.Context())
+			w.Write([]byte(fmt.Sprintf("protected area. hi %v", claims["name"])))
+		})
+
 		r.Get("/", user.GetUsers)
 		r.Post("/", user.PostUsers)
 

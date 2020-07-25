@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	ErrUserConflict  = errors.New("User Conflict")
-	ErrUserNotFound  = errors.New("User Not Found")
-	ErrUserLocked    = errors.New("User Locked")
-	ErrNotAcceptable = errors.New("Not Acceptable")
+	ErrUserConflict      = errors.New("User Conflict")
+	ErrUserNotFound      = errors.New("User Not Found")
+	ErrUserLocked        = errors.New("User Locked")
+	ErrNotAcceptable     = errors.New("Not Acceptable")
+	ErrPasswordIncorrect = errors.New("username or password is incorrect")
 )
 
 // 用户基本信息
@@ -97,7 +98,14 @@ func (u *User) Edit(user User) error {
 	u.RoleCode = user.RoleCode
 	u.UserName = user.UserName
 
-	// todo 查询是否重复
+	// 查询是否重复
+	dbUser, err := u.repo.FindByName(user.UserName)
+	if err != nil {
+		return errors.New(err.Error())
+	} else if dbUser != nil && dbUser.UserID != u.UserID {
+		return ErrUserConflict
+	}
+
 	return u.repo.Update(u)
 }
 
@@ -160,17 +168,17 @@ func (u *User) Unlock() error {
 	return u.repo.Update(u)
 }
 
-func (u *User) CheckPassword(password string) (bool, error) {
+func (u *User) CheckPassword(password string) error {
 	if !u.isPersistence {
-		return false, ErrUserNotFound
+		return ErrUserNotFound
 	}
 
 	err := security.VerifyPassword(u.Password, password)
 	if err != nil {
-		return false, errors.New(err.Error())
+		return ErrPasswordIncorrect
 	}
 
-	return true, nil
+	return nil
 }
 
 func (u *User) TableName() string {
