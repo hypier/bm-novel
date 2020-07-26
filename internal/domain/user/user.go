@@ -136,7 +136,7 @@ func (u *User) ChangeInitPassword(password string) error {
 	}
 
 	if !u.NeedChangePassword {
-		return errors.New("不能重复初始化密码")
+		return ErrNotAcceptable
 	}
 
 	hashPassword, err := security.Hash(password)
