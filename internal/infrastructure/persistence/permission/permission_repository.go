@@ -16,8 +16,8 @@ type PermissionRepository struct {
 	Ctx context.Context
 }
 
-func (p PermissionRepository) FindAll() (permission.Permissions, error) {
-	per := permission.Permission{}
+func (p PermissionRepository) FindAll() (*permission.Permissions, error) {
+	per := &permission.Permission{}
 	strSQL, params, err := goqu.From(per.TableName()).ToSQL()
 	if err != nil {
 		return nil, errors.New(err.Error())
@@ -27,7 +27,7 @@ func (p PermissionRepository) FindAll() (permission.Permissions, error) {
 	pers := &permission.Permissions{}
 	err = persistence.DefaultDB.SelectContext(p.Ctx, pers, strSQL, params...)
 
-	return *pers, nil
+	return pers, nil
 }
 
 func (p PermissionRepository) Create(permission *permission.Permission) error {

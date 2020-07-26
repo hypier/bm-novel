@@ -3,13 +3,16 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var (
 	ctx = context.Background()
 	rdb *redis.Client
+
+	ErrRedisNil = "redis: nil"
 )
 
 func init() {

@@ -2,9 +2,12 @@
 package auth
 
 import (
+	permission2 "bm-novel/internal/domain/permission"
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/infrastructure/cookie"
+	"bm-novel/internal/infrastructure/persistence/permission"
 	"bm-novel/internal/infrastructure/redis"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -128,7 +131,47 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 // Authorization 授权
 func Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		pms, err := getPermission(r)
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		uri := r.URL.String()
+		method := r.Method
+
+		fmt.Println(pms, uri, method)
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func getPermission(r *http.Request) (pms *permission2.Permissions, err error) {
+	key := "bm:permission"
+
+	val, err := redis.GetChcher().Get(key)
+	if err != nil && err.Error() != redis.ErrRedisNil {
+		return
+	}
+
+	if val != nil {
+		err = json.Unmarshal(val, &pms)
+		return
+	}
+
+	// 设置缓存
+	repo := &permission.PermissionRepository{Ctx: r.Context()}
+	pms, err = repo.FindAll()
+	if err != nil || pms == nil {
+		return
+	}
+
+	ps, err := json.Marshal(pms)
+	if err != nil {
+		return
+	}
+
+	err = redis.GetChcher().Put(key, ps, time.Hour*24)
+
+	return
 }
