@@ -1,3 +1,4 @@
+// auth 认证
 package auth
 
 import (
@@ -88,6 +89,7 @@ func ClearAuth(r *http.Request, w http.ResponseWriter) {
 	cookie.ClearCookie("jwt", r, w)
 }
 
+// LoginAuthenticator 认证
 func LoginAuthenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 从jwt中获取用户ID
@@ -118,6 +120,14 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Authorization 授权
+func Authorization(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		next.ServeHTTP(w, r)
 	})

@@ -1,11 +1,12 @@
-package persistence
+package user
 
 import (
 	"bm-novel/internal/domain/user"
 	"context"
 	"fmt"
-	"github.com/satori/go.uuid"
 	"testing"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func TestUserRepository_Create(t *testing.T) {

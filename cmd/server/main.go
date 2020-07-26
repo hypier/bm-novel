@@ -25,6 +25,7 @@ func APIRouter() http.Handler {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 		r.Use(auth.LoginAuthenticator)
+		r.Use(auth.Authorization)
 
 		r.Get("/", user.GetUsers)
 		r.Post("/", user.PostUsers)

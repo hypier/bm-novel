@@ -15,6 +15,12 @@ var (
 	dbName    = "db_novel"
 )
 
+var DefaultDB *sqlx.DB
+
+func init() {
+	DefaultDB, _ = connectMysql()
+}
+
 func connectMysql() (*sqlx.DB, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", userName, password, ipAddress, port, dbName)
 	db, err := sqlx.Open("postgres", dsn)

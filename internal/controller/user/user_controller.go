@@ -2,9 +2,9 @@ package user
 
 import (
 	"bm-novel/internal/domain/user"
-	http2 "bm-novel/internal/http"
 	"bm-novel/internal/http/auth"
-	"bm-novel/internal/infrastructure/persistence"
+	"bm-novel/internal/http/web"
+	user2 "bm-novel/internal/infrastructure/persistence/user"
 	"encoding/json"
 	"net/http"
 
@@ -31,7 +31,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	_, err := user.New(userRepo).Create(u)
 
 	if err == nil {
@@ -39,7 +39,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http2.WriteStats(w, err)
+	web.WriteStats(w, err)
 }
 
 // 查询用户列表
@@ -59,7 +59,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	userRepo := persistence.UserRepository{Ctx: r.Context()}
+	userRepo := user2.UserRepository{Ctx: r.Context()}
 
 	users, err := userRepo.FindList(params.RoleCode, params.RealName, params.PageIndex, params.PageSize)
 
@@ -96,14 +96,14 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.Edit(u)
 	}
 
-	http2.WriteStats(w, err)
+	web.WriteStats(w, err)
 }
 
 // 锁定用户
@@ -114,14 +114,14 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.Lock()
 	}
 
-	http2.WriteStats(w, err)
+	web.WriteStats(w, err)
 
 }
 
@@ -133,14 +133,14 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.Unlock()
 	}
 
-	http2.WriteStats(w, err)
+	web.WriteStats(w, err)
 }
 
 // 重置密码
@@ -151,14 +151,14 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.ResetPassword()
 	}
 
-	http2.WriteStats(w, err)
+	web.WriteStats(w, err)
 }
 
 // 用户登陆
@@ -175,7 +175,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	httpkit.MustScanJSON(&params, r.Body)
 
 	// 查询用户
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	usr, err := userRepo.FindByName(params.UserName)
 
 	if err == nil && usr.IsLock {
@@ -183,7 +183,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		http2.WriteStats(w, err)
+		web.WriteStats(w, err)
 		return
 	}
 
@@ -192,13 +192,13 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	err = usr.CheckPassword(params.Password)
 	if err != nil {
 		// 验证失败
-		http2.WriteStats(w, err)
+		web.WriteStats(w, err)
 		return
 	}
 
 	// 下发cookie
 	if err = auth.SetAuth(usr, w); err != nil {
-		http2.WriteStats(w, err)
+		web.WriteStats(w, err)
 		return
 	}
 
@@ -221,14 +221,14 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &persistence.UserRepository{Ctx: r.Context()}
+	userRepo := &user2.UserRepository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.ChangeInitPassword(params.Password)
 	}
 
-	http2.WriteStats(w, err)
+	web.WriteStats(w, err)
 }
 
 // DeleteUsersSession 用户注销.
@@ -259,7 +259,7 @@ func writeLoginResp(usr *user.User, w http.ResponseWriter) {
 
 	b, err := json.Marshal(rep)
 	if err != nil {
-		http2.WriteStats(w, err)
+		web.WriteStats(w, err)
 		return
 	}
 	_, _ = w.Write(b)

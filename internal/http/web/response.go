@@ -1,4 +1,4 @@
-package http
+package web
 
 import (
 	"bm-novel/internal/domain/user"

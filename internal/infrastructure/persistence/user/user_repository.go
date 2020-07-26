@@ -1,24 +1,18 @@
-package persistence
+package user
 
 import (
 	"bm-novel/internal/domain/user"
+	"bm-novel/internal/infrastructure/persistence"
 	"context"
 	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
-
-var defaultDB *sqlx.DB
-
-func init() {
-	defaultDB, _ = connectMysql()
-}
 
 type UserRepository struct {
 	Ctx context.Context
@@ -59,7 +53,7 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 	fmt.Println(strSQL)
 
 	users := &user.Users{}
-	err = defaultDB.SelectContext(u.Ctx, users, strSQL, params...)
+	err = persistence.DefaultDB.SelectContext(u.Ctx, users, strSQL, params...)
 
 	return *users, err
 }
@@ -71,7 +65,7 @@ func (u *UserRepository) FindOne(id string) (*user.User, error) {
 	}
 
 	usr := &user.User{UserID: userID}
-	if err := entity.Load(u.Ctx, usr, defaultDB); err != nil {
+	if err := entity.Load(u.Ctx, usr, persistence.DefaultDB); err != nil {
 		return nil, errors.New(err.Error())
 	}
 
@@ -87,7 +81,7 @@ func (u *UserRepository) FindByName(name string) (*user.User, error) {
 	}
 
 	users := &user.Users{}
-	err = defaultDB.SelectContext(u.Ctx, users, strSQL, params...)
+	err = persistence.DefaultDB.SelectContext(u.Ctx, users, strSQL, params...)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -101,7 +95,7 @@ func (u *UserRepository) FindByName(name string) (*user.User, error) {
 }
 
 func (u *UserRepository) Create(user *user.User) error {
-	if _, err := entity.Insert(u.Ctx, user, defaultDB); err != nil {
+	if _, err := entity.Insert(u.Ctx, user, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
 	}
 
@@ -109,7 +103,7 @@ func (u *UserRepository) Create(user *user.User) error {
 }
 
 func (u *UserRepository) Update(user *user.User) error {
-	if err := entity.Update(u.Ctx, user, defaultDB); err != nil {
+	if err := entity.Update(u.Ctx, user, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
 	}
 
