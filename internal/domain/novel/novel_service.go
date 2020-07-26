@@ -7,7 +7,7 @@ type INovelService interface {
 	// 删除小说
 	Delete() error
 	// 指派责编
-	AssignResponsibleEditor(userId string) error
+	AssignResponsibleEditor(userID string) error
 	// 设置章节解析格式
 	SetChapterFormat(format *ChapterFormat) error
 	// 上传源文
@@ -24,7 +24,7 @@ type IChapterService interface {
 	// 删除章节
 	Delete() error
 	// 指派普通外包编辑
-	AssignOrdinaryEditor(userId int) error
+	AssignOrdinaryEditor(userID int) error
 	// 段落解析
 	ParseParagraph() (*[]Paragraph, error)
 }

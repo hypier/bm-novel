@@ -6,9 +6,10 @@ import (
 	"bm-novel/internal/http/auth"
 	"bm-novel/internal/infrastructure/persistence"
 	"encoding/json"
+	"net/http"
+
 	"github.com/go-chi/chi"
 	"github.com/joyparty/httpkit"
-	"net/http"
 )
 
 // 创建用户
@@ -89,14 +90,14 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	userId := chi.URLParam(r, "user_id")
-	if userId == "" {
+	userID := chi.URLParam(r, "user_id")
+	if userID == "" {
 		w.WriteHeader(404)
 		return
 	}
 
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userId)
+	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.Edit(u)
@@ -107,14 +108,14 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 
 // 锁定用户
 func PostUsersLock(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "user_id")
-	if userId == "" {
+	userID := chi.URLParam(r, "user_id")
+	if userID == "" {
 		w.WriteHeader(404)
 		return
 	}
 
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userId)
+	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.Lock()
@@ -126,14 +127,14 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 
 // 解锁用户
 func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "user_id")
-	if userId == "" {
+	userID := chi.URLParam(r, "user_id")
+	if userID == "" {
 		w.WriteHeader(404)
 		return
 	}
 
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userId)
+	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.Unlock()
@@ -144,14 +145,14 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 
 // 重置密码
 func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
-	userId := chi.URLParam(r, "user_id")
-	if userId == "" {
+	userID := chi.URLParam(r, "user_id")
+	if userID == "" {
 		w.WriteHeader(404)
 		return
 	}
 
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userId)
+	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.ResetPassword()
@@ -214,14 +215,14 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	userId, err := auth.GetAuth(r)
+	userID, err := auth.GetAuth(r)
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
 
 	userRepo := &persistence.UserRepository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userId)
+	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
 		err = usr.ChangeInitPassword(params.Password)
@@ -230,27 +231,27 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 	http2.WriteStats(w, err)
 }
 
-// 用户注销
+// DeleteUsersSession 用户注销.
 func DeleteUsersSession(w http.ResponseWriter, r *http.Request) {
 	auth.ClearAuth(r, w)
 }
 
 type userQueryResp struct {
-	UserId   string   `json:"user_id"`
+	UserID   string   `json:"user_id"`
 	UserName string   `json:"user_name"`
 	RoleCode []string `json:"role_code"`
 	RealName string   `json:"real_name"`
-	Lock     bool     `json:"lock,bool"`
+	Lock     bool     `json:"lock"`
 }
 
 func writeLoginResp(usr *user.User, w http.ResponseWriter) {
 	rep := &struct {
-		UserId             string `json:"user_id"`
+		UserID             string `json:"user_id"`
 		UserName           string `json:"user_name"`
 		RealName           string `json:"real_name"`
 		NeedChangePassword bool   `json:"need_change_password"`
 	}{
-		UserId:             usr.UserID.String(),
+		UserID:             usr.UserID.String(),
 		UserName:           usr.UserName,
 		RealName:           usr.RealName,
 		NeedChangePassword: usr.NeedChangePassword,
@@ -269,7 +270,7 @@ func writeUsersResp(users user.Users, w http.ResponseWriter) {
 	res := make([]userQueryResp, 0, len(users))
 	for _, v := range users {
 		re := userQueryResp{
-			UserId:   v.UserID.String(),
+			UserID:   v.UserID.String(),
 			UserName: v.UserName,
 			RoleCode: v.RoleCode,
 			RealName: v.RealName,

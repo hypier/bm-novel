@@ -3,29 +3,36 @@ package user
 import (
 	"bm-novel/internal/infrastructure/security"
 	"context"
+	"time"
+
 	"github.com/joyparty/entity"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 var (
-	ErrUserConflict      = errors.New("User Conflict")
-	ErrUserNotFound      = errors.New("User Not Found")
-	ErrUserLocked        = errors.New("User Locked")
-	ErrNotAcceptable     = errors.New("Not Acceptable")
+	// ErrUserConflict 用户名重复错误.
+	ErrUserConflict = errors.New("User Conflict")
+	// ErrUserNotFound 用户不存在.
+	ErrUserNotFound = errors.New("User Not Found")
+	// ErrUserLocked 用户被锁定.
+	ErrUserLocked = errors.New("User Locked")
+	// ErrNotAcceptable 不接受修改.
+	ErrNotAcceptable = errors.New("Not Acceptable")
+	// ErrPasswordIncorrect 用户名或密码错误.
 	ErrPasswordIncorrect = errors.New("username or password is incorrect")
-
+	// DefaultPassword 默认密码.
 	DefaultPassword = "123456"
 )
 
+// Users 会员数组
 type Users []*User
 
-// 用户基本信息
+// User 用户基本信息.
 type User struct {
 	// 用户id
-	UserID uuid.UUID `json:"userId" db:"user_id,primaryKey"`
+	UserID uuid.UUID `json:"userID" db:"user_id,primaryKey"`
 	// 用户名
 	UserName string `json:"userName" db:"user_name"`
 	// 用户状态
@@ -39,36 +46,44 @@ type User struct {
 	// 是否需要修改密码
 	NeedChangePassword bool `json:"needChangePassword" db:"need_change_password"`
 
-	// 是否持久化，内部参数
-	isPersistence bool      `db:"-"`
-	CreateAt      time.Time `db:"create_at,refuseUpdate"`
-	UpdateAt      time.Time `db:"update_at"`
+	CreateAt time.Time `db:"create_at,refuseUpdate"`
+	UpdateAt time.Time `db:"update_at"`
 
-	repo IUserRepository `db:"-"`
+	// 是否持久化，内部参数
+	isPersistence bool
+	// 持久化对象
+	repo IUserRepository
 }
 
+// New 创建一个带持久化的对象
 func New(repo IUserRepository) IUserServer {
 	return &User{repo: repo}
 }
 
+// SetPersistence 是否被持久化到数据库
 func (u *User) SetPersistence() {
 	u.isPersistence = true
 }
 
+// SetRepo 设置持久化对象
 func (u *User) SetRepo(repo IUserRepository) {
 	u.repo = repo
 }
 
-func (u *User) Load(userId string) (*User, error) {
+// Load 载入对象
+func (u *User) Load(userID string) (*User, error) {
 	repo := u.repo
-	if u, err := u.repo.FindOne(userId); err == nil {
-		u.repo = repo
-		return u, nil
-	} else {
+
+	u, err := u.repo.FindOne(userID)
+	if err != nil {
 		return nil, ErrUserNotFound
 	}
+
+	u.repo = repo
+	return u, nil
 }
 
+// Create 创建用户
 func (u *User) Create(user User) (*User, error) {
 	hashPassword, err := security.Hash(DefaultPassword)
 	if err != nil {
@@ -93,6 +108,7 @@ func (u *User) Create(user User) (*User, error) {
 	return u, u.repo.Create(u)
 }
 
+// Edit 编辑
 func (u *User) Edit(user User) error {
 	if !u.isPersistence {
 		return ErrUserNotFound
@@ -113,6 +129,7 @@ func (u *User) Edit(user User) error {
 	return u.repo.Update(u)
 }
 
+// ChangeInitPassword 修改初始密码
 func (u *User) ChangeInitPassword(password string) error {
 	if !u.isPersistence {
 		return ErrUserNotFound
@@ -131,6 +148,7 @@ func (u *User) ChangeInitPassword(password string) error {
 	return u.repo.Update(u)
 }
 
+// ResetPassword 重置密码
 func (u *User) ResetPassword() error {
 	if !u.isPersistence {
 		return ErrUserNotFound
@@ -146,6 +164,7 @@ func (u *User) ResetPassword() error {
 	return u.repo.Update(u)
 }
 
+// Lock 锁定
 func (u *User) Lock() error {
 	if !u.isPersistence {
 		return ErrUserNotFound
@@ -159,6 +178,7 @@ func (u *User) Lock() error {
 	return u.repo.Update(u)
 }
 
+// Unlock 解锁
 func (u *User) Unlock() error {
 	if !u.isPersistence {
 		return ErrUserNotFound
@@ -172,6 +192,7 @@ func (u *User) Unlock() error {
 	return u.repo.Update(u)
 }
 
+// CheckPassword ： 验证密码
 func (u *User) CheckPassword(password string) error {
 	if !u.isPersistence {
 		return ErrUserNotFound
@@ -185,6 +206,7 @@ func (u *User) CheckPassword(password string) error {
 	return nil
 }
 
+// TableName is db table
 func (u *User) TableName() string {
 	return "user"
 }

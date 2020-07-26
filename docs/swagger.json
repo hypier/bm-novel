@@ -222,7 +222,7 @@
         }
       }
     },
-    "/users/{userId}": {
+    "/users/{userID}": {
       "get": {
         "tags": [
           "用户管理"
@@ -231,9 +231,9 @@
         "operationId": "queryUsingGET",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
-            "description": "userId",
+            "description": "userID",
             "required": true,
             "style": "simple",
             "schema": {
@@ -272,9 +272,9 @@
         "operationId": "deleteUsingDELETE",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
-            "description": "userId",
+            "description": "userID",
             "required": true,
             "style": "simple",
             "schema": {
@@ -313,9 +313,9 @@
         "operationId": "editUsingPATCH",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
-            "description": "userId",
+            "description": "userID",
             "required": true,
             "style": "simple",
             "schema": {
@@ -356,7 +356,7 @@
         }
       }
     },
-    "/users/{userId}/lock": {
+    "/users/{userID}/lock": {
       "post": {
         "tags": [
           "用户管理"
@@ -365,7 +365,7 @@
         "operationId": "lockUsingPOST",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
             "description": "用户Id",
             "required": true,
@@ -408,7 +408,7 @@
         "operationId": "unLockUsingDELETE",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
             "description": "用户Id",
             "required": true,
@@ -441,7 +441,7 @@
         }
       }
     },
-    "/users/{userId}/password": {
+    "/users/{userID}/password": {
       "put": {
         "tags": [
           "用户管理"
@@ -450,7 +450,7 @@
         "operationId": "changePasswordUsingPUT",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
             "description": "用户Id",
             "required": true,
@@ -511,7 +511,7 @@
         "operationId": "resetPasswordUsingDELETE",
         "parameters": [
           {
-            "name": "userId",
+            "name": "userID",
             "in": "path",
             "description": "用户Id",
             "required": true,

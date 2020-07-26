@@ -8,5 +8,5 @@ type Notice struct {
 	Context     string
 	NoticeTime  time.Time
 	IsRead      bool
-	UserId      string
+	UserID      string
 }

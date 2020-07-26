@@ -4,6 +4,7 @@ import (
 	"bm-novel/internal/domain/user"
 	"context"
 	"fmt"
+
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/jmoiron/sqlx"
@@ -47,7 +48,7 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 
 	offset := pageSize * pageIndex
 
-	strSql, params, err := goqu.From(usr.TableName()).
+	strSQL, params, err := goqu.From(usr.TableName()).
 		Where(expressions...).
 		Limit(uint(pageSize)).
 		Offset(uint(offset)).Order(goqu.I("create_at").Desc()).ToSQL()
@@ -55,21 +56,21 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 		return nil, errors.New(err.Error())
 	}
 
-	fmt.Println(strSql)
+	fmt.Println(strSQL)
 
 	users := &user.Users{}
-	err = defaultDB.SelectContext(u.Ctx, users, strSql, params...)
+	err = defaultDB.SelectContext(u.Ctx, users, strSQL, params...)
 
 	return *users, err
 }
 
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
-	userId, err := uuid.FromString(id)
+	userID, err := uuid.FromString(id)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
 
-	usr := &user.User{UserID: userId}
+	usr := &user.User{UserID: userID}
 	if err := entity.Load(u.Ctx, usr, defaultDB); err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -80,13 +81,13 @@ func (u *UserRepository) FindOne(id string) (*user.User, error) {
 
 func (u *UserRepository) FindByName(name string) (*user.User, error) {
 	usr := user.User{}
-	strSql, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
+	strSQL, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
 
 	users := &user.Users{}
-	err = defaultDB.SelectContext(u.Ctx, users, strSql, params...)
+	err = defaultDB.SelectContext(u.Ctx, users, strSQL, params...)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -102,15 +103,15 @@ func (u *UserRepository) FindByName(name string) (*user.User, error) {
 func (u *UserRepository) Create(user *user.User) error {
 	if _, err := entity.Insert(u.Ctx, user, defaultDB); err != nil {
 		return errors.New(err.Error())
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 func (u *UserRepository) Update(user *user.User) error {
 	if err := entity.Update(u.Ctx, user, defaultDB); err != nil {
 		return errors.New(err.Error())
-	} else {
-		return nil
 	}
+
+	return nil
 }

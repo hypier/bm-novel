@@ -17,10 +17,8 @@ func GetCookie(name string, r *http.Request) (string, error) {
 
 	if err != nil || cookie.Value == "" {
 		return "", err
-	} else {
-		return cookie.Value, nil
 	}
-
+	return cookie.Value, nil
 }
 
 // 清除cookie

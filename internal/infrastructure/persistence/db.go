@@ -2,17 +2,17 @@ package persistence
 
 import (
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
 var (
-	userName  string = "postgres"
-	password  string = "123456"
-	ipAddress string = "localhost"
-	port      int    = 5432
-	dbName    string = "db_novel"
+	userName  = "postgres"
+	password  = "123456"
+	ipAddress = "localhost"
+	port      = 5432
+	dbName    = "db_novel"
 )
 
 func connectMysql() (*sqlx.DB, error) {
@@ -27,5 +27,4 @@ func connectMysql() (*sqlx.DB, error) {
 	_ = db.Ping()
 
 	return db, nil
-
 }
