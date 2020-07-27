@@ -11,7 +11,7 @@ import (
 
 func TestPermissionRepository_FindAll(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &PermissionRepository{ctx}
+	repo := &Repository{ctx}
 
 	all, _ := repo.FindAll()
 
@@ -28,7 +28,7 @@ func TestPermissionRepository_Create(t *testing.T) {
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &PermissionRepository{ctx}
+	repo := &Repository{ctx}
 
 	err := repo.Create(&per)
 

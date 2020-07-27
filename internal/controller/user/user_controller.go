@@ -4,7 +4,7 @@ import (
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/http/auth"
 	"bm-novel/internal/http/web"
-	user2 "bm-novel/internal/infrastructure/persistence/user"
+	ur "bm-novel/internal/infrastructure/persistence/user"
 	"encoding/json"
 	"net/http"
 
@@ -31,7 +31,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	_, err := user.New(userRepo).Create(u)
 
 	if err == nil {
@@ -59,7 +59,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	userRepo := user2.UserRepository{Ctx: r.Context()}
+	userRepo := ur.Repository{Ctx: r.Context()}
 
 	users, err := userRepo.FindList(params.RoleCode, params.RealName, params.PageIndex, params.PageSize)
 
@@ -96,7 +96,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
@@ -114,7 +114,7 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
@@ -133,7 +133,7 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
@@ -151,7 +151,7 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {
@@ -175,7 +175,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	httpkit.MustScanJSON(&params, r.Body)
 
 	// 查询用户
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	usr, err := userRepo.FindByName(params.UserName)
 
 	if err == nil && usr.IsLock {
@@ -221,7 +221,7 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &user2.UserRepository{Ctx: r.Context()}
+	userRepo := &ur.Repository{Ctx: r.Context()}
 	usr, err := user.New(userRepo).Load(userID)
 
 	if err == nil {

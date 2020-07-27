@@ -14,13 +14,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// UserRepository 用户持久化
-type UserRepository struct {
+// Repository 用户持久化
+type Repository struct {
 	Ctx context.Context
 }
 
 // FindList 查询用户列表
-func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) (user.Users, error) {
+func (u *Repository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) (user.Users, error) {
 
 	var r pq.StringArray = roleCode
 	usr := &user.User{}
@@ -61,7 +61,7 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 }
 
 // FindOne 根据ID查询
-func (u *UserRepository) FindOne(id string) (*user.User, error) {
+func (u *Repository) FindOne(id string) (*user.User, error) {
 	userID, err := uuid.FromString(id)
 	if err != nil {
 		return nil, errors.New(err.Error())
@@ -77,7 +77,7 @@ func (u *UserRepository) FindOne(id string) (*user.User, error) {
 }
 
 // FindByName 根据用户名查询用户
-func (u *UserRepository) FindByName(name string) (*user.User, error) {
+func (u *Repository) FindByName(name string) (*user.User, error) {
 	usr := user.User{}
 	strSQL, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
 	if err != nil {
@@ -99,7 +99,7 @@ func (u *UserRepository) FindByName(name string) (*user.User, error) {
 }
 
 // Create 创建
-func (u *UserRepository) Create(user *user.User) error {
+func (u *Repository) Create(user *user.User) error {
 	if _, err := entity.Insert(u.Ctx, user, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
 	}
@@ -108,7 +108,7 @@ func (u *UserRepository) Create(user *user.User) error {
 }
 
 // Update 更新
-func (u *UserRepository) Update(user *user.User) error {
+func (u *Repository) Update(user *user.User) error {
 	if err := entity.Update(u.Ctx, user, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
 	}

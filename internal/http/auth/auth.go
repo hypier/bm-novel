@@ -236,7 +236,7 @@ func putCache(r *http.Request) error {
 	}
 
 	// 设置缓存
-	repo := &permission.PermissionRepository{Ctx: r.Context()}
+	repo := &permission.Repository{Ctx: r.Context()}
 	pms, err := repo.FindAll()
 	if err != nil || pms == nil {
 		return err

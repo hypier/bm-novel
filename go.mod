@@ -3,6 +3,7 @@ module bm-novel
 go 1.14
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/doug-martin/goqu/v9 v9.9.0
 	github.com/go-chi/chi v4.1.2+incompatible

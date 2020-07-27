@@ -12,13 +12,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-// PermissionRepository 权限持久化
-type PermissionRepository struct {
+// Repository 权限持久化
+type Repository struct {
 	Ctx context.Context
 }
 
 // FindAll 获取所有权限点
-func (p PermissionRepository) FindAll() (*permission.Permissions, error) {
+func (p Repository) FindAll() (*permission.Permissions, error) {
 	per := &permission.Permission{}
 	strSQL, params, err := goqu.From(per.TableName()).ToSQL()
 	if err != nil {
@@ -33,7 +33,7 @@ func (p PermissionRepository) FindAll() (*permission.Permissions, error) {
 }
 
 // Create 创建权限点
-func (p PermissionRepository) Create(permission *permission.Permission) error {
+func (p Repository) Create(permission *permission.Permission) error {
 	if _, err := entity.Insert(p.Ctx, permission, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
 	}

@@ -13,7 +13,7 @@ func TestUserRepository_Create(t *testing.T) {
 	u1 := uuid.NewV4()
 	usr := &user.User{UserID: u1, UserName: "2222", IsLock: true}
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &UserRepository{Ctx: ctx}
+	repo := &Repository{Ctx: ctx}
 
 	_ = repo.Create(usr)
 
@@ -25,7 +25,7 @@ func TestUserRepository_Create(t *testing.T) {
 
 func TestUserRepository_FindByName(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &UserRepository{Ctx: ctx}
+	repo := &Repository{Ctx: ctx}
 
 	usr, _ := repo.FindByName("chengfa21n")
 
@@ -34,7 +34,7 @@ func TestUserRepository_FindByName(t *testing.T) {
 
 func TestUserRepository_FindList(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &UserRepository{Ctx: ctx}
+	repo := &Repository{Ctx: ctx}
 
 	list, _ := repo.FindList([]string{"admin"}, "", 1, 2)
 

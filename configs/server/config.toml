@@ -1,0 +1,13 @@
+listen = ":8888"
+
+[database]
+userName  = "postgres"
+password  = "123456"
+ipAddress = "localhost"
+port      = 5432
+dbName    = "db_novel"
+
+[redis]
+Addr        = "localhost:6379"
+Password    = ""
+DB          = 0
