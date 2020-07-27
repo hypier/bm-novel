@@ -41,7 +41,7 @@ func LoadConfig() {
 
 	fileName := "./configs/server/config.toml"
 	if _, err := toml.DecodeFile(fileName, &Config); err != nil {
-		_ = errors.WithStack(err)
-		fmt.Println(err)
+		err = errors.WithStack(err)
+		fmt.Printf("%+v", err)
 	}
 }
