@@ -3,7 +3,7 @@ FROM reg.haochang.tv/base/golang:1.14.4 as builder
 
 ARG BOT_ACCESS_TOKEN
 
-ENV GOPROXY=https://goproxy.haochang.tv,https://goproxy.cn,direct \
+ENV GOPROXY=https://goproxy.cn,direct \
     GOPRIVATE=gitlab.haochang.tv \
     CGO_ENABLED=0 \
     CGO_ENABLED=0 \
