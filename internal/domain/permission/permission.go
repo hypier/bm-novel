@@ -18,10 +18,12 @@ type Permission struct {
 	Roles  pq.StringArray `json:"roles" db:"roles"`
 }
 
+// TableName 表名
 func (p Permission) TableName() string {
 	return "permission"
 }
 
+// OnEntityEvent 持久化事件
 func (p Permission) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	return nil
 }

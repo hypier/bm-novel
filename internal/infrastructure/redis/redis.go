@@ -27,22 +27,27 @@ func init() {
 type Cacher struct {
 }
 
+//
 func GetChcher() *Cacher {
 	return &Cacher{}
 }
 
+// Get 获取单值
 func (r Cacher) Get(key string) ([]byte, error) {
 	return rdb.Get(ctx, key).Bytes()
 }
 
+// Put 写入单值
 func (r Cacher) Put(key string, data []byte, expiration time.Duration) error {
 	return rdb.Set(ctx, key, data, expiration).Err()
 }
 
+// HGet 获取redis
 func (r Cacher) HGet(key string, field string) ([]byte, error) {
 	return rdb.HGet(ctx, key, field).Bytes()
 }
 
+// HPut 写入redis
 func (r Cacher) HPut(key string, field string, data []byte, expiration time.Duration) error {
 	err := rdb.HSetNX(ctx, key, field, data).Err()
 
@@ -53,10 +58,12 @@ func (r Cacher) HPut(key string, field string, data []byte, expiration time.Dura
 	return err
 }
 
+// Delete 删除
 func (r Cacher) Delete(key string) error {
 	return rdb.Del(ctx, key).Err()
 }
 
+// Exists 是否存在
 func (r Cacher) Exists(keys ...string) (bool, error) {
 	result, err := rdb.Exists(ctx, keys...).Result()
 
@@ -71,6 +78,7 @@ func (r Cacher) Exists(keys ...string) (bool, error) {
 	return true, nil
 }
 
+// HExists 是否存在
 func (r Cacher) HExists(key, field string) (bool, error) {
 	return rdb.HExists(ctx, key, field).Result()
 }

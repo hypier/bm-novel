@@ -1,5 +1,5 @@
 package novel
 
-// 段落
+// Paragraph 段落
 type Paragraph struct {
 }

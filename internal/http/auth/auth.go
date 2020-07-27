@@ -16,9 +16,12 @@ import (
 )
 
 var (
-	TokenAuth      *jwtauth.JWTAuth
+	// TokenAuth jwt认证
+	TokenAuth *jwtauth.JWTAuth
+	// PermissionTime 权限点缓存时间
 	PermissionTime = time.Hour * 48
-	LoginExpHour   = time.Hour * 24
+	// LoginExpHour 登陆过期时间
+	LoginExpHour = time.Hour * 24
 )
 
 func init() {
@@ -38,6 +41,7 @@ func setJWT(auth *user.User, uid string) (string, error) {
 	return tokenString, err
 }
 
+// SetAuth 写入认证
 func SetAuth(auth *user.User, w http.ResponseWriter) error {
 
 	key := fmt.Sprintf("bm:login:%s", auth.UserID.String())
@@ -57,6 +61,7 @@ func SetAuth(auth *user.User, w http.ResponseWriter) error {
 	return err
 }
 
+// GetAuth 获取认证
 func GetAuth(r *http.Request) (userID string, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
@@ -83,6 +88,7 @@ func getAuthUID(r *http.Request) (uid string, err error) {
 	return
 }
 
+// ClearAuth 清除认证
 func ClearAuth(r *http.Request, w http.ResponseWriter) {
 	userID, err := GetAuth(r)
 	if err != nil {

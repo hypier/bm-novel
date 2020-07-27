@@ -1,8 +1,9 @@
 package novel
 
-// 小说
+// Novel 小说
 type Novel struct {
 }
 
+// ChapterFormat 章节格式
 type ChapterFormat struct {
 }

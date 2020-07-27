@@ -16,6 +16,7 @@ func main() {
 	_ = http.ListenAndServe(":8888", APIRouter())
 }
 
+// APIRouter Api路由
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 

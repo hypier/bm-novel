@@ -1,5 +1,5 @@
 package novel
 
-// 集数
+// Episode 集数
 type Episode struct {
 }

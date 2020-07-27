@@ -26,7 +26,7 @@ var (
 	DefaultPassword = "123456"
 )
 
-// Roles 会员数组
+// Users 会员数组
 type Users []*User
 
 // User 用户基本信息.

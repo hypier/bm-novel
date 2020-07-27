@@ -1,5 +1,5 @@
 package novel
 
-// 角色
+// Role 角色
 type Role struct {
 }

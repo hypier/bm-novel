@@ -12,7 +12,7 @@ import (
 	"github.com/joyparty/httpkit"
 )
 
-// 创建用户
+// PostUsers 创建用户
 func PostUsers(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 用户名
@@ -42,7 +42,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 	web.WriteStats(w, err)
 }
 
-// 查询用户列表
+// GetUsers 查询用户列表
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
@@ -71,7 +71,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	writeUsersResp(users, w)
 }
 
-// 编辑用户
+// PatchUsers 编辑用户
 func PatchUsers(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 账号名
@@ -106,7 +106,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 	web.WriteStats(w, err)
 }
 
-// 锁定用户
+// PostUsersLock 锁定用户
 func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "user_id")
 	if userID == "" {
@@ -125,7 +125,7 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// 解锁用户
+// DeleteUsersLock 解锁用户
 func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "user_id")
 	if userID == "" {
@@ -143,7 +143,7 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 	web.WriteStats(w, err)
 }
 
-// 重置密码
+// DeleteUsersPassword 重置密码
 func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "user_id")
 	if userID == "" {
@@ -161,7 +161,7 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 	web.WriteStats(w, err)
 }
 
-// 用户登陆
+// PostUsersSession 用户登陆
 func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
@@ -206,7 +206,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	writeLoginResp(usr, w)
 }
 
-// 登陆后重设密码
+// PutUsersSessionPassword 登陆后重设密码
 func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 	params := struct {
 		// 密码

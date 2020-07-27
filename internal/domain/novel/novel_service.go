@@ -1,5 +1,6 @@
 package novel
 
+// INovelService 小说服务接口
 type INovelService interface {
 
 	// 创建小说
@@ -49,6 +50,7 @@ type IRoleService interface {
 	Delete(roleCode string) error
 }
 
+// IEpisodeService 集数接口
 type IEpisodeService interface {
 	// 定集
 	Create(paragraphCode *[]string)

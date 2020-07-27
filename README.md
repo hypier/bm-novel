@@ -18,8 +18,11 @@
 - api: md + postman
 - error: pkg/errors
 - log: -
-- code inspection: revive
 
+- 代码检查 
+```shell script
+revive -config=revive.toml -formatter friendly bm-novel/...
+```
 
 
 [API接口]: https://gitlab.haochang.tv/heyong/bm-novel/issues?scope=all&utf8=%E2%9C%93&state=opened&label_name[]=documentation

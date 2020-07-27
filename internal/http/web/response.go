@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// WriteStats 下行状态码
 func WriteStats(w http.ResponseWriter, err error) {
 	if err == nil {
 		return

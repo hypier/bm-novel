@@ -14,10 +14,12 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// UserRepository 用户持久化
 type UserRepository struct {
 	Ctx context.Context
 }
 
+// FindList 查询用户列表
 func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) (user.Users, error) {
 
 	var r pq.StringArray = roleCode
@@ -58,6 +60,7 @@ func (u *UserRepository) FindList(roleCode []string, realName string, pageIndex 
 	return *users, err
 }
 
+// FindOne 根据ID查询
 func (u *UserRepository) FindOne(id string) (*user.User, error) {
 	userID, err := uuid.FromString(id)
 	if err != nil {
@@ -73,6 +76,7 @@ func (u *UserRepository) FindOne(id string) (*user.User, error) {
 	return usr, nil
 }
 
+// FindByName 根据用户名查询用户
 func (u *UserRepository) FindByName(name string) (*user.User, error) {
 	usr := user.User{}
 	strSQL, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
@@ -94,6 +98,7 @@ func (u *UserRepository) FindByName(name string) (*user.User, error) {
 	return nil, err
 }
 
+// Create 创建
 func (u *UserRepository) Create(user *user.User) error {
 	if _, err := entity.Insert(u.Ctx, user, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
@@ -102,6 +107,7 @@ func (u *UserRepository) Create(user *user.User) error {
 	return nil
 }
 
+// Update 更新
 func (u *UserRepository) Update(user *user.User) error {
 	if err := entity.Update(u.Ctx, user, persistence.DefaultDB); err != nil {
 		return errors.New(err.Error())
