@@ -18,7 +18,7 @@
 - api: md + postman
 - error: pkg/errors
 - log: -
-
+- code inspection: revive
 
 
 
