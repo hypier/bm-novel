@@ -17,6 +17,7 @@ type INovelService interface {
 	ParseChapters(format *ChapterFormat) (*[]Chapter, error)
 }
 
+// IChapterService 章节服务
 type IChapterService interface {
 	// 保存章节
 	Save(chapter *[]Chapter)
@@ -30,6 +31,7 @@ type IChapterService interface {
 	ParseParagraph() (*[]Paragraph, error)
 }
 
+// IParagraphService 段落
 type IParagraphService interface {
 	// 编辑段落
 	Edit(source string) error
@@ -41,6 +43,7 @@ type IParagraphService interface {
 	MergeRole(sourceRoleCode, targetRoleCode string) error
 }
 
+// IRoleService 角色服务
 type IRoleService interface {
 	// 创建角色
 	Create(role *Role) error

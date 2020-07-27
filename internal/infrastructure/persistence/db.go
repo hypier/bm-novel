@@ -15,6 +15,7 @@ var (
 	dbName    = "db_novel"
 )
 
+// DefaultDB 数据库连接
 var DefaultDB *sqlx.DB
 
 func init() {

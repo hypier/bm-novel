@@ -24,10 +24,11 @@ func init() {
 	fmt.Println(pong, err)
 }
 
+// Cacher 缓存
 type Cacher struct {
 }
 
-//
+// GetChcher 获取缓存
 func GetChcher() *Cacher {
 	return &Cacher{}
 }

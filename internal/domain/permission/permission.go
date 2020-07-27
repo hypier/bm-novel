@@ -8,8 +8,10 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Permissions 权限点集合
 type Permissions []*Permission
 
+// Permission 权限点
 type Permission struct {
 	PID    uuid.UUID      `json:"pid" db:"pid,primaryKey"`
 	Name   string         `json:"name" db:"name"`
