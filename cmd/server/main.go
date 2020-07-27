@@ -29,31 +29,35 @@ func main() {
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Post("/users/session", user.PostUsersSession)
-
-	r.Route("/users", func(r chi.Router) {
+	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 		r.Use(auth.LoginAuthenticator)
-		r.Use(auth.Authorization)
 
-		r.Get("/", user.GetUsers)
-		r.Post("/", user.PostUsers)
+		r.Route("/users", func(r chi.Router) {
+			r.Use(auth.Authorization)
 
-		r.Route("/{user_id}", func(r chi.Router) {
+			r.Get("/", user.GetUsers)
+			r.Post("/", user.PostUsers)
+		})
+
+		r.Route("/users/session", func(r chi.Router) {
+			r.Delete("/", user.DeleteUsersSession)
+			r.Put("/password", user.PutUsersSessionPassword)
+		})
+
+		r.Route("/users/{user_id}", func(r chi.Router) {
+			r.Use(auth.Authorization)
+
 			r.Patch("/", user.PatchUsers)
 			r.Post("/lock", user.PostUsersLock)
 			r.Delete("/lock", user.DeleteUsersLock)
 			r.Delete("/password", user.DeleteUsersPassword)
 		})
 
-		r.Route("/session", func(r chi.Router) {
-			//r.Post("/", user.PostUsersSession)
-			r.Delete("/", user.DeleteUsersSession)
-			r.Put("/password", user.PutUsersSessionPassword)
-		})
-
 	})
+
+	r.Post("/users/session", user.PostUsersSession)
 
 	return r
 }

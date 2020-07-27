@@ -8,9 +8,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 	uuid "github.com/satori/go.uuid"
 )
@@ -141,28 +143,36 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 func Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := putCache(r); err != nil {
-			http.Error(w, http.StatusText(401), 401)
+			http.Error(w, http.StatusText(403), 403)
 			return
 		}
 
-		uri := r.URL.String()
+		pattern := chi.RouteContext(r.Context()).RoutePattern()
+
+		if strings.HasSuffix(pattern, "/*") {
+			routePath := chi.RouteContext(r.Context()).RoutePath
+			pattern = strings.TrimRight(pattern, "/*") + routePath
+		}
+
+		fmt.Println(r.URL.String(), pattern)
 		method := r.Method
 
-		roles, err := getPermission(uri, method)
+		roles, err := getPermission(pattern, method)
 		if err != nil {
-			http.Error(w, http.StatusText(401), 401)
+			http.Error(w, http.StatusText(403), 403)
 			return
 		}
 
 		if roles == nil {
 			// 没有配置默认通过
-			next.ServeHTTP(w, r)
+			http.Error(w, http.StatusText(403), 403)
+			//next.ServeHTTP(w, r)
 			return
 		}
 
 		// 检查是否有权限
 		if !checkRoles(r, roles) {
-			http.Error(w, http.StatusText(401), 401)
+			http.Error(w, http.StatusText(403), 403)
 			return
 		}
 

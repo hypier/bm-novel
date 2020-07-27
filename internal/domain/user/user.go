@@ -13,15 +13,15 @@ import (
 
 var (
 	// ErrUserConflict 用户名重复错误.
-	ErrUserConflict = errors.New("User Conflict")
+	ErrUserConflict = "User Conflict"
 	// ErrUserNotFound 用户不存在.
-	ErrUserNotFound = errors.New("User Not Found")
+	ErrUserNotFound = "User Not Found"
 	// ErrUserLocked 用户被锁定.
-	ErrUserLocked = errors.New("User Locked")
+	ErrUserLocked = "User Locked"
 	// ErrNotAcceptable 不接受修改.
-	ErrNotAcceptable = errors.New("Not Acceptable")
+	ErrNotAcceptable = "Not Acceptable"
 	// ErrPasswordIncorrect 用户名或密码错误.
-	ErrPasswordIncorrect = errors.New("username or password is incorrect")
+	ErrPasswordIncorrect = "username or password is incorrect"
 	// DefaultPassword 默认密码.
 	DefaultPassword = "123456"
 )
@@ -76,7 +76,7 @@ func (u *User) Load(userID string) (*User, error) {
 
 	u, err := u.repo.FindOne(userID)
 	if err != nil {
-		return nil, ErrUserNotFound
+		return nil, errors.New(ErrUserNotFound)
 	}
 
 	u.repo = repo
@@ -95,7 +95,7 @@ func (u *User) Create(user User) (*User, error) {
 	if err != nil {
 		return nil, err
 	} else if dbUser != nil && dbUser.UserName == user.UserName {
-		return nil, ErrUserConflict
+		return nil, errors.New(ErrUserConflict)
 	}
 
 	u.Password = string(hashPassword)
@@ -111,7 +111,7 @@ func (u *User) Create(user User) (*User, error) {
 // Edit 编辑
 func (u *User) Edit(user User) error {
 	if !u.isPersistence {
-		return ErrUserNotFound
+		return errors.New(ErrUserNotFound)
 	}
 
 	u.RealName = user.RealName
@@ -123,7 +123,7 @@ func (u *User) Edit(user User) error {
 	if err != nil {
 		return errors.New(err.Error())
 	} else if dbUser != nil && dbUser.UserID != u.UserID {
-		return ErrUserConflict
+		return errors.New(ErrUserConflict)
 	}
 
 	return u.repo.Update(u)
@@ -132,11 +132,11 @@ func (u *User) Edit(user User) error {
 // ChangeInitPassword 修改初始密码
 func (u *User) ChangeInitPassword(password string) error {
 	if !u.isPersistence {
-		return ErrUserNotFound
+		return errors.New(ErrUserNotFound)
 	}
 
 	if !u.NeedChangePassword {
-		return ErrNotAcceptable
+		return errors.New(ErrNotAcceptable)
 	}
 
 	hashPassword, err := security.Hash(password)
@@ -151,7 +151,7 @@ func (u *User) ChangeInitPassword(password string) error {
 // ResetPassword 重置密码
 func (u *User) ResetPassword() error {
 	if !u.isPersistence {
-		return ErrUserNotFound
+		return errors.New(ErrUserNotFound)
 	}
 
 	hashPassword, err := security.Hash(DefaultPassword)
@@ -167,11 +167,11 @@ func (u *User) ResetPassword() error {
 // Lock 锁定
 func (u *User) Lock() error {
 	if !u.isPersistence {
-		return ErrUserNotFound
+		return errors.New(ErrUserNotFound)
 	}
 
 	if u.IsLock {
-		return ErrNotAcceptable
+		return errors.New(ErrNotAcceptable)
 	}
 
 	u.IsLock = true
@@ -181,11 +181,11 @@ func (u *User) Lock() error {
 // Unlock 解锁
 func (u *User) Unlock() error {
 	if !u.isPersistence {
-		return ErrUserNotFound
+		return errors.New(ErrUserNotFound)
 	}
 
 	if !u.IsLock {
-		return ErrNotAcceptable
+		return errors.New(ErrNotAcceptable)
 	}
 
 	u.IsLock = false
@@ -195,12 +195,12 @@ func (u *User) Unlock() error {
 // CheckPassword ： 验证密码
 func (u *User) CheckPassword(password string) error {
 	if !u.isPersistence {
-		return ErrUserNotFound
+		return errors.New(ErrUserNotFound)
 	}
 
 	err := security.VerifyPassword(u.Password, password)
 	if err != nil {
-		return ErrPasswordIncorrect
+		return errors.New(ErrPasswordIncorrect)
 	}
 
 	return nil

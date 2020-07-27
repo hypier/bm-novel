@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-chi/chi"
 	"github.com/joyparty/httpkit"
 )
@@ -179,7 +181,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	usr, err := userRepo.FindByName(params.UserName)
 
 	if err == nil && usr.IsLock {
-		err = user.ErrUserLocked
+		err = errors.New(user.ErrUserLocked)
 	}
 
 	if err != nil {

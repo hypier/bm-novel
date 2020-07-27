@@ -12,7 +12,7 @@ func WriteStats(w http.ResponseWriter, err error) {
 		return
 	}
 
-	switch err {
+	switch err.Error() {
 	case user.ErrUserNotFound:
 		w.WriteHeader(404)
 	case user.ErrNotAcceptable:
@@ -27,5 +27,5 @@ func WriteStats(w http.ResponseWriter, err error) {
 		w.WriteHeader(500)
 	}
 
-	fmt.Println(err)
+	fmt.Printf("%+v", err)
 }

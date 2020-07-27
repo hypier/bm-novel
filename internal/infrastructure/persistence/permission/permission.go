@@ -40,3 +40,11 @@ func (p Repository) Create(permission *permission.Permission) error {
 
 	return nil
 }
+
+func (p Repository) BatchCreate(permissions permission.Permissions) error {
+	for _, v := range permissions {
+		_ = p.Create(v)
+	}
+
+	return nil
+}
