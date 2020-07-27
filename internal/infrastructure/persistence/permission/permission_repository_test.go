@@ -22,13 +22,15 @@ func TestPermissionRepository_Create(t *testing.T) {
 	per := permission.Permission{
 		PID:    uuid.NewV4(),
 		URI:    "/users",
-		Name:   "创建",
-		Method: "POST",
-		Users:  []string{"admin", "common"},
+		Name:   "查询",
+		Method: "GET",
+		Roles:  []string{"admin"},
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
 	repo := &PermissionRepository{ctx}
 
-	_ = repo.Create(&per)
+	err := repo.Create(&per)
+
+	fmt.Println(err)
 }

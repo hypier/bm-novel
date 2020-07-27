@@ -17,7 +17,7 @@ func TestCacher_Put(t *testing.T) {
 			UserName: "fun",
 		}
 		//usr, _ := json.Marshal(u)
-		err := GetChcher().Put("login:"+u.UserName, []byte(u.UserID.String()), time.Second*60)
+		err := GetChcher().Put("login:"+u.UserName, []byte(u.UserID.String()), time.Second*20)
 
 		get, err := GetChcher().Get("login:" + u.UserName)
 		fmt.Println(string(get))
@@ -45,4 +45,12 @@ func TestCacher_HPut(t *testing.T) {
 			fmt.Println(err)
 		}
 	}
+}
+
+func TestCacher_Exists(t *testing.T) {
+	key := "login:fun"
+	//field := "e212fa4f-de00-4a5b-b0d3-650ee5ebe79b"
+	//err := GetChcher().HExists(key, field)
+	result, err := rdb.Exists(ctx, key).Result()
+	fmt.Println(result, err)
 }

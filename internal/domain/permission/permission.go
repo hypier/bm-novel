@@ -15,7 +15,7 @@ type Permission struct {
 	Name   string         `json:"name" db:"name"`
 	URI    string         `json:"uri" db:"uri"`
 	Method string         `json:"method" db:"method"`
-	Users  pq.StringArray `json:"users" db:"users"`
+	Roles  pq.StringArray `json:"roles" db:"roles"`
 }
 
 func (p Permission) TableName() string {

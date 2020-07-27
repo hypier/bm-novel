@@ -57,6 +57,20 @@ func (r Cacher) Delete(key string) error {
 	return rdb.Del(ctx, key).Err()
 }
 
-func (r Cacher) Exists(keys ...string) error {
-	return rdb.Exists(ctx, keys...).Err()
+func (r Cacher) Exists(keys ...string) (bool, error) {
+	result, err := rdb.Exists(ctx, keys...).Result()
+
+	if err != nil {
+		return false, err
+	}
+
+	if result == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (r Cacher) HExists(key, field string) (bool, error) {
+	return rdb.HExists(ctx, key, field).Result()
 }
