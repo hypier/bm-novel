@@ -8,6 +8,6 @@ port      = 5432
 dbName    = "db_novel"
 
 [redis]
-Addr        = "localhost:6379"
-Password    = ""
-DB          = 0
+ipAddress   = "localhost:6379"
+password    = ""
+db          = 0

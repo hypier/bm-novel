@@ -1,29 +1,25 @@
 package persistence
 
 import (
+	"bm-novel/internal/config"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
 
-var (
-	userName  = "postgres"
-	password  = "123456"
-	ipAddress = "localhost"
-	port      = 5432
-	dbName    = "db_novel"
-)
-
 // DefaultDB 数据库连接
 var DefaultDB *sqlx.DB
 
 func init() {
+	config.LoadConfig()
 	DefaultDB, _ = connectMysql()
 }
 
 func connectMysql() (*sqlx.DB, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", userName, password, ipAddress, port, dbName)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", config.Config.DB.UserName,
+		config.Config.DB.Password, config.Config.DB.IPAddress, config.Config.DB.Port, config.Config.DB.DBName)
+
 	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
 		return nil, errors.New(err.Error())

@@ -1,8 +1,13 @@
 package config
 
-//
-//import "testing"
-//
-//func TestLoadDatabase(t *testing.T) {
-//	LoadDatabase()
-//}
+import (
+	"fmt"
+	"testing"
+)
+
+func TestLoadDatabase(t *testing.T) {
+
+	LoadConfig()
+
+	fmt.Println(Config)
+}

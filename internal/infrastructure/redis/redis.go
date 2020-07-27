@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"bm-novel/internal/config"
 	"context"
 	"fmt"
 	"time"
@@ -14,10 +15,11 @@ var (
 )
 
 func init() {
+	config.LoadConfig()
 	rdb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:     config.Config.Redis.IPAddress,
+		Password: config.Config.Redis.Password,
+		DB:       config.Config.Redis.DB,
 	})
 
 	pong, err := rdb.Ping(ctx).Result()

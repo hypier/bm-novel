@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bm-novel/internal/config"
 	"bm-novel/internal/controller/user"
 	"bm-novel/internal/http/auth"
 	"fmt"
@@ -10,10 +11,18 @@ import (
 	"github.com/go-chi/jwtauth"
 )
 
+func init() {
+	config.LoadConfig()
+}
+
 func main() {
 
-	fmt.Println("Start Server(8888)...")
-	_ = http.ListenAndServe(":8888", APIRouter())
+	fmt.Printf("Start Server(%s)...\n", config.Config.Server)
+	err := http.ListenAndServe(config.Config.Server, APIRouter())
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // APIRouter Api路由
