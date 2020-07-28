@@ -47,6 +47,14 @@ func TestCacher_HPut(t *testing.T) {
 	}
 }
 
+func TestCacher_HMSet(t *testing.T) {
+
+	key := "login:fun"
+	err := rdb.HMSet(ctx, key, uuid.NewV4().String(), uuid.NewV4().String(), uuid.NewV4().String(), uuid.NewV4().String())
+
+	fmt.Println(err)
+}
+
 func TestCacher_Exists(t *testing.T) {
 	key := "login:fun"
 	//field := "e212fa4f-de00-4a5b-b0d3-650ee5ebe79b"

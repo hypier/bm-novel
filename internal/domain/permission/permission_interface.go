@@ -4,5 +4,5 @@ package permission
 type IPermissionRepository interface {
 	FindAll() (*Permissions, error)
 	Create(permission *Permission) error
-	BatchCreate(permissions Permissions) error
+	BatchCreate(permissions *Permissions) error
 }

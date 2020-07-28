@@ -39,7 +39,7 @@ func LoadConfig() {
 		return
 	}
 
-	//fileName := "../../../../configs/server/config.toml"
+	//fileName := "../../../configs/server/config.toml"
 	fileName := "./configs/server/config.toml"
 	if _, err := toml.DecodeFile(fileName, &Config); err != nil {
 		err = errors.WithStack(err)

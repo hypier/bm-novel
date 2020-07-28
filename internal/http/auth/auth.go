@@ -27,6 +27,8 @@ var (
 	loginExpHour = time.Hour * 24
 	// visitorCacheKey 访问者的缓存key
 	visitorCacheKey = "bm:login:%s"
+	// permissionCacheKey 权限缓存key
+	permissionCacheKey = "bm:permission"
 )
 
 func init() {
@@ -73,7 +75,8 @@ func ClearAuth(r *http.Request, w http.ResponseWriter) error {
 
 // generateClientToken 生成客户端token
 func generateClientToken(visitor *user.User, visitID string) (string, error) {
-	claims := jwt.MapClaims{"name": visitor.UserName,
+	claims := jwt.MapClaims{
+		"name":  visitor.UserName,
 		"id":    visitor.UserID.String(),
 		"roles": visitor.RoleCode,
 		"jti":   visitID,
@@ -242,10 +245,9 @@ func checkRoles(r *http.Request, roles []string) bool {
 }
 
 func getPermission(uri string, method string) (roles []string, err error) {
-	key := "bm:permission"
 	field := fmt.Sprintf("%s%s", method, uri)
 
-	exists, err := redis.GetChcher().HExists(key, field)
+	exists, err := redis.GetChcher().HExists(permissionCacheKey, field)
 	if err != nil {
 		return
 	}
@@ -255,7 +257,7 @@ func getPermission(uri string, method string) (roles []string, err error) {
 		return
 	}
 
-	val, err := redis.GetChcher().HGet(key, field)
+	val, err := redis.GetChcher().HGet(permissionCacheKey, field)
 	if err != nil {
 		return
 	}
@@ -268,8 +270,8 @@ func getPermission(uri string, method string) (roles []string, err error) {
 }
 
 func putCache(r *http.Request) error {
-	key := "bm:permission"
-	exists, err := redis.GetChcher().Exists(key)
+
+	exists, err := redis.GetChcher().Exists(permissionCacheKey)
 
 	if err != nil {
 		return err
@@ -279,25 +281,31 @@ func putCache(r *http.Request) error {
 		return nil
 	}
 
+	//todo 查不出来
 	repo := &permission.Repository{Ctx: r.Context()}
 	pms, err := repo.FindAll()
 	if err != nil {
 		return err
 	}
 
-	// todo 改进为批量缓存
+	num := len(*pms)
+	if num <= 0 {
+		return web.ErrServerError
+	}
+
+	values := make([]interface{}, num)
+
 	for _, v := range *pms {
-		ps, err := json.Marshal(v.Roles)
+		roles, err := json.Marshal(v.Roles)
 		if err != nil {
 			continue
 		}
 
 		field := fmt.Sprintf("%s%s", v.Method, v.URI)
-		err = redis.GetChcher().HPut(key, field, ps, permissionTime)
-		if err != nil {
-			continue
-		}
+		values = append(append(values, roles), field)
 	}
+
+	err = redis.GetChcher().HMPut(permissionCacheKey, permissionTime, values)
 
 	return err
 }

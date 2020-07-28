@@ -65,6 +65,17 @@ func (r Cacher) HPut(key string, field string, data []byte, expiration time.Dura
 	return err
 }
 
+// HMPut 批量写入redis
+func (r Cacher) HMPut(key string, expiration time.Duration, values ...interface{}) error {
+	err := rdb.HMSet(ctx, key, values...).Err()
+
+	if err == nil {
+		err = rdb.Expire(ctx, key, expiration).Err()
+	}
+
+	return err
+}
+
 // Delete 删除
 func (r Cacher) Delete(key string) error {
 	return rdb.Del(ctx, key).Err()
