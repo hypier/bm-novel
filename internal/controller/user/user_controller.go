@@ -8,11 +8,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/go-chi/chi"
 	"github.com/joyparty/httpkit"
 )
+
+var us = user.Service{Repo: ur.New()}
 
 // PostUsers 创建用户
 func PostUsers(w http.ResponseWriter, r *http.Request) {
@@ -33,8 +35,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	_, err := user.New(userRepo).Create(u)
+	_, err := us.Create(r.Context(), u)
 
 	if err == nil {
 		w.WriteHeader(201)
@@ -61,10 +62,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	userRepo := ur.Repository{Ctx: r.Context()}
-
-	users, err := userRepo.FindList(params.RoleCode, params.RealName, params.PageIndex, params.PageSize)
-
+	users, err := ur.New().FindList(r.Context(), params.RoleCode, params.RealName, params.PageIndex, params.PageSize)
 	if err != nil {
 		w.WriteHeader(500)
 		return
@@ -92,74 +90,49 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	userID := chi.URLParam(r, "user_id")
-	if userID == "" {
-		w.WriteHeader(404)
+	userID, err := GetUserIdForUrlParam(r)
+	if err != nil {
+		web.WriteStats(w, err)
 		return
 	}
 
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userID)
-
-	if err == nil {
-		err = usr.Edit(u)
-	}
-
+	err = us.Edit(r.Context(), userID, u)
 	web.WriteStats(w, err)
 }
 
 // PostUsersLock 锁定用户
 func PostUsersLock(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "user_id")
-	if userID == "" {
-		w.WriteHeader(404)
+	userID, err := GetUserIdForUrlParam(r)
+	if err != nil {
+		web.WriteStats(w, err)
 		return
 	}
 
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userID)
-
-	if err == nil {
-		err = usr.Lock()
-	}
-
+	err = us.Lock(r.Context(), userID)
 	web.WriteStats(w, err)
-
 }
 
 // DeleteUsersLock 解锁用户
 func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "user_id")
-	if userID == "" {
-		w.WriteHeader(404)
+	userID, err := GetUserIdForUrlParam(r)
+	if err != nil {
+		web.WriteStats(w, err)
 		return
 	}
 
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userID)
-
-	if err == nil {
-		err = usr.Unlock()
-	}
-
+	err = us.Unlock(r.Context(), userID)
 	web.WriteStats(w, err)
 }
 
 // DeleteUsersPassword 重置密码
 func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
-	userID := chi.URLParam(r, "user_id")
-	if userID == "" {
-		w.WriteHeader(404)
+	userID, err := GetUserIdForUrlParam(r)
+	if err != nil {
+		web.WriteStats(w, err)
 		return
 	}
 
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userID)
-
-	if err == nil {
-		err = usr.ResetPassword()
-	}
-
+	err = us.ResetPassword(r.Context(), userID)
 	web.WriteStats(w, err)
 }
 
@@ -176,22 +149,8 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	// 查询用户
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	usr, err := userRepo.FindByName(params.UserName)
-
-	if err == nil && usr.IsLock {
-		err = errors.New(user.ErrUserLocked)
-	}
-
-	if err != nil {
-		web.WriteStats(w, err)
-		return
-	}
-
 	// 验证密码
-	usr.SetRepo(userRepo)
-	err = usr.CheckPassword(params.Password)
+	var usr, err = us.Login(r.Context(), params.UserName, params.Password)
 	if err != nil {
 		// 验证失败
 		web.WriteStats(w, err)
@@ -223,12 +182,7 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userRepo := &ur.Repository{Ctx: r.Context()}
-	usr, err := user.New(userRepo).Load(userID)
-
-	if err == nil {
-		err = usr.ChangeInitPassword(params.Password)
-	}
+	err = us.ChangeInitPassword(r.Context(), userID, params.Password)
 
 	web.WriteStats(w, err)
 }
@@ -287,4 +241,19 @@ func writeUsersResp(users user.Users, w http.ResponseWriter) {
 		return
 	}
 	_, _ = w.Write(b)
+}
+
+func GetUserIdForUrlParam(r *http.Request) (userID uuid.UUID, err error) {
+	id := chi.URLParam(r, "user_id")
+
+	if id == "" {
+		return userID, web.ErrUserNotFound
+	}
+
+	userID, err = uuid.FromString(id)
+	if err != nil {
+		return userID, web.ErrServerError
+	}
+
+	return userID, nil
 }

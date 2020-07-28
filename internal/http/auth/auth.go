@@ -64,14 +64,14 @@ func SetAuth(auth *user.User, w http.ResponseWriter) error {
 }
 
 // GetAuth 获取认证
-func GetAuth(r *http.Request) (userID string, err error) {
+func GetAuth(r *http.Request) (userID uuid.UUID, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		return
 	}
 
 	if id, ok := claims["id"]; ok {
-		userID = id.(string)
+		userID, err = uuid.FromString(id.(string))
 	}
 
 	return
@@ -107,8 +107,9 @@ func ClearAuth(r *http.Request, w http.ResponseWriter) {
 func LoginAuthenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 从jwt中获取用户ID
+		// todo 判断userID为空
 		userID, err := GetAuth(r)
-		if err != nil || userID == "" {
+		if err != nil {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}

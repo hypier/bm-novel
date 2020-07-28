@@ -9,13 +9,13 @@ import (
 // IUserService 用户领域服务.
 type IUserService interface {
 	Create(ctx context.Context, user User) (*User, error)
-	Edit(ctx context.Context, user User) error
+	Edit(ctx context.Context, userID uuid.UUID, user User) error
 
 	ChangeInitPassword(ctx context.Context, userID uuid.UUID, password string) error
 	ResetPassword(ctx context.Context, userID uuid.UUID) error
 	Lock(ctx context.Context, userID uuid.UUID) error
 	Unlock(ctx context.Context, userID uuid.UUID) error
-	CheckPassword(ctx context.Context, userName string, password string) error
+	Login(ctx context.Context, userName string, password string) (*User, error)
 }
 
 // IUserRepository 用户持久化服务.

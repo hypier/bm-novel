@@ -1,13 +1,11 @@
 package user
 
 import (
-	"bm-novel/internal/infrastructure/security"
 	"context"
 	"time"
 
 	"github.com/joyparty/entity"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -33,160 +31,6 @@ type User struct {
 
 	CreateAt time.Time `db:"create_at,refuseUpdate"`
 	UpdateAt time.Time `db:"update_at"`
-
-	// 是否持久化，内部参数
-	isPersistence bool
-}
-
-// New 创建一个带持久化的对象
-func New(repo IUserRepository) IUserService {
-	return &User{repo: repo}
-}
-
-// SetPersistence 是否被持久化到数据库
-func (u *User) SetPersistence() {
-	u.isPersistence = true
-}
-
-// SetRepo 设置持久化对象
-func (u *User) SetRepo(repo IUserRepository) {
-	u.repo = repo
-}
-
-// Load 载入对象
-func (u *User) Load(userID string) (*User, error) {
-	repo := u.repo
-
-	u, err := u.repo.FindOne(userID)
-	if err != nil {
-		return nil, errors.New(ErrUserNotFound)
-	}
-
-	u.repo = repo
-	return u, nil
-}
-
-// Create 创建用户
-func (u *User) Create(user User) (*User, error) {
-	hashPassword, err := security.Hash(DefaultPassword)
-	if err != nil {
-		return nil, err
-	}
-
-	dbUser, err := u.repo.FindByName(user.UserName)
-
-	if err != nil {
-		return nil, err
-	} else if dbUser != nil && dbUser.UserName == user.UserName {
-		return nil, errors.New(ErrUserConflict)
-	}
-
-	u.Password = string(hashPassword)
-	u.UserID = uuid.NewV4()
-	u.NeedChangePassword = true
-	u.UserName = user.UserName
-	u.RoleCode = user.RoleCode
-	u.RealName = user.RealName
-
-	return u, u.repo.Create(u)
-}
-
-// Edit 编辑
-func (u *User) Edit(user User) error {
-	if !u.isPersistence {
-		return errors.New(ErrUserNotFound)
-	}
-
-	u.RealName = user.RealName
-	u.RoleCode = user.RoleCode
-	u.UserName = user.UserName
-
-	// 查询是否重复
-	dbUser, err := u.repo.FindByName(user.UserName)
-	if err != nil {
-		return errors.New(err.Error())
-	} else if dbUser != nil && dbUser.UserID != u.UserID {
-		return errors.New(ErrUserConflict)
-	}
-
-	return u.repo.Update(u)
-}
-
-// ChangeInitPassword 修改初始密码
-func (u *User) ChangeInitPassword(password string) error {
-	if !u.isPersistence {
-		return errors.New(ErrUserNotFound)
-	}
-
-	if !u.NeedChangePassword {
-		return errors.New(ErrNotAcceptable)
-	}
-
-	hashPassword, err := security.Hash(password)
-	if err != nil {
-		return errors.New(err.Error())
-	}
-	u.Password = string(hashPassword)
-	u.NeedChangePassword = false
-	return u.repo.Update(u)
-}
-
-// ResetPassword 重置密码
-func (u *User) ResetPassword() error {
-	if !u.isPersistence {
-		return errors.New(ErrUserNotFound)
-	}
-
-	hashPassword, err := security.Hash(DefaultPassword)
-	if err != nil {
-		return errors.New(err.Error())
-	}
-	u.Password = string(hashPassword)
-	u.NeedChangePassword = true
-
-	return u.repo.Update(u)
-}
-
-// Lock 锁定
-func (u *User) Lock() error {
-	if !u.isPersistence {
-		return errors.New(ErrUserNotFound)
-	}
-
-	if u.IsLock {
-		return errors.New(ErrNotAcceptable)
-	}
-
-	u.IsLock = true
-	return u.repo.Update(u)
-}
-
-// Unlock 解锁
-func (u *User) Unlock() error {
-	if !u.isPersistence {
-		return errors.New(ErrUserNotFound)
-	}
-
-	if !u.IsLock {
-		return errors.New(ErrNotAcceptable)
-	}
-
-	u.IsLock = false
-	return u.repo.Update(u)
-}
-
-// CheckPassword ： 验证密码
-func (u *User) CheckPassword(password string) error {
-	if !u.isPersistence {
-		return errors.New(ErrUserNotFound)
-	}
-
-	err := security.VerifyPassword(u.Password, password)
-	if err != nil {
-		return errors.New(ErrPasswordIncorrect)
-	}
-
-	return nil
 }
 
 // TableName is db table

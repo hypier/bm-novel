@@ -6,6 +6,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/doug-martin/goqu/v9"
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/joyparty/entity"
@@ -16,11 +18,16 @@ import (
 
 // Repository 用户持久化
 type Repository struct {
-	Ctx context.Context
+	db *sqlx.DB
+}
+
+// New 创建持久化对象
+func New() *Repository {
+	return &Repository{db: persistence.DefaultDB}
 }
 
 // FindList 查询用户列表
-func (u *Repository) FindList(roleCode []string, realName string, pageIndex int, pageSize int) (user.Users, error) {
+func (u *Repository) FindList(ctx context.Context, roleCode []string, realName string, pageIndex int, pageSize int) (user.Users, error) {
 
 	var r pq.StringArray = roleCode
 	usr := &user.User{}
@@ -55,29 +62,23 @@ func (u *Repository) FindList(roleCode []string, realName string, pageIndex int,
 	fmt.Println(strSQL)
 
 	users := &user.Users{}
-	err = persistence.DefaultDB.SelectContext(u.Ctx, users, strSQL, params...)
+	err = u.db.SelectContext(ctx, users, strSQL, params...)
 
 	return *users, err
 }
 
 // FindOne 根据ID查询
-func (u *Repository) FindOne(id string) (*user.User, error) {
-	userID, err := uuid.FromString(id)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
+func (u *Repository) FindOne(ctx context.Context, userID uuid.UUID) (*user.User, error) {
 	usr := &user.User{UserID: userID}
-	if err := entity.Load(u.Ctx, usr, persistence.DefaultDB); err != nil {
+	if err := entity.Load(ctx, usr, u.db); err != nil {
 		return nil, errors.New(err.Error())
 	}
 
-	usr.SetPersistence()
 	return usr, nil
 }
 
 // FindByName 根据用户名查询用户
-func (u *Repository) FindByName(name string) (*user.User, error) {
+func (u *Repository) FindByName(ctx context.Context, name string) (*user.User, error) {
 	usr := user.User{}
 	strSQL, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
 	if err != nil {
@@ -85,13 +86,12 @@ func (u *Repository) FindByName(name string) (*user.User, error) {
 	}
 
 	users := &user.Users{}
-	err = persistence.DefaultDB.SelectContext(u.Ctx, users, strSQL, params...)
+	err = u.db.SelectContext(ctx, users, strSQL, params...)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
 
 	for _, v := range *users {
-		v.SetPersistence()
 		return v, nil
 	}
 
@@ -99,8 +99,8 @@ func (u *Repository) FindByName(name string) (*user.User, error) {
 }
 
 // Create 创建
-func (u *Repository) Create(user *user.User) error {
-	if _, err := entity.Insert(u.Ctx, user, persistence.DefaultDB); err != nil {
+func (u *Repository) Create(ctx context.Context, user *user.User) error {
+	if _, err := entity.Insert(ctx, user, u.db); err != nil {
 		return errors.New(err.Error())
 	}
 
@@ -108,8 +108,8 @@ func (u *Repository) Create(user *user.User) error {
 }
 
 // Update 更新
-func (u *Repository) Update(user *user.User) error {
-	if err := entity.Update(u.Ctx, user, persistence.DefaultDB); err != nil {
+func (u *Repository) Update(ctx context.Context, user *user.User) error {
+	if err := entity.Update(ctx, user, u.db); err != nil {
 		return errors.New(err.Error())
 	}
 
