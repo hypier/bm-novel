@@ -13,6 +13,7 @@ var (
 	DefaultPassword = "123456"
 )
 
+// Service user服务
 type Service struct {
 	Repo IUserRepository
 }
@@ -133,6 +134,7 @@ func (s Service) Unlock(ctx context.Context, userID uuid.UUID) error {
 	return s.Repo.Update(ctx, dbUser)
 }
 
+// Login 用户登陆
 func (s Service) Login(ctx context.Context, userName string, password string) (*User, error) {
 	dbUser, err := s.Repo.FindByName(ctx, userName)
 	if err != nil {

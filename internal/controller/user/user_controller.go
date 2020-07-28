@@ -90,7 +90,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	userID, err := GetUserIdForUrlParam(r)
+	userID, err := getUserIDForURLParam(r)
 	if err != nil {
 		web.WriteStats(w, err)
 		return
@@ -102,7 +102,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 
 // PostUsersLock 锁定用户
 func PostUsersLock(w http.ResponseWriter, r *http.Request) {
-	userID, err := GetUserIdForUrlParam(r)
+	userID, err := getUserIDForURLParam(r)
 	if err != nil {
 		web.WriteStats(w, err)
 		return
@@ -114,7 +114,7 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUsersLock 解锁用户
 func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
-	userID, err := GetUserIdForUrlParam(r)
+	userID, err := getUserIDForURLParam(r)
 	if err != nil {
 		web.WriteStats(w, err)
 		return
@@ -126,7 +126,7 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUsersPassword 重置密码
 func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
-	userID, err := GetUserIdForUrlParam(r)
+	userID, err := getUserIDForURLParam(r)
 	if err != nil {
 		web.WriteStats(w, err)
 		return
@@ -243,7 +243,8 @@ func writeUsersResp(users user.Users, w http.ResponseWriter) {
 	_, _ = w.Write(b)
 }
 
-func GetUserIdForUrlParam(r *http.Request) (userID uuid.UUID, err error) {
+// getUserIDForURLParam 从URL上获取UserId
+func getUserIDForURLParam(r *http.Request) (userID uuid.UUID, err error) {
 	id := chi.URLParam(r, "user_id")
 
 	if id == "" {
