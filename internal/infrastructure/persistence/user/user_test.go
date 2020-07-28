@@ -13,11 +13,11 @@ func TestUserRepository_Create(t *testing.T) {
 	u1 := uuid.NewV4()
 	usr := &user.User{UserID: u1, UserName: "admin", IsLock: false, RoleCode: []string{"admin"}}
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &Repository{Ctx: ctx}
+	repo := New()
 
-	_ = repo.Create(usr)
+	_ = repo.Create(ctx, usr)
 
-	dbUser, err := repo.FindOne(u1.String())
+	dbUser, err := repo.FindOne(ctx, u1)
 
 	fmt.Println(dbUser, err)
 
@@ -25,18 +25,18 @@ func TestUserRepository_Create(t *testing.T) {
 
 func TestUserRepository_FindByName(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &Repository{Ctx: ctx}
+	repo := New()
 
-	usr, _ := repo.FindByName("chengfa21n")
+	usr, _ := repo.FindByName(ctx, "chengfa21n")
 
 	fmt.Println(usr)
 }
 
 func TestUserRepository_FindList(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &Repository{Ctx: ctx}
+	repo := New()
 
-	list, _ := repo.FindList([]string{"admin"}, "", 1, 2)
+	list, _ := repo.FindList(ctx, []string{"admin"}, "", 1, 2)
 
 	for _, v := range list {
 		fmt.Println(v.RealName)
