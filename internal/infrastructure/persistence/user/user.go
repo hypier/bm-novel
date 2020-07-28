@@ -2,7 +2,7 @@ package user
 
 import (
 	"bm-novel/internal/domain/user"
-	"bm-novel/internal/infrastructure/persistence"
+	"bm-novel/internal/infrastructure/postgres"
 	"context"
 	"fmt"
 
@@ -23,7 +23,7 @@ type Repository struct {
 
 // New 创建持久化对象
 func New() *Repository {
-	return &Repository{db: persistence.DefaultDB}
+	return &Repository{db: postgres.DefaultDB}
 }
 
 // FindList 查询用户列表

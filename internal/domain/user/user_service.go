@@ -47,6 +47,7 @@ func (s Service) Create(ctx context.Context, user User) (*User, error) {
 }
 
 // Edit 编辑
+// 增加userID 参数，让调用更明确此为必传值
 func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 
 	dbUser, err := s.Repo.FindOne(ctx, userID)

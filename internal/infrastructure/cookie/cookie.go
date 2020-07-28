@@ -2,6 +2,8 @@ package cookie
 
 import (
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 // AddCookie 存入cookie,使用cookie存储
@@ -24,6 +26,7 @@ func GetCookie(name string, r *http.Request) (string, error) {
 // ClearCookie 清除cookie
 func ClearCookie(name string, r *http.Request, w http.ResponseWriter) bool {
 	if _, err := r.Cookie(name); err != nil {
+		logrus.Error(err.Error())
 		return false
 	}
 

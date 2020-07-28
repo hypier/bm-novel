@@ -2,8 +2,9 @@ package auth
 
 import (
 	"bm-novel/internal/domain/user"
-	uuid "github.com/satori/go.uuid"
 	"testing"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func TestSetAuth(t *testing.T) {
@@ -14,7 +15,7 @@ func TestSetAuth(t *testing.T) {
 	}
 
 	for i := 0; i < 10; i++ {
-		_, _ = setJWT(&u, uuid.NewV4().String())
+		_, _ = setClientToken(&u, uuid.NewV4().String())
 	}
 
 }

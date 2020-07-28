@@ -30,15 +30,14 @@ func init() {
 	TokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 }
 
-func setJWT(auth *user.User, uid string) (string, error) {
+func setClientToken(auth *user.User, visitorID string) (string, error) {
 	claims := jwt.MapClaims{"name": auth.UserName,
 		"id":    auth.UserID.String(),
 		"roles": auth.RoleCode,
-		"jti":   uid,
+		"jti":   visitorID,
 		"exp":   time.Now().Add(LoginExpHour),
 	}
 	_, tokenString, err := TokenAuth.Encode(claims)
-	fmt.Printf("%s\n", tokenString)
 
 	return tokenString, err
 }
@@ -55,7 +54,7 @@ func SetAuth(auth *user.User, w http.ResponseWriter) error {
 		return err
 	}
 
-	if token, err := setJWT(auth, val); err == nil {
+	if token, err := setClientToken(auth, val); err == nil {
 		cookie.AddCookie("jwt", token, w)
 		return nil
 	}
@@ -77,14 +76,14 @@ func GetAuth(r *http.Request) (userID uuid.UUID, err error) {
 	return
 }
 
-func getAuthUID(r *http.Request) (uid string, err error) {
+func getVisitorID(r *http.Request) (visitorID string, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		return
 	}
 
 	if id, err := claims["jti"]; err {
-		uid = id.(string)
+		visitorID = id.(string)
 	}
 
 	return
@@ -124,7 +123,7 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 		serverUID := string(sUID)
 
 		// 从jwt中获取用户uid
-		clientUID, err := getAuthUID(r)
+		clientUID, err := getVisitorID(r)
 		if err != nil || clientUID == "" {
 			http.Error(w, http.StatusText(401), 401)
 			return

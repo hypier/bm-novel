@@ -1,11 +1,12 @@
-package persistence
+package postgres
 
 import (
 	"bm-novel/internal/config"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // DefaultDB 数据库连接
@@ -22,12 +23,14 @@ func connectMysql() (*sqlx.DB, error) {
 
 	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.New(err.Error())
+		panic(errors.WithMessage(err, "failed to connect to user db"))
 	}
 
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(3)
-	_ = db.Ping()
-
+	err = db.Ping()
+	if err != nil {
+		panic(errors.WithMessage(err, "failed to connect to user db"))
+	}
 	return db, nil
 }

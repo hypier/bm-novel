@@ -2,7 +2,7 @@ package permission
 
 import (
 	"bm-novel/internal/domain/permission"
-	"bm-novel/internal/infrastructure/persistence"
+	"bm-novel/internal/infrastructure/postgres"
 	"context"
 	"fmt"
 
@@ -26,15 +26,15 @@ func (p Repository) FindAll() (*permission.Permissions, error) {
 	}
 	fmt.Println(strSQL)
 
-	pers := &permission.Permissions{}
-	err = persistence.DefaultDB.SelectContext(p.Ctx, pers, strSQL, params...)
+	permissions := &permission.Permissions{}
+	err = postgres.DefaultDB.SelectContext(p.Ctx, permissions, strSQL, params...)
 
-	return pers, nil
+	return permissions, nil
 }
 
 // Create 创建权限点
 func (p Repository) Create(permission *permission.Permission) error {
-	if _, err := entity.Insert(p.Ctx, permission, persistence.DefaultDB); err != nil {
+	if _, err := entity.Insert(p.Ctx, permission, postgres.DefaultDB); err != nil {
 		return errors.New(err.Error())
 	}
 
