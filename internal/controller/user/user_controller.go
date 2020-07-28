@@ -157,8 +157,8 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 下发cookie
-	if err = auth.SetAuth(usr, w); err != nil {
+	// 写入认证信息
+	if err = auth.WriteAuth(usr, w); err != nil {
 		web.WriteStats(w, err)
 		return
 	}
@@ -176,7 +176,7 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	userID, err := auth.GetAuth(r)
+	userID, err := auth.GetVisitorUserID(r)
 	if err != nil {
 		w.WriteHeader(404)
 		return

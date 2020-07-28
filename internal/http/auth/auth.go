@@ -2,6 +2,7 @@ package auth
 
 import (
 	"bm-novel/internal/domain/user"
+	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/cookie"
 	"bm-novel/internal/infrastructure/persistence/permission"
 	"bm-novel/internal/infrastructure/redis"
@@ -20,50 +21,70 @@ import (
 var (
 	// TokenAuth jwt认证
 	TokenAuth *jwtauth.JWTAuth
-	// PermissionTime 权限点缓存时间
-	PermissionTime = time.Hour * 48
-	// LoginExpHour 登陆过期时间
-	LoginExpHour = time.Hour * 24
+	// permissionTime 权限点缓存时间
+	permissionTime = time.Hour * 48
+	// loginExpHour 登陆过期时间
+	loginExpHour = time.Hour * 24
+	// visitorCacheKey 访问者的缓存key
+	visitorCacheKey = "bm:login:%s"
 )
 
 func init() {
 	TokenAuth = jwtauth.New("HS256", []byte("secret"), nil)
 }
 
-func setClientToken(auth *user.User, visitorID string) (string, error) {
-	claims := jwt.MapClaims{"name": auth.UserName,
-		"id":    auth.UserID.String(),
-		"roles": auth.RoleCode,
-		"jti":   visitorID,
-		"exp":   time.Now().Add(LoginExpHour),
-	}
-	_, tokenString, err := TokenAuth.Encode(claims)
+// WriteAuth 写入认证信息
+func WriteAuth(visitor *user.User, w http.ResponseWriter) error {
 
-	return tokenString, err
-}
+	key := fmt.Sprintf(visitorCacheKey, visitor.UserID.String())
+	visitID := uuid.NewV4().String()
 
-// SetAuth 写入认证
-func SetAuth(auth *user.User, w http.ResponseWriter) error {
-
-	key := fmt.Sprintf("bm:login:%s", auth.UserID.String())
-	val := uuid.NewV4().String()
-
-	// 复写以前数据
-	err := redis.GetChcher().Put(key, []byte(val), LoginExpHour)
+	// 可重复写以前数据
+	err := redis.GetChcher().Put(key, []byte(visitID), loginExpHour)
 	if err != nil {
 		return err
 	}
 
-	if token, err := setClientToken(auth, val); err == nil {
-		cookie.AddCookie("jwt", token, w)
-		return nil
+	token, err := generateClientToken(visitor, visitID)
+	if err != nil {
+		return err
 	}
 
-	return err
+	cookie.AddCookie("jwt", token, w)
+	return nil
 }
 
-// GetAuth 获取认证
-func GetAuth(r *http.Request) (userID uuid.UUID, err error) {
+// ClearAuth 清除认证
+func ClearAuth(r *http.Request, w http.ResponseWriter) error {
+	userID, err := GetVisitorUserID(r)
+	if err != nil {
+		return err
+	}
+
+	key := fmt.Sprintf(visitorCacheKey, userID)
+
+	err = redis.GetChcher().Delete(key)
+	if err != nil {
+		return err
+	}
+
+	return cookie.ClearCookie("jwt", r, w)
+}
+
+// generateClientToken 生成客户端token
+func generateClientToken(visitor *user.User, visitID string) (string, error) {
+	claims := jwt.MapClaims{"name": visitor.UserName,
+		"id":    visitor.UserID.String(),
+		"roles": visitor.RoleCode,
+		"jti":   visitID,
+		"exp":   time.Now().Add(loginExpHour),
+	}
+	_, tokenString, err := TokenAuth.Encode(claims)
+	return tokenString, err
+}
+
+// GetVisitorUserID 获取访问者用户ID
+func GetVisitorUserID(r *http.Request) (userID uuid.UUID, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		return
@@ -71,60 +92,68 @@ func GetAuth(r *http.Request) (userID uuid.UUID, err error) {
 
 	if id, ok := claims["id"]; ok {
 		userID, err = uuid.FromString(id.(string))
+	} else {
+		err = web.ErrVisitorNotFound
 	}
 
 	return
 }
 
-func getVisitorID(r *http.Request) (visitorID string, err error) {
+// getVisitID 获取访问ID
+func getVisitID(r *http.Request) (visitID string, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		return
 	}
 
-	if id, err := claims["jti"]; err {
-		visitorID = id.(string)
+	if id, ok := claims["jti"]; ok {
+		visitID = id.(string)
+	} else {
+		err = web.ErrVisitorNotFound
 	}
 
 	return
-}
-
-// ClearAuth 清除认证
-func ClearAuth(r *http.Request, w http.ResponseWriter) {
-	userID, err := GetAuth(r)
-	if err != nil {
-		return
-	}
-
-	key := fmt.Sprintf("bm:login:%s", userID)
-
-	_ = redis.GetChcher().Delete(key)
-	cookie.ClearCookie("jwt", r, w)
 }
 
 // LoginAuthenticator 认证
 func LoginAuthenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 从jwt中获取用户ID
-		// todo 判断userID为空
-		userID, err := GetAuth(r)
+		userID, err := GetVisitorUserID(r)
 		if err != nil {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
 
 		// 从redis里获取uid
-		key := fmt.Sprintf("bm:login:%s", userID)
-		sUID, err := redis.GetChcher().Get(key)
-		if err != nil || sUID == nil {
+		key := fmt.Sprintf(visitorCacheKey, userID)
+		exists, err := redis.GetChcher().Exists(key)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+
+		if !exists {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
+
+		sUID, err := redis.GetChcher().Get(key)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+
 		serverUID := string(sUID)
 
 		// 从jwt中获取用户uid
-		clientUID, err := getVisitorID(r)
-		if err != nil || clientUID == "" {
+		clientUID, err := getVisitID(r)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+
+		if clientUID == "" {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
@@ -240,18 +269,23 @@ func getPermission(uri string, method string) (roles []string, err error) {
 
 func putCache(r *http.Request) error {
 	key := "bm:permission"
-	if exists, err := redis.GetChcher().Exists(key); err != nil || exists {
-		// 报错 或 已缓存
+	exists, err := redis.GetChcher().Exists(key)
+
+	if err != nil {
 		return err
 	}
 
-	// 设置缓存
+	if exists {
+		return nil
+	}
+
 	repo := &permission.Repository{Ctx: r.Context()}
 	pms, err := repo.FindAll()
-	if err != nil || pms == nil {
+	if err != nil {
 		return err
 	}
 
+	// todo 改进为批量缓存
 	for _, v := range *pms {
 		ps, err := json.Marshal(v.Roles)
 		if err != nil {
@@ -259,7 +293,10 @@ func putCache(r *http.Request) error {
 		}
 
 		field := fmt.Sprintf("%s%s", v.Method, v.URI)
-		err = redis.GetChcher().HPut(key, field, ps, PermissionTime)
+		err = redis.GetChcher().HPut(key, field, ps, permissionTime)
+		if err != nil {
+			continue
+		}
 	}
 
 	return err

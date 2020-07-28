@@ -21,6 +21,8 @@ var (
 	ErrUserLocked = errors.New("User Locked")
 	// ErrPasswordIncorrect 用户名或密码错误.
 	ErrPasswordIncorrect = errors.New("username or password is incorrect")
+	// ErrVisitorNotFound 没有找到访问者
+	ErrVisitorNotFound = errors.New("Visitor Not Found")
 )
 
 // WriteStats 下行状态码
