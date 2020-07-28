@@ -189,7 +189,9 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUsersSession 用户注销.
 func DeleteUsersSession(w http.ResponseWriter, r *http.Request) {
-	auth.ClearAuth(r, w)
+	if err := auth.ClearAuth(r, w); err != nil {
+		web.WriteStats(w, err)
+	}
 }
 
 type userQueryResp struct {

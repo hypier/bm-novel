@@ -29,7 +29,9 @@ func (s Service) Create(ctx context.Context, user User) (*User, error) {
 
 	if err != nil {
 		return nil, err
-	} else if dbUser != nil && dbUser.UserName == user.UserName {
+	}
+
+	if dbUser != nil && dbUser.UserName == user.UserName {
 		return nil, web.ErrUserConflict
 	}
 
@@ -53,7 +55,9 @@ func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 	dbUser, err := s.Repo.FindOne(ctx, userID)
 	if err != nil {
 		return err
-	} else if dbUser != nil && dbUser.UserID != userID {
+	}
+
+	if dbUser != nil && dbUser.UserID != userID {
 		return web.ErrUserConflict
 	}
 
@@ -97,6 +101,7 @@ func (s Service) ResetPassword(ctx context.Context, userID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
+
 	dbUser.Password = string(hashPassword)
 	dbUser.NeedChangePassword = true
 
