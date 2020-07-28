@@ -11,21 +11,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var (
-	// ErrUserConflict 用户名重复错误.
-	ErrUserConflict = "User Conflict"
-	// ErrUserNotFound 用户不存在.
-	ErrUserNotFound = "User Not Found"
-	// ErrUserLocked 用户被锁定.
-	ErrUserLocked = "User Locked"
-	// ErrNotAcceptable 不接受修改.
-	ErrNotAcceptable = "Not Acceptable"
-	// ErrPasswordIncorrect 用户名或密码错误.
-	ErrPasswordIncorrect = "username or password is incorrect"
-	// DefaultPassword 默认密码.
-	DefaultPassword = "123456"
-)
-
 // Users 会员数组
 type Users []*User
 
@@ -51,12 +36,10 @@ type User struct {
 
 	// 是否持久化，内部参数
 	isPersistence bool
-	// 持久化对象
-	repo IUserRepository
 }
 
 // New 创建一个带持久化的对象
-func New(repo IUserRepository) IUserServer {
+func New(repo IUserRepository) IUserService {
 	return &User{repo: repo}
 }
 

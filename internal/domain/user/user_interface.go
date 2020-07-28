@@ -1,22 +1,28 @@
 package user
 
-// IUserServer 用户领域服务.
-type IUserServer interface {
-	Load(userID string) (*User, error)
-	Create(user User) (*User, error)
-	Edit(user User) error
-	ChangeInitPassword(password string) error
-	ResetPassword() error
-	Lock() error
-	Unlock() error
-	CheckPassword(password string) error
+import (
+	"context"
+
+	uuid "github.com/satori/go.uuid"
+)
+
+// IUserService 用户领域服务.
+type IUserService interface {
+	Create(ctx context.Context, user User) (*User, error)
+	Edit(ctx context.Context, user User) error
+
+	ChangeInitPassword(ctx context.Context, userID uuid.UUID, password string) error
+	ResetPassword(ctx context.Context, userID uuid.UUID) error
+	Lock(ctx context.Context, userID uuid.UUID) error
+	Unlock(ctx context.Context, userID uuid.UUID) error
+	CheckPassword(ctx context.Context, userName string, password string) error
 }
 
 // IUserRepository 用户持久化服务.
 type IUserRepository interface {
-	FindList(roleCode []string, realName string, pageIndex int, pageSize int) (Users, error)
-	FindOne(id string) (*User, error)
-	FindByName(name string) (*User, error)
-	Create(user *User) error
-	Update(user *User) error
+	FindList(ctx context.Context, roleCode []string, realName string, pageIndex int, pageSize int) (Users, error)
+	FindOne(ctx context.Context, userID uuid.UUID) (*User, error)
+	FindByName(ctx context.Context, name string) (*User, error)
+	Create(ctx context.Context, user *User) error
+	Update(ctx context.Context, user *User) error
 }
