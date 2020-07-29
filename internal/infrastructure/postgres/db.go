@@ -12,8 +12,7 @@ import (
 // DefaultDB 数据库连接
 var DefaultDB *sqlx.DB
 
-func init() {
-	config.LoadConfig()
+func InitDB() {
 	DefaultDB, _ = connectMysql()
 }
 

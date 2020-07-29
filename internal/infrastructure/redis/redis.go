@@ -17,8 +17,7 @@ var (
 	rdb *redis.Client
 )
 
-func init() {
-	config.LoadConfig()
+func InitRedis() {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     config.Config.Redis.IPAddress,
 		Password: config.Config.Redis.Password,

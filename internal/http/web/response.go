@@ -50,6 +50,7 @@ func WriteHTTPStats(w http.ResponseWriter, err error) {
 		w.WriteHeader(500)
 	}
 
+	//panic(err)
 	fmt.Printf("%+v", err)
 }
 

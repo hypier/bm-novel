@@ -34,13 +34,13 @@ type redis struct {
 }
 
 // LoadConfig 载入配置文件
-func LoadConfig() {
+func LoadConfig(fileName string) {
 	if Config.Server != "" {
 		return
 	}
 
 	//fileName := "E:\\GoCode\\src\\bm-novel\\configs\\server\\config.toml"
-	fileName := "./configs/server/config.toml"
+	//fileName := "./configs/server/config.toml"
 	if _, err := toml.DecodeFile(fileName, &Config); err != nil {
 		err = errors.WithStack(err)
 		fmt.Printf("%+v", err)

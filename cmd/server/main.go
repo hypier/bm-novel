@@ -4,6 +4,9 @@ import (
 	"bm-novel/internal/config"
 	"bm-novel/internal/controller/user"
 	"bm-novel/internal/http/auth"
+	"bm-novel/internal/infrastructure/postgres"
+	"bm-novel/internal/infrastructure/redis"
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -15,7 +18,13 @@ import (
 )
 
 func init() {
-	config.LoadConfig()
+	// 配置文件
+	ConfFile := flag.String("config", "./configs/server/config.toml", "config file")
+	flag.Parse()
+
+	config.LoadConfig(*ConfFile)
+	postgres.InitDB()
+	redis.InitRedis()
 }
 
 func main() {
