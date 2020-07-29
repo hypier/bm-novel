@@ -4,7 +4,7 @@ include:
     file: 'templates/golang-pipline.yml'
 
 stages:
-  - test
+#  - test
   - build
 
 variables: 
