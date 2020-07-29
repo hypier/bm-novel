@@ -39,8 +39,8 @@ func LoadConfig() {
 		return
 	}
 
-	fileName := "E:\\GoCode\\src\\bm-novel\\configs\\server\\config.toml"
-	//fileName := "./configs/server/config.toml"
+	//fileName := "E:\\GoCode\\src\\bm-novel\\configs\\server\\config.toml"
+	fileName := "./configs/server/config.toml"
 	if _, err := toml.DecodeFile(fileName, &Config); err != nil {
 		err = errors.WithStack(err)
 		fmt.Printf("%+v", err)
