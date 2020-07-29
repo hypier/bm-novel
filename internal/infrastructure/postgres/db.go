@@ -14,13 +14,7 @@ var DefaultDB *sqlx.DB
 
 func init() {
 	config.LoadConfig()
-	db, err := connectMysql()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	DefaultDB = db
+	DefaultDB, _ = connectMysql()
 }
 
 func connectMysql() (*sqlx.DB, error) {
@@ -29,14 +23,14 @@ func connectMysql() (*sqlx.DB, error) {
 
 	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.WithMessage(err, "failed to connect to user db")
+		panic(errors.WithMessage(err, "failed to connect to user db"))
 	}
 
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(3)
 	err = db.Ping()
 	if err != nil {
-		return nil, errors.WithMessage(err, "failed to connect to user db")
+		panic(errors.WithMessage(err, "failed to connect to user db"))
 	}
 	return db, nil
 }

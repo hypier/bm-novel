@@ -3,8 +3,11 @@ package redis
 import (
 	"bm-novel/internal/config"
 	"context"
-	"fmt"
 	"time"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/pkg/errors"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -25,8 +28,7 @@ func init() {
 	_, err := rdb.Ping(ctx).Result()
 
 	if err != nil {
-		//panic(errors.WithMessage(err, "failed to connect to redis"))
-		fmt.Println(err)
+		panic(errors.WithMessage(err, "failed to connect to redis"))
 	}
 }
 
@@ -46,7 +48,16 @@ func (r Cacher) Get(key string) ([]byte, error) {
 
 // Put 写入单值
 func (r Cacher) Put(key string, data []byte, expiration time.Duration) error {
-	return rdb.Set(ctx, key, data, expiration).Err()
+	err := rdb.Set(ctx, key, data, expiration).Err()
+
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"key":   key,
+			"value": data,
+		}).Warn("redis put error ", err)
+	}
+
+	return err
 }
 
 // HGet 获取redis
@@ -62,6 +73,13 @@ func (r Cacher) HPut(key string, field string, data []byte, expiration time.Dura
 		err = rdb.Expire(ctx, key, expiration).Err()
 	}
 
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"key":   key,
+			"value": data,
+		}).Warn("redis HPut error ", err)
+	}
+
 	return err
 }
 
@@ -71,6 +89,13 @@ func (r Cacher) HMPut(key string, expiration time.Duration, values ...interface{
 
 	if err == nil {
 		err = rdb.Expire(ctx, key, expiration).Err()
+	}
+
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"key":   key,
+			"value": values,
+		}).Warn("redis HMPut error ", err)
 	}
 
 	return err

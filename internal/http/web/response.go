@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/pkg/errors"
 )
 
@@ -25,8 +27,8 @@ var (
 	ErrVisitorNotFound = errors.New("Visitor Not Found")
 )
 
-// WriteStats 下行状态码
-func WriteStats(w http.ResponseWriter, err error) {
+// WriteHttpStats 下行状态码
+func WriteHttpStats(w http.ResponseWriter, err error) {
 	if err == nil {
 		return
 	}
@@ -49,4 +51,19 @@ func WriteStats(w http.ResponseWriter, err error) {
 	}
 
 	fmt.Printf("%+v", err)
+}
+
+// WriteErrLog 写入错误日志并返回error
+func WriteErrLog(err error, format string, args ...interface{}) error {
+	logrus.WithError(err).Errorf(format, args...)
+	return errors.WithStack(err)
+}
+
+// WriteErrLogWithField 写入错误日志并返回error
+func WriteErrLogWithField(fields map[string]interface{}, err error, format string, args ...interface{}) error {
+	logrus.WithError(err).
+		WithFields(fields).
+		Errorf(format, args...)
+
+	return errors.WithStack(err)
 }

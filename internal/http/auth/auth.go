@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
@@ -40,6 +42,11 @@ func WriteAuth(visitor *user.User, w http.ResponseWriter) error {
 
 	key := fmt.Sprintf(visitorCacheKey, visitor.UserID.String())
 	visitID := uuid.NewV4().String()
+
+	logrus.WithFields(logrus.Fields{
+		"visitor": visitor,
+		"visitID": visitID,
+	}).Debug("Write Auth")
 
 	// 可重复写以前数据
 	err := redis.GetChcher().Put(key, []byte(visitID), loginExpHour)
@@ -83,6 +90,13 @@ func generateClientToken(visitor *user.User, visitID string) (string, error) {
 		"exp":   time.Now().Add(loginExpHour),
 	}
 	_, tokenString, err := TokenAuth.Encode(claims)
+
+	logrus.WithFields(logrus.Fields{
+		"visitor": visitor,
+		"visitID": visitID,
+		"token":   tokenString,
+	}).Debug("generate Client Token (JWT)", err)
+
 	return tokenString, err
 }
 

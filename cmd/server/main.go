@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/joyparty/httpkit"
+	"github.com/sirupsen/logrus"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 )
@@ -28,6 +31,8 @@ func main() {
 // APIRouter Api路由
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
+
+	r.Use(httpkit.Recoverer(logrus.New()))
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
