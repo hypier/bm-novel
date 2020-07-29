@@ -18,7 +18,7 @@ type Repository struct {
 }
 
 // FindAll 获取所有权限点
-func (p *Repository) FindAll() (*permission.Permissions, error) {
+func (p *Repository) FindAll() (permission.Permissions, error) {
 	per := &permission.Permission{}
 	strSQL, params, err := goqu.From(per.TableName()).ToSQL()
 	if err != nil {
@@ -29,7 +29,7 @@ func (p *Repository) FindAll() (*permission.Permissions, error) {
 	permissions := &permission.Permissions{}
 	err = postgres.DefaultDB.SelectContext(p.Ctx, permissions, strSQL, params...)
 
-	return permissions, err
+	return *permissions, err
 }
 
 // Create 创建权限点
