@@ -33,18 +33,18 @@ func WriteHttpStats(w http.ResponseWriter, err error) {
 		return
 	}
 
-	switch err {
-	case ErrUserNotFound:
+	switch {
+	case errors.Is(err, ErrUserNotFound):
 		w.WriteHeader(404)
-	case ErrNotAcceptable:
+	case errors.Is(err, ErrNotAcceptable):
 		w.WriteHeader(406)
-	case ErrUserLocked:
+	case errors.Is(err, ErrUserLocked):
 		w.WriteHeader(423)
-	case ErrUserConflict:
+	case errors.Is(err, ErrUserConflict):
 		w.WriteHeader(409)
-	case ErrPasswordIncorrect:
+	case errors.Is(err, ErrPasswordIncorrect):
 		w.WriteHeader(401)
-	case ErrServerError:
+	case errors.Is(err, ErrServerError):
 		w.WriteHeader(500)
 	default:
 		w.WriteHeader(500)

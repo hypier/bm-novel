@@ -15,7 +15,7 @@ func TestSetAuth(t *testing.T) {
 	}
 
 	for i := 0; i < 10; i++ {
-		_, _ = generateClientToken(&u, uuid.NewV4().String())
+		_, _ = generateJWTToken(&u, uuid.NewV4().String())
 	}
 
 }

@@ -5,6 +5,8 @@ import (
 	"bm-novel/internal/infrastructure/security"
 	"context"
 
+	"github.com/sirupsen/logrus"
+
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -26,13 +28,15 @@ func (s Service) Create(ctx context.Context, user User) (*User, error) {
 	}
 
 	dbUser, err := s.Repo.FindByName(ctx, user.UserName)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if dbUser != nil && dbUser.UserName == user.UserName {
-		return nil, web.ErrUserConflict
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"userName": user.UserName,
+			"dbUserID": dbUser.UserID,
+		}, web.ErrUserConflict, "Create User, Duplicate userName")
 	}
 
 	u := &User{}
@@ -43,7 +47,7 @@ func (s Service) Create(ctx context.Context, user User) (*User, error) {
 	u.RoleCode = user.RoleCode
 	u.RealName = user.RealName
 
-	err = s.Repo.Update(ctx, u)
+	err = s.Repo.Create(ctx, u)
 
 	return u, err
 }
@@ -52,13 +56,17 @@ func (s Service) Create(ctx context.Context, user User) (*User, error) {
 // 增加userID 参数，让调用更明确此为必传值
 func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 
-	dbUser, err := s.Repo.FindOne(ctx, userID)
+	dbUser, err := s.Repo.FindByName(ctx, user.UserName)
 	if err != nil {
 		return err
 	}
 
 	if dbUser != nil && dbUser.UserID != userID {
-		return web.ErrUserConflict
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userName": user.UserName,
+			"dbUserID": dbUser.UserID,
+			"userID":   userID,
+		}, web.ErrUserConflict, "Edit User, userID Conflict")
 	}
 
 	dbUser.RealName = user.RealName
@@ -76,7 +84,11 @@ func (s Service) ChangeInitPassword(ctx context.Context, userID uuid.UUID, passw
 	}
 
 	if !dbUser.NeedChangePassword {
-		return web.ErrNotAcceptable
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID":             dbUser.UserID,
+			"userName":           dbUser.UserName,
+			"needChangePassword": dbUser.NeedChangePassword,
+		}, web.ErrNotAcceptable, "ChangeInitPassword, Cannot Change Init Password")
 	}
 
 	hashPassword, err := security.Hash(password)
@@ -116,7 +128,11 @@ func (s Service) Lock(ctx context.Context, userID uuid.UUID) error {
 	}
 
 	if dbUser.IsLock {
-		return web.ErrNotAcceptable
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID":   dbUser.UserID,
+			"userName": dbUser.UserName,
+			"Lock":     dbUser.IsLock,
+		}, web.ErrNotAcceptable, "Lock, User is Locked, Cannot Lock")
 	}
 
 	dbUser.IsLock = true
@@ -132,7 +148,11 @@ func (s Service) Unlock(ctx context.Context, userID uuid.UUID) error {
 	}
 
 	if !dbUser.IsLock {
-		return web.ErrNotAcceptable
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID":   dbUser.UserID,
+			"userName": dbUser.UserName,
+			"Lock":     dbUser.IsLock,
+		}, web.ErrNotAcceptable, "Unlock, User is Unlocked, Cannot Unlock")
 	}
 
 	dbUser.IsLock = false
@@ -148,12 +168,20 @@ func (s Service) Login(ctx context.Context, userName string, password string) (*
 	}
 
 	if dbUser.IsLock {
-		return nil, web.ErrUserLocked
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"userID":   dbUser.UserID,
+			"userName": dbUser.UserName,
+			"Lock":     dbUser.IsLock,
+		}, web.ErrUserLocked, "Login, User is Locked, Cannot Login")
 	}
 
 	err = security.VerifyPassword(dbUser.Password, password)
 	if err != nil {
-		return nil, web.ErrPasswordIncorrect
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"userID":   dbUser.UserID,
+			"userName": dbUser.UserName,
+			"password": password,
+		}, web.ErrPasswordIncorrect, "Login, Password Incorrect, %s", err.Error())
 	}
 
 	return dbUser, nil

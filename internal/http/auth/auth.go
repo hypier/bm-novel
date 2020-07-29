@@ -54,7 +54,7 @@ func WriteAuth(visitor *user.User, w http.ResponseWriter) error {
 		return err
 	}
 
-	token, err := generateClientToken(visitor, visitID)
+	token, err := generateJWTToken(visitor, visitID)
 	if err != nil {
 		return err
 	}
@@ -65,10 +65,14 @@ func WriteAuth(visitor *user.User, w http.ResponseWriter) error {
 
 // ClearAuth 清除认证
 func ClearAuth(r *http.Request, w http.ResponseWriter) error {
-	userID, err := GetVisitorUserID(r)
+	userID, err := GetVisitorUserIDFromJWT(r)
 	if err != nil {
 		return err
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"userID": userID.String(),
+	}).Debug("Clear Auth")
 
 	key := fmt.Sprintf(visitorCacheKey, userID)
 
@@ -80,28 +84,8 @@ func ClearAuth(r *http.Request, w http.ResponseWriter) error {
 	return cookie.ClearCookie("jwt", r, w)
 }
 
-// generateClientToken 生成客户端token
-func generateClientToken(visitor *user.User, visitID string) (string, error) {
-	claims := jwt.MapClaims{
-		"name":  visitor.UserName,
-		"id":    visitor.UserID.String(),
-		"roles": visitor.RoleCode,
-		"jti":   visitID,
-		"exp":   time.Now().Add(loginExpHour),
-	}
-	_, tokenString, err := TokenAuth.Encode(claims)
-
-	logrus.WithFields(logrus.Fields{
-		"visitor": visitor,
-		"visitID": visitID,
-		"token":   tokenString,
-	}).Debug("generate Client Token (JWT)", err)
-
-	return tokenString, err
-}
-
-// GetVisitorUserID 获取访问者用户ID
-func GetVisitorUserID(r *http.Request) (userID uuid.UUID, err error) {
+// GetVisitorUserIDFromJWT 获取访问者用户ID
+func GetVisitorUserIDFromJWT(r *http.Request) (userID uuid.UUID, err error) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		return
@@ -116,67 +100,37 @@ func GetVisitorUserID(r *http.Request) (userID uuid.UUID, err error) {
 	return
 }
 
-// getVisitID 获取访问ID
-func getVisitID(r *http.Request) (visitID string, err error) {
-	_, claims, err := jwtauth.FromContext(r.Context())
-	if err != nil {
-		return
-	}
-
-	if id, ok := claims["jti"]; ok {
-		visitID = id.(string)
-	} else {
-		err = web.ErrVisitorNotFound
-	}
-
-	return
-}
-
 // LoginAuthenticator 认证
 func LoginAuthenticator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 从jwt中获取用户ID
-		userID, err := GetVisitorUserID(r)
+		userID, err := GetVisitorUserIDFromJWT(r)
 		if err != nil {
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
 
 		// 从redis里获取uid
-		key := fmt.Sprintf(visitorCacheKey, userID)
-		exists, err := redis.GetChcher().Exists(key)
-		if err != nil {
-			http.Error(w, http.StatusText(500), 500)
+		serverUID, ok := getVisitIDFormRedis(w, userID)
+		if !ok {
 			return
 		}
-
-		if !exists {
-			http.Error(w, http.StatusText(401), 401)
-			return
-		}
-
-		sUID, err := redis.GetChcher().Get(key)
-		if err != nil {
-			http.Error(w, http.StatusText(500), 500)
-			return
-		}
-
-		serverUID := string(sUID)
 
 		// 从jwt中获取用户uid
-		clientUID, err := getVisitID(r)
-		if err != nil {
-			http.Error(w, http.StatusText(500), 500)
-			return
-		}
-
-		if clientUID == "" {
-			http.Error(w, http.StatusText(401), 401)
+		clientUID, ok := getVisitIDFromJWT(r, w)
+		if !ok {
 			return
 		}
 
 		// 比较客户端的uid 是否等于 redis中的uid , 不相等则为session过期或被踢掉
 		if serverUID != clientUID {
+
+			logrus.WithFields(logrus.Fields{
+				"userID":    userID,
+				"serverUID": serverUID,
+				"clientUID": clientUID,
+			}).Debug("LoginAuthenticator, serverUID out of date")
+
 			http.Error(w, http.StatusText(401), 401)
 			return
 		}
@@ -189,41 +143,136 @@ func LoginAuthenticator(next http.Handler) http.Handler {
 func Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := putCache(r); err != nil {
-			http.Error(w, http.StatusText(403), 403)
+			http.Error(w, http.StatusText(500), 500)
 			return
 		}
 
 		pattern := chi.RouteContext(r.Context()).RoutePattern()
-
 		if strings.HasSuffix(pattern, "/*") {
 			routePath := chi.RouteContext(r.Context()).RoutePath
 			pattern = strings.TrimRight(pattern, "/*") + routePath
 		}
 
-		fmt.Println(r.URL.String(), pattern)
+		logrus.WithFields(logrus.Fields{
+			"originalPattern": chi.RouteContext(r.Context()).RoutePattern(),
+			"newPattern":      pattern,
+			"URL":             r.URL.String(),
+			"method":          r.Method,
+		}).Debug("Authorization, URL")
+
 		method := r.Method
 
 		roles, err := getPermission(pattern, method)
 		if err != nil {
-			http.Error(w, http.StatusText(403), 403)
+			http.Error(w, http.StatusText(500), 500)
 			return
 		}
 
 		if roles == nil {
 			// 没有配置默认通过
-			http.Error(w, http.StatusText(403), 403)
-			//next.ServeHTTP(w, r)
+			logrus.WithFields(logrus.Fields{
+				"originalPattern": chi.RouteContext(r.Context()).RoutePattern(),
+				"newPattern":      pattern,
+				"URL":             r.URL.String(),
+				"method":          r.Method,
+			}).Debug("Authorization, url permission not match")
+
+			next.ServeHTTP(w, r)
 			return
 		}
 
 		// 检查是否有权限
 		if !checkRoles(r, roles) {
+
+			logrus.WithFields(logrus.Fields{
+				"originalPattern": chi.RouteContext(r.Context()).RoutePattern(),
+				"newPattern":      pattern,
+				"URL":             r.URL.String(),
+				"method":          r.Method,
+				"roles":           roles,
+			}).Debug("Authorization, URL Forbidden")
+
 			http.Error(w, http.StatusText(403), 403)
 			return
 		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// generateJWTToken 生成客户端token
+func generateJWTToken(visitor *user.User, visitID string) (string, error) {
+	claims := jwt.MapClaims{
+		"name":  visitor.UserName,
+		"id":    visitor.UserID.String(),
+		"roles": visitor.RoleCode,
+		"jti":   visitID,
+		"exp":   time.Now().Add(loginExpHour),
+	}
+	_, tokenString, err := TokenAuth.Encode(claims)
+
+	logrus.WithFields(logrus.Fields{
+		"visitor": visitor,
+		"visitID": visitID,
+		"token":   tokenString,
+	}).Debug("generate Client Token (JWT), ", err)
+
+	return tokenString, err
+}
+
+// getVisitIDFromJWT 获取访问ID
+func getVisitIDFromJWT(r *http.Request, w http.ResponseWriter) (visitID string, b bool) {
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		return
+	}
+
+	if id, ok := claims["jti"]; ok {
+		visitID = id.(string)
+	} else {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	if visitID == "" {
+		logrus.WithFields(logrus.Fields{
+			"visitID": visitID,
+		}).Debug("LoginAuthenticator, userID not exists redis")
+
+		http.Error(w, http.StatusText(401), 401)
+		return
+	}
+
+	return visitID, true
+}
+
+func getVisitIDFormRedis(w http.ResponseWriter, userID uuid.UUID) (string, bool) {
+	key := fmt.Sprintf(visitorCacheKey, userID.String())
+
+	// 判断是否存在
+	exists, err := redis.GetChcher().Exists(key)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return "", false
+	}
+
+	if !exists {
+		logrus.WithFields(logrus.Fields{
+			"userID": userID,
+		}).Debug("LoginAuthenticator, userID not exists redis")
+
+		http.Error(w, http.StatusText(401), 401)
+		return "", false
+	}
+
+	vID, err := redis.GetChcher().Get(key)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return "", false
+	}
+
+	visitID := string(vID)
+	return visitID, true
 }
 
 func checkRoles(r *http.Request, roles []string) bool {
@@ -320,6 +369,10 @@ func putCache(r *http.Request) error {
 	}
 
 	err = redis.GetChcher().HMPut(permissionCacheKey, permissionTime, values)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("permission cache is failed")
+	}
 
 	return err
 }

@@ -4,7 +4,8 @@ import (
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
-	"fmt"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/jmoiron/sqlx"
 
@@ -59,7 +60,9 @@ func (u *Repository) FindList(ctx context.Context, roleCode []string, realName s
 		return nil, errors.New(err.Error())
 	}
 
-	fmt.Println(strSQL)
+	logrus.WithFields(logrus.Fields{
+		"SQL": strSQL,
+	}).Debug("user findList")
 
 	users := &user.Users{}
 	err = u.db.SelectContext(ctx, users, strSQL, params...)

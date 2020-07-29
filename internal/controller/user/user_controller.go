@@ -177,7 +177,8 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	userID, err := auth.GetVisitorUserID(r)
+	// 此处只取jwt的userID，因为handler已经对jwt与redis的有效性做了判断
+	userID, err := auth.GetVisitorUserIDFromJWT(r)
 	if err != nil {
 		w.WriteHeader(404)
 		return
