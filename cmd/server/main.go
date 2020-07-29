@@ -22,9 +22,14 @@ func init() {
 	ConfFile := flag.String("config", "./configs/server/config.toml", "config file")
 	flag.Parse()
 
+	config.LoadConfig(*ConfFile)
+
+	if level, err := logrus.ParseLevel(config.Config.LogLevel); err == nil {
+		logrus.SetLevel(level)
+	}
+
 	logrus.Debugf("config file: %s", *ConfFile)
 
-	config.LoadConfig(*ConfFile)
 	postgres.InitDB()
 	redis.InitRedis()
 }

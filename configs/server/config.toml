@@ -1,4 +1,5 @@
 listen = ":8888"
+logLevel = "debug"
 
 [database]
 userName  = "postgres"

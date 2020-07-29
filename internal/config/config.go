@@ -9,9 +9,10 @@ import (
 var Config = &tomlConfig{}
 
 type tomlConfig struct {
-	Server string   `toml:"listen"`
-	DB     database `toml:"database"`
-	Redis  rdb      `toml:"rdb"`
+	Server   string   `toml:"listen"`
+	LogLevel string   `toml:"logLevel"`
+	DB       database `toml:"database"`
+	Redis    rdb      `toml:"rdb"`
 }
 
 // database 配置
