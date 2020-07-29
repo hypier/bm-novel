@@ -42,7 +42,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	web.WriteHttpStats(w, err)
+	web.WriteHTTPStats(w, err)
 }
 
 // GetUsers 查询用户列表
@@ -92,48 +92,48 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := getUserIDForURLParam(r)
 	if err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 
 	err = us.Edit(r.Context(), userID, u)
-	web.WriteHttpStats(w, err)
+	web.WriteHTTPStats(w, err)
 }
 
 // PostUsersLock 锁定用户
 func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 	userID, err := getUserIDForURLParam(r)
 	if err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 
 	err = us.Lock(r.Context(), userID)
-	web.WriteHttpStats(w, err)
+	web.WriteHTTPStats(w, err)
 }
 
 // DeleteUsersLock 解锁用户
 func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 	userID, err := getUserIDForURLParam(r)
 	if err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 
 	err = us.Unlock(r.Context(), userID)
-	web.WriteHttpStats(w, err)
+	web.WriteHTTPStats(w, err)
 }
 
 // DeleteUsersPassword 重置密码
 func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 	userID, err := getUserIDForURLParam(r)
 	if err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 
 	err = us.ResetPassword(r.Context(), userID)
-	web.WriteHttpStats(w, err)
+	web.WriteHTTPStats(w, err)
 }
 
 // PostUsersSession 用户登陆
@@ -154,13 +154,13 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	var usr, err = us.Login(r.Context(), params.UserName, params.Password)
 	if err != nil {
 		// 验证失败
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 
 	// 写入认证信息
 	if err = auth.WriteAuth(usr, w); err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 
@@ -186,13 +186,13 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 
 	err = us.ChangeInitPassword(r.Context(), userID, params.Password)
 
-	web.WriteHttpStats(w, err)
+	web.WriteHTTPStats(w, err)
 }
 
 // DeleteUsersSession 用户注销.
 func DeleteUsersSession(w http.ResponseWriter, r *http.Request) {
 	if err := auth.ClearAuth(r, w); err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 	}
 }
 
@@ -219,7 +219,7 @@ func writeLoginResp(usr *user.User, w http.ResponseWriter) {
 
 	b, err := json.Marshal(rep)
 	if err != nil {
-		web.WriteHttpStats(w, err)
+		web.WriteHTTPStats(w, err)
 		return
 	}
 	_, _ = w.Write(b)

@@ -27,8 +27,8 @@ var (
 	ErrVisitorNotFound = errors.New("Visitor Not Found")
 )
 
-// WriteHttpStats 下行状态码
-func WriteHttpStats(w http.ResponseWriter, err error) {
+// WriteHTTPStats 下行状态码
+func WriteHTTPStats(w http.ResponseWriter, err error) {
 	if err == nil {
 		return
 	}
