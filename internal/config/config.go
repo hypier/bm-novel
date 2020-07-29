@@ -1,9 +1,8 @@
 package config
 
 import (
-	"github.com/pkg/errors"
-
 	"github.com/BurntSushi/toml"
+	"github.com/pkg/errors"
 )
 
 // Config 配置
@@ -12,7 +11,7 @@ var Config = &tomlConfig{}
 type tomlConfig struct {
 	Server string   `toml:"listen"`
 	DB     database `toml:"database"`
-	Redis  redis    `toml:"redis"`
+	Redis  rdb      `toml:"rdb"`
 }
 
 // database 配置
@@ -25,7 +24,7 @@ type database struct {
 }
 
 // Redis redis配置
-type redis struct {
+type rdb struct {
 	IPAddress string `toml:"ipAddress"`
 	Password  string `toml:"password"`
 	DB        int    `toml:"db"`

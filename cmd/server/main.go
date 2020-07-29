@@ -9,6 +9,8 @@ import (
 	"flag"
 	"net/http"
 
+	"github.com/joyparty/httpkit"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-chi/chi"
@@ -29,7 +31,7 @@ func init() {
 
 func main() {
 
-	logrus.Infof("Start Server(%s)...\n", config.Config.Server)
+	logrus.Infof("Start Server(%s)...", config.Config.Server)
 
 	err := http.ListenAndServe(config.Config.Server, APIRouter())
 
@@ -42,7 +44,7 @@ func main() {
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
-	//r.Use(httpkit.Recoverer(logrus.New()))
+	r.Use(httpkit.Recoverer(logrus.New()))
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))

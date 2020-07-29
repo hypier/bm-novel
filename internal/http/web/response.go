@@ -45,11 +45,12 @@ func WriteHTTPStats(w http.ResponseWriter, err error) {
 		w.WriteHeader(401)
 	case errors.Is(err, ErrServerError):
 		w.WriteHeader(500)
+		panic(err)
 	default:
 		w.WriteHeader(500)
+		panic(err)
 	}
 
-	panic(err)
 	//fmt.Printf("%+v", err)
 }
 

@@ -7,6 +7,7 @@ import (
 	ur "bm-novel/internal/infrastructure/persistence/user"
 	"encoding/json"
 	"net/http"
+	"sync"
 
 	uuid "github.com/satori/go.uuid"
 
@@ -14,7 +15,18 @@ import (
 	"github.com/joyparty/httpkit"
 )
 
-var us = user.Service{Repo: ur.New()}
+var (
+	us   *user.Service
+	once sync.Once
+)
+
+func service() *user.Service {
+	once.Do(func() {
+		us = &user.Service{Repo: ur.New()}
+	})
+
+	return us
+}
 
 // PostUsers 创建用户
 func PostUsers(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +47,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 		RealName: params.RealName,
 	}
 
-	_, err := us.Create(r.Context(), u)
+	_, err := service().Create(r.Context(), u)
 
 	if err == nil {
 		w.WriteHeader(201)
@@ -96,7 +108,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = us.Edit(r.Context(), userID, u)
+	err = service().Edit(r.Context(), userID, u)
 	web.WriteHTTPStats(w, err)
 }
 
@@ -108,7 +120,7 @@ func PostUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = us.Lock(r.Context(), userID)
+	err = service().Lock(r.Context(), userID)
 	web.WriteHTTPStats(w, err)
 }
 
@@ -120,7 +132,7 @@ func DeleteUsersLock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = us.Unlock(r.Context(), userID)
+	err = service().Unlock(r.Context(), userID)
 	web.WriteHTTPStats(w, err)
 }
 
@@ -132,7 +144,7 @@ func DeleteUsersPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = us.ResetPassword(r.Context(), userID)
+	err = service().ResetPassword(r.Context(), userID)
 	web.WriteHTTPStats(w, err)
 }
 
@@ -151,7 +163,7 @@ func PostUsersSession(w http.ResponseWriter, r *http.Request) {
 	httpkit.MustScanJSON(&params, r.Body)
 
 	// 验证密码
-	var usr, err = us.Login(r.Context(), params.UserName, params.Password)
+	var usr, err = service().Login(r.Context(), params.UserName, params.Password)
 	if err != nil {
 		// 验证失败
 		web.WriteHTTPStats(w, err)
@@ -184,7 +196,7 @@ func PutUsersSessionPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = us.ChangeInitPassword(r.Context(), userID, params.Password)
+	err = service().ChangeInitPassword(r.Context(), userID, params.Password)
 
 	web.WriteHTTPStats(w, err)
 }
