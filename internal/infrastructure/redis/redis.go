@@ -2,6 +2,7 @@ package redis
 
 import (
 	"bm-novel/internal/config"
+	"bm-novel/internal/http/web"
 	"context"
 	"time"
 
@@ -51,10 +52,10 @@ func (r Cacher) Put(key string, data []byte, expiration time.Duration) error {
 	err := rdb.Set(ctx, key, data, expiration).Err()
 
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
+		err = web.WriteErrLogWithField(logrus.Fields{
 			"key":   key,
 			"value": data,
-		}).Warn("redis put error ", err)
+		}, err, "redis Put error")
 	}
 
 	return err
@@ -74,10 +75,10 @@ func (r Cacher) HPut(key string, field string, data []byte, expiration time.Dura
 	}
 
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
+		err = web.WriteErrLogWithField(logrus.Fields{
 			"key":   key,
-			"value": data,
-		}).Warn("redis HPut error ", err)
+			"value": field,
+		}, err, "redis HPut error")
 	}
 
 	return err
@@ -92,10 +93,10 @@ func (r Cacher) HMPut(key string, expiration time.Duration, values ...interface{
 	}
 
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
+		err = web.WriteErrLogWithField(logrus.Fields{
 			"key":   key,
 			"value": values,
-		}).Warn("redis HMPut error ", err)
+		}, err, "redis HMPut error")
 	}
 
 	return err
@@ -111,7 +112,9 @@ func (r Cacher) Exists(keys ...string) (bool, error) {
 	result, err := rdb.Exists(ctx, keys...).Result()
 
 	if err != nil {
-		return false, err
+		return false, web.WriteErrLogWithField(logrus.Fields{
+			"key": keys,
+		}, err, "redis Exists error")
 	}
 
 	if result == 0 {
@@ -123,5 +126,17 @@ func (r Cacher) Exists(keys ...string) (bool, error) {
 
 // HExists 是否存在
 func (r Cacher) HExists(key, field string) (bool, error) {
-	return rdb.HExists(ctx, key, field).Result()
+	result, err := rdb.HExists(ctx, key, field).Result()
+
+	if err != nil {
+		return false, web.WriteErrLogWithField(logrus.Fields{
+			"key": key,
+		}, err, "redis HExists error")
+	}
+
+	if !result {
+		return false, nil
+	}
+
+	return true, nil
 }

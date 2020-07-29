@@ -215,7 +215,7 @@ func generateJWTToken(visitor *user.User, visitID string) (string, error) {
 		"visitor": visitor,
 		"visitID": visitID,
 		"token":   tokenString,
-	}).Debug("generate Client Token (JWT), ", err)
+	}).Debug("generate Client Token (JWT),", err)
 
 	return tokenString, err
 }
@@ -360,6 +360,7 @@ func putCache(r *http.Request) error {
 	for _, v := range pms {
 		roles, err := json.Marshal(v.Roles)
 		if err != nil {
+			logrus.Warnf("putCache json marshal err, %s", err)
 			continue
 		}
 
@@ -368,11 +369,5 @@ func putCache(r *http.Request) error {
 		values = append(values, roles)
 	}
 
-	err = redis.GetChcher().HMPut(permissionCacheKey, permissionTime, values)
-
-	if err != nil {
-		logrus.WithError(err).Errorf("permission cache is failed")
-	}
-
-	return err
+	return redis.GetChcher().HMPut(permissionCacheKey, permissionTime, values)
 }

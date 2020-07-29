@@ -2,6 +2,7 @@ package permission
 
 import (
 	"bm-novel/internal/domain/permission"
+	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/joyparty/entity"
 
 	"github.com/doug-martin/goqu/v9"
-	"github.com/pkg/errors"
 )
 
 // Repository 权限持久化
@@ -28,19 +28,21 @@ func (p *Repository) FindAll(ctx context.Context) (permission.Permissions, error
 	per := &permission.Permission{}
 	strSQL, params, err := goqu.From(per.TableName()).ToSQL()
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, web.WriteErrLog(err, "Permission FindList goqu SQL")
 	}
 
 	permissions := &permission.Permissions{}
-	err = postgres.DefaultDB.SelectContext(ctx, permissions, strSQL, params...)
-
+	err = p.db.SelectContext(ctx, permissions, strSQL, params...)
+	if err != nil {
+		err = web.WriteErrLog(err, "Permission FindList exce SQL")
+	}
 	return *permissions, err
 }
 
 // Create 创建权限点
 func (p *Repository) Create(ctx context.Context, permission *permission.Permission) error {
-	if _, err := entity.Insert(ctx, permission, postgres.DefaultDB); err != nil {
-		return errors.New(err.Error())
+	if _, err := entity.Insert(ctx, permission, p.db); err != nil {
+		return web.WriteErrLog(err, "Permission insert exce SQL")
 	}
 
 	return nil

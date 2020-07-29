@@ -2,6 +2,7 @@ package user
 
 import (
 	"bm-novel/internal/domain/user"
+	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/doug-martin/goqu/v9/exp"
 	"github.com/joyparty/entity"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -57,7 +57,7 @@ func (u *Repository) FindList(ctx context.Context, roleCode []string, realName s
 		Limit(uint(pageSize)).
 		Offset(uint(offset)).Order(goqu.I("create_at").Desc()).ToSQL()
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, err
 	}
 
 	logrus.WithFields(logrus.Fields{
@@ -67,6 +67,14 @@ func (u *Repository) FindList(ctx context.Context, roleCode []string, realName s
 	users := &user.Users{}
 	err = u.db.SelectContext(ctx, users, strSQL, params...)
 
+	if err != nil {
+		err = web.WriteErrLogWithField(logrus.Fields{
+			"strSQL":   strSQL,
+			"roles":    roleCode,
+			"realName": realName,
+		}, err, "User FindList exce SQL")
+	}
+
 	return *users, err
 }
 
@@ -74,7 +82,9 @@ func (u *Repository) FindList(ctx context.Context, roleCode []string, realName s
 func (u *Repository) FindOne(ctx context.Context, userID uuid.UUID) (*user.User, error) {
 	usr := &user.User{UserID: userID}
 	if err := entity.Load(ctx, usr, u.db); err != nil {
-		return nil, errors.New(err.Error())
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"userID": userID,
+		}, err, "User FindOne exce SQL")
 	}
 
 	return usr, nil
@@ -85,7 +95,7 @@ func (u *Repository) FindByName(ctx context.Context, name string) (*user.User, e
 	usr := user.User{}
 	strSQL, params, err := goqu.From(usr.TableName()).Where(goqu.Ex{"user_name": name}).ToSQL()
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, err
 	}
 
 	logrus.WithFields(logrus.Fields{
@@ -95,7 +105,10 @@ func (u *Repository) FindByName(ctx context.Context, name string) (*user.User, e
 	users := &user.Users{}
 	err = u.db.SelectContext(ctx, users, strSQL, params...)
 	if err != nil {
-		return nil, errors.New(err.Error())
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"strSQL": strSQL,
+			"name":   name,
+		}, err, "User FindName exce SQL")
 	}
 
 	for _, v := range *users {
@@ -108,7 +121,9 @@ func (u *Repository) FindByName(ctx context.Context, name string) (*user.User, e
 // Create 创建
 func (u *Repository) Create(ctx context.Context, user *user.User) error {
 	if _, err := entity.Insert(ctx, user, u.db); err != nil {
-		return errors.New(err.Error())
+		return web.WriteErrLogWithField(logrus.Fields{
+			"user": &user,
+		}, err, "User Create exce SQL")
 	}
 
 	return nil
@@ -117,7 +132,9 @@ func (u *Repository) Create(ctx context.Context, user *user.User) error {
 // Update 更新
 func (u *Repository) Update(ctx context.Context, user *user.User) error {
 	if err := entity.Update(ctx, user, u.db); err != nil {
-		return errors.New(err.Error())
+		return web.WriteErrLogWithField(logrus.Fields{
+			"user": &user,
+		}, err, "User Update exce SQL")
 	}
 
 	return nil
