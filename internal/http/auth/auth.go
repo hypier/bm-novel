@@ -281,21 +281,20 @@ func putCache(r *http.Request) error {
 		return nil
 	}
 
-	//todo 查不出来
-	repo := &permission.Repository{Ctx: r.Context()}
-	pms, err := repo.FindAll()
+	repo := permission.New()
+	pms, err := repo.FindAll(r.Context())
 	if err != nil {
 		return err
 	}
 
-	num := len(*pms)
+	num := len(pms)
 	if num <= 0 {
 		return web.ErrServerError
 	}
 
 	var values []interface{}
 
-	for _, v := range *pms {
+	for _, v := range pms {
 		roles, err := json.Marshal(v.Roles)
 		if err != nil {
 			continue
