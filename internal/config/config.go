@@ -42,3 +42,7 @@ func LoadConfig(fileName string) {
 		//fmt.Printf("%+v", err)
 	}
 }
+
+func LoadConfigForTest() {
+	LoadConfig("E:\\GoCode\\src\\bm-novel\\configs\\server\\config.toml")
+}

@@ -1,8 +1,10 @@
 package user
 
 import (
+	"bm-novel/internal/config"
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/http/web"
+	"bm-novel/internal/infrastructure/postgres"
 	"context"
 	"testing"
 
@@ -10,6 +12,11 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 )
+
+func init() {
+	config.LoadConfigForTest()
+	postgres.InitDB()
+}
 
 func TestUserRepository_Create(t *testing.T) {
 	u1 := uuid.NewV4()
