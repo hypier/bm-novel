@@ -4,13 +4,18 @@ include:
     file: 'templates/golang-pipline.yml'
 
 stages:
+  - test
   - build
 
 variables: 
   RUN_GOLANG_REVIVE: "yes"  # 是否运行revive     yes/no
-  RUN_GOLANG_TEST: "yes"   # 是否运行go test    yes/no
+  RUN_GOLANG_TEST: "no"   # 是否运行go test    yes/no
   BUILD_AWS_IMAGE: "no"    # 是否构建aws环境镜像 yes/no
 
+# 默认任何分支
+test:
+  stage: test
+  extends: .test
 
 build:
   stage: build
