@@ -11,9 +11,9 @@ import (
 
 func TestPermissionRepository_FindAll(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &Repository{ctx}
+	repo := New()
 
-	all, _ := repo.FindAll()
+	all, _ := repo.FindAll(ctx)
 
 	fmt.Println(all)
 }
@@ -28,14 +28,14 @@ func TestPermissionRepository_Create(t *testing.T) {
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &Repository{ctx}
+	repo := New()
 
-	err := repo.Create(&per)
+	err := repo.Create(ctx, &per)
 
 	fmt.Println(err)
 }
 
-func TestRepository_Create(t *testing.T) {
+func TestRepository_BatchCreate(t *testing.T) {
 	//outsourcer := "Outsourcer"
 	responsibleEditor := "ResponsibleEditor"
 	chiefEditor := "ChiefEditor"
@@ -53,6 +53,6 @@ func TestRepository_Create(t *testing.T) {
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
-	repo := &Repository{ctx}
-	_ = repo.BatchCreate(&pers)
+	repo := New()
+	_ = repo.BatchCreate(ctx, &pers)
 }
