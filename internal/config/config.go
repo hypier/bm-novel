@@ -44,6 +44,7 @@ func LoadConfig(fileName string) {
 	}
 }
 
+// LoadConfigForTest 测试配置加载
 func LoadConfigForTest() {
 	LoadConfig("E:\\GoCode\\src\\bm-novel\\configs\\server\\config.toml")
 }
