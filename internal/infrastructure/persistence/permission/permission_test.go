@@ -54,5 +54,5 @@ func TestRepository_Create(t *testing.T) {
 
 	ctx, _ := context.WithCancel(context.Background())
 	repo := &Repository{ctx}
-	_ = repo.BatchCreate(pers)
+	_ = repo.BatchCreate(&pers)
 }

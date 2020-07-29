@@ -293,7 +293,7 @@ func putCache(r *http.Request) error {
 		return web.ErrServerError
 	}
 
-	values := make([]interface{}, num)
+	var values []interface{}
 
 	for _, v := range *pms {
 		roles, err := json.Marshal(v.Roles)
@@ -302,7 +302,8 @@ func putCache(r *http.Request) error {
 		}
 
 		field := fmt.Sprintf("%s%s", v.Method, v.URI)
-		values = append(append(values, roles), field)
+		values = append(values, field)
+		values = append(values, roles)
 	}
 
 	err = redis.GetChcher().HMPut(permissionCacheKey, permissionTime, values)
