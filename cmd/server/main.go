@@ -7,10 +7,8 @@ import (
 	"bm-novel/internal/infrastructure/postgres"
 	"bm-novel/internal/infrastructure/redis"
 	"flag"
-	"fmt"
 	"net/http"
 
-	"github.com/joyparty/httpkit"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-chi/chi"
@@ -22,6 +20,8 @@ func init() {
 	ConfFile := flag.String("config", "./configs/server/config.toml", "config file")
 	flag.Parse()
 
+	logrus.Debugf("config file: %s", *ConfFile)
+
 	config.LoadConfig(*ConfFile)
 	postgres.InitDB()
 	redis.InitRedis()
@@ -29,11 +29,12 @@ func init() {
 
 func main() {
 
-	fmt.Printf("Start Server(%s)...\n", config.Config.Server)
+	logrus.Infof("Start Server(%s)...\n", config.Config.Server)
+
 	err := http.ListenAndServe(config.Config.Server, APIRouter())
 
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 }
 
@@ -41,7 +42,7 @@ func main() {
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(httpkit.Recoverer(logrus.New()))
+	//r.Use(httpkit.Recoverer(logrus.New()))
 
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))

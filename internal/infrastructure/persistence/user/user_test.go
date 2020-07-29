@@ -4,7 +4,6 @@ import (
 	"bm-novel/internal/domain/user"
 	"bm-novel/internal/http/web"
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -22,7 +21,7 @@ func TestUserRepository_Create(t *testing.T) {
 
 	dbUser, err := repo.FindOne(ctx, u1)
 
-	fmt.Println(dbUser, err)
+	t.Log(dbUser, err)
 
 }
 
@@ -32,7 +31,7 @@ func TestUserRepository_FindByName(t *testing.T) {
 
 	usr, _ := repo.FindByName(ctx, "chengfa21n")
 
-	fmt.Println(usr)
+	t.Log(usr)
 }
 
 func TestUserRepository_FindList(t *testing.T) {
@@ -42,7 +41,7 @@ func TestUserRepository_FindList(t *testing.T) {
 	list, _ := repo.FindList(ctx, []string{"admin"}, "", 1, 2)
 
 	for _, v := range list {
-		fmt.Println(v.RealName)
+		t.Log(v.RealName)
 	}
 }
 
@@ -65,6 +64,5 @@ func TestError(t *testing.T) {
 	//logrus.WithFields(logrus.Fields{
 	//	"name": name,
 	//}).Warn("cookie clear error ", err)
-	fmt.Println("---------------")
-	fmt.Printf("%+v\n", err)
+	t.Logf("%+v\n", err)
 }

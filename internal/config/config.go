@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 
 	"github.com/BurntSushi/toml"
@@ -39,10 +37,9 @@ func LoadConfig(fileName string) {
 		return
 	}
 
-	//fileName := "E:\\GoCode\\src\\bm-novel\\configs\\server\\config.toml"
-	//fileName := "./configs/server/config.toml"
 	if _, err := toml.DecodeFile(fileName, &Config); err != nil {
 		err = errors.WithStack(err)
-		fmt.Printf("%+v", err)
+		panic(err)
+		//fmt.Printf("%+v", err)
 	}
 }

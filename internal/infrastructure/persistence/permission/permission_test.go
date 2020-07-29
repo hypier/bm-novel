@@ -3,7 +3,6 @@ package permission
 import (
 	"bm-novel/internal/domain/permission"
 	"context"
-	"fmt"
 	"testing"
 
 	uuid "github.com/satori/go.uuid"
@@ -15,7 +14,7 @@ func TestPermissionRepository_FindAll(t *testing.T) {
 
 	all, _ := repo.FindAll(ctx)
 
-	fmt.Println(all)
+	t.Log(all)
 }
 
 func TestPermissionRepository_Create(t *testing.T) {
@@ -32,7 +31,7 @@ func TestPermissionRepository_Create(t *testing.T) {
 
 	err := repo.Create(ctx, &per)
 
-	fmt.Println(err)
+	t.Log(err)
 }
 
 func TestRepository_BatchCreate(t *testing.T) {

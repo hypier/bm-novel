@@ -4,7 +4,6 @@ import (
 	"bm-novel/internal/domain/permission"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 
@@ -31,7 +30,6 @@ func (p *Repository) FindAll(ctx context.Context) (permission.Permissions, error
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
-	fmt.Println(strSQL)
 
 	permissions := &permission.Permissions{}
 	err = postgres.DefaultDB.SelectContext(ctx, permissions, strSQL, params...)

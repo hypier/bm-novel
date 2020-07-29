@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -50,8 +49,8 @@ func WriteHTTPStats(w http.ResponseWriter, err error) {
 		w.WriteHeader(500)
 	}
 
-	//panic(err)
-	fmt.Printf("%+v", err)
+	panic(err)
+	//fmt.Printf("%+v", err)
 }
 
 // WriteErrLog 写入错误日志并返回error
