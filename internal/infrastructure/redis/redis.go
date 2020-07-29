@@ -3,9 +3,8 @@ package redis
 import (
 	"bm-novel/internal/config"
 	"context"
+	"fmt"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -26,7 +25,8 @@ func init() {
 	_, err := rdb.Ping(ctx).Result()
 
 	if err != nil {
-		panic(errors.WithMessage(err, "failed to connect to redis"))
+		//panic(errors.WithMessage(err, "failed to connect to redis"))
+		fmt.Println(err)
 	}
 }
 
