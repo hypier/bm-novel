@@ -17,6 +17,7 @@ var (
 	rdb *redis.Client
 )
 
+// InitRedis 初始化redis
 func InitRedis() {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     config.Config.Redis.IPAddress,

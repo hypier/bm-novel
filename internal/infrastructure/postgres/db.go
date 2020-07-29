@@ -12,6 +12,7 @@ import (
 // DefaultDB 数据库连接
 var DefaultDB *sqlx.DB
 
+// InitDB 初始化DB
 func InitDB() {
 	DefaultDB, _ = connectMysql()
 }
