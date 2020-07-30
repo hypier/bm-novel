@@ -41,7 +41,7 @@ func main() {
 	err := http.ListenAndServe(config.Config.Server, APIRouter())
 
 	if err != nil {
-		logrus.Error(err)
+		logrus.Fatal("ListenAndServe, ", err)
 	}
 }
 
