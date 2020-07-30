@@ -1,12 +1,19 @@
 package permission
 
 import (
+	"bm-novel/internal/config"
 	"bm-novel/internal/domain/permission"
+	"bm-novel/internal/infrastructure/postgres"
 	"context"
 	"testing"
 
 	uuid "github.com/satori/go.uuid"
 )
+
+func init() {
+	config.LoadConfigForTest()
+	postgres.InitDB()
+}
 
 func TestPermissionRepository_FindAll(t *testing.T) {
 	ctx, _ := context.WithCancel(context.Background())
