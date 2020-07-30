@@ -60,9 +60,9 @@ func TestPostUsersSession(t *testing.T) {
 	for _, table := range params {
 
 		user, _ := json.Marshal(table.param)
-		userJson := strings.NewReader(string(user))
+		userJSON := strings.NewReader(string(user))
 
-		request, err := http.NewRequest("POST", "/users/session", userJson)
+		request, err := http.NewRequest("POST", "/users/session", userJSON)
 		if err != nil {
 			t.Error(err)
 		}
