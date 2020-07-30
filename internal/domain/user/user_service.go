@@ -61,7 +61,13 @@ func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 		return err
 	}
 
-	if dbUser != nil && dbUser.UserID != userID {
+	if dbUser == nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID": userID,
+		}, web.ErrUserNotFound, "Edit, User Not Found")
+	}
+
+	if dbUser.UserID != userID {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userName": user.UserName,
 			"dbUserID": dbUser.UserID,
@@ -81,6 +87,12 @@ func (s Service) ChangeInitPassword(ctx context.Context, userID uuid.UUID, passw
 	dbUser, err := s.Repo.FindOne(ctx, userID)
 	if err != nil {
 		return err
+	}
+
+	if dbUser == nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID": userID,
+		}, web.ErrUserNotFound, "ChangeInitPassword, User Not Found")
 	}
 
 	if !dbUser.NeedChangePassword {
@@ -109,6 +121,12 @@ func (s Service) ResetPassword(ctx context.Context, userID uuid.UUID) error {
 		return err
 	}
 
+	if dbUser == nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID": userID,
+		}, web.ErrUserNotFound, "ResetPassword, User Not Found")
+	}
+
 	hashPassword, err := security.Hash(DefaultPassword)
 	if err != nil {
 		return err
@@ -125,6 +143,12 @@ func (s Service) Lock(ctx context.Context, userID uuid.UUID) error {
 	dbUser, err := s.Repo.FindOne(ctx, userID)
 	if err != nil {
 		return err
+	}
+
+	if dbUser == nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID": userID,
+		}, web.ErrUserNotFound, "Lock, User Not Found")
 	}
 
 	if dbUser.IsLock {
@@ -147,6 +171,12 @@ func (s Service) Unlock(ctx context.Context, userID uuid.UUID) error {
 		return err
 	}
 
+	if dbUser == nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"userID": userID,
+		}, web.ErrUserNotFound, "Unlock, User Not Found")
+	}
+
 	if !dbUser.IsLock {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userID":   dbUser.UserID,
@@ -165,6 +195,12 @@ func (s Service) Login(ctx context.Context, userName string, password string) (*
 	dbUser, err := s.Repo.FindByName(ctx, userName)
 	if err != nil {
 		return nil, err
+	}
+
+	if dbUser == nil {
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"userName": userName,
+		}, web.ErrUserNotFound, "Login, User Not Found")
 	}
 
 	if dbUser.IsLock {

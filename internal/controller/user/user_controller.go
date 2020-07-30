@@ -72,6 +72,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		PageSize int `json:"page_size"`
 	}{}
 
+	// todo 改为URL传参方式
 	httpkit.MustScanJSON(&params, r.Body)
 
 	users, err := ur.New().FindList(r.Context(), params.RoleCode, params.RealName, params.PageIndex, params.PageSize)

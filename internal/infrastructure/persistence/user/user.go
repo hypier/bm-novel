@@ -5,6 +5,9 @@ import (
 	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
+	"database/sql"
+
+	"github.com/pkg/errors"
 
 	"github.com/sirupsen/logrus"
 
@@ -82,6 +85,11 @@ func (u *Repository) FindList(ctx context.Context, roleCode []string, realName s
 func (u *Repository) FindOne(ctx context.Context, userID uuid.UUID) (*user.User, error) {
 	usr := &user.User{UserID: userID}
 	if err := entity.Load(ctx, usr, u.db); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// 数据为空
+			return nil, nil
+		}
+
 		return nil, web.WriteErrLogWithField(logrus.Fields{
 			"userID": userID,
 		}, err, "User FindOne exce SQL")
@@ -105,6 +113,11 @@ func (u *Repository) FindByName(ctx context.Context, name string) (*user.User, e
 	users := &user.Users{}
 	err = u.db.SelectContext(ctx, users, strSQL, params...)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// 数据为空
+			return nil, nil
+		}
+
 		return nil, web.WriteErrLogWithField(logrus.Fields{
 			"strSQL": strSQL,
 			"name":   name,
