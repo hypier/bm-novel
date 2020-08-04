@@ -43,7 +43,7 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 
 	u := user.User{
 		UserName: params.UserName,
-		RoleCode: params.RoleCode,
+		Roles:    params.RoleCode,
 		RealName: params.RealName,
 	}
 
@@ -99,7 +99,7 @@ func PatchUsers(w http.ResponseWriter, r *http.Request) {
 
 	u := user.User{
 		UserName: params.UserName,
-		RoleCode: params.RoleCode,
+		Roles:    params.RoleCode,
 		RealName: params.RealName,
 	}
 
@@ -245,7 +245,7 @@ func writeUsersResp(users user.Users, w http.ResponseWriter) {
 		re := userQueryResp{
 			UserID:   v.UserID.String(),
 			UserName: v.UserName,
-			RoleCode: v.RoleCode,
+			RoleCode: v.Roles,
 			RealName: v.RealName,
 			Lock:     v.IsLock,
 		}

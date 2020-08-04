@@ -205,7 +205,7 @@ func generateJWTToken(visitor *user.User, visitID string) (string, error) {
 	claims := jwt.MapClaims{
 		"name":  visitor.UserName,
 		"id":    visitor.UserID.String(),
-		"roles": visitor.RoleCode,
+		"roles": visitor.Roles,
 		"jti":   visitID,
 		"exp":   time.Now().Add(loginExpHour),
 	}

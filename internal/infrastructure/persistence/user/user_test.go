@@ -20,7 +20,7 @@ func init() {
 
 func TestUserRepository_Create(t *testing.T) {
 	u1 := uuid.NewV4()
-	usr := &user.User{UserID: u1, UserName: "admin", IsLock: false, RoleCode: []string{"admin"}}
+	usr := &user.User{UserID: u1, UserName: "admin", IsLock: false, Roles: []string{"admin"}}
 	ctx, _ := context.WithCancel(context.Background())
 	repo := New()
 

@@ -44,7 +44,7 @@ func (s Service) Create(ctx context.Context, user User) (*User, error) {
 	u.UserID = uuid.NewV4()
 	u.NeedChangePassword = true
 	u.UserName = user.UserName
-	u.RoleCode = user.RoleCode
+	u.Roles = user.Roles
 	u.RealName = user.RealName
 
 	err = s.Repo.Create(ctx, u)
@@ -76,7 +76,7 @@ func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 	}
 
 	dbUser.RealName = user.RealName
-	dbUser.RoleCode = user.RoleCode
+	dbUser.Roles = user.Roles
 	dbUser.UserName = user.UserName
 
 	return s.Repo.Update(ctx, dbUser)
