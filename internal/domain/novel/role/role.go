@@ -1,13 +1,16 @@
-package novel
+package role
 
 import (
+	"context"
 	"time"
+
+	"github.com/joyparty/entity"
 
 	uuid "github.com/satori/go.uuid"
 )
 
-// NovelRole 角色
-type NovelRole struct {
+// Role 角色
+type Role struct {
 	// 角色ID
 	RoleID uuid.UUID `json:"role_id" db:"role_id"`
 	// 年纪
@@ -23,4 +26,20 @@ type NovelRole struct {
 
 	CreateAt time.Time `json:"create_at" db:"create_at"`
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
+}
+
+func (r Role) TableName() string {
+	return "novel_role"
+}
+
+func (r Role) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+	switch ev {
+	case entity.EventBeforeInsert:
+		r.CreateAt = time.Now()
+		r.UpdateAt = time.Now()
+	case entity.EventBeforeUpdate:
+		r.UpdateAt = time.Now()
+	}
+
+	return nil
 }

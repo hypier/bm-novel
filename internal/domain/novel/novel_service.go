@@ -1,66 +1,30 @@
 package novel
 
-// INovelService 小说服务接口
-type INovelService interface {
+import (
+	"context"
 
-	// 创建小说
-	Create(novel *Novel) error
-	// 删除小说
-	Delete() error
-	// 指派责编
-	AssignResponsibleEditor(userID string) error
-	// 设置章节解析格式
-	SetChapterFormat(format *Setting) error
-	// 上传源文
-	UploadSource(source string) error
-	// 解析章节
-	ParseChapters(format *Setting) (*[]Chapter, error)
+	uuid "github.com/satori/go.uuid"
+)
+
+type Service struct {
 }
 
-// IChapterService 章节服务
-type IChapterService interface {
-	// 保存章节
-	Save(chapter *[]Chapter)
-	// 编辑原文章节
-	EditSource(source string) error
-	// 删除章节
-	Delete() error
-	// 指派普通外包编辑
-	AssignOrdinaryEditor(userID int) error
-	// 段落解析
-	ParseParagraph() (*[]Paragraph, error)
+func (s Service) Create(ctx context.Context, novel Novel) (*Novel, error) {
+	panic("implement me")
 }
 
-// IParagraphService 段落
-type IParagraphService interface {
-	// 编辑段落
-	Edit(source string) error
-	// 删除段落
-	delete() error
-	// 指派角色
-	AssignRole(roleCode string) error
-	// 合并角色
-	MergeRole(sourceRoleCode, targetRoleCode string) error
+func (s Service) Delete(ctx context.Context, novelID uuid.UUID) error {
+	panic("implement me")
 }
 
-// IRoleService 角色服务
-type IRoleService interface {
-	// 创建角色
-	Create(role *NovelRole) error
-	// 编辑角色
-	Edit(role *NovelRole) error
-	// 删除角色
-	Delete(roleCode string) error
+func (s Service) AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID, editorID uuid.UUID) error {
+	panic("implement me")
 }
 
-// IEpisodeService 集数接口
-type IEpisodeService interface {
-	// 定集
-	Create(paragraphCode *[]string)
-	// 提审
-	Apply()
-	// 审核
-	Audit()
-	// 定稿
-	Finalization()
+func (s Service) SetFormat(ctx context.Context, novelID uuid.UUID, format Settings) error {
+	panic("implement me")
+}
+
+func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, draft string) error {
+	panic("implement me")
 }

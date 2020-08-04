@@ -1,7 +1,10 @@
-package novel
+package episode
 
 import (
+	"context"
 	"time"
+
+	"github.com/joyparty/entity"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -24,4 +27,20 @@ type Episode struct {
 
 	CreateAt time.Time `json:"create_at" db:"create_at"`
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
+}
+
+func (e Episode) TableName() string {
+	return "episode"
+}
+
+func (e Episode) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+	switch ev {
+	case entity.EventBeforeInsert:
+		e.CreateAt = time.Now()
+		e.UpdateAt = time.Now()
+	case entity.EventBeforeUpdate:
+		e.UpdateAt = time.Now()
+	}
+
+	return nil
 }

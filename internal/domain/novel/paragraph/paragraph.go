@@ -1,7 +1,10 @@
-package novel
+package paragraph
 
 import (
+	"context"
 	"time"
+
+	"github.com/joyparty/entity"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -31,4 +34,20 @@ type Paragraph struct {
 
 	CreateAt time.Time `json:"create_at" db:"create_at"`
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
+}
+
+func (p Paragraph) TableName() string {
+	return "paragraph"
+}
+
+func (p Paragraph) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+	switch ev {
+	case entity.EventBeforeInsert:
+		p.CreateAt = time.Now()
+		p.UpdateAt = time.Now()
+	case entity.EventBeforeUpdate:
+		p.UpdateAt = time.Now()
+	}
+
+	return nil
 }

@@ -1,7 +1,10 @@
 package novel
 
 import (
+	"context"
 	"time"
+
+	"github.com/joyparty/entity"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -26,7 +29,24 @@ type Novel struct {
 	CreateAt time.Time `json:"create_at" db:"create_at"`
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 
-	Settings string
+	// 格式设置
+	Settings Settings `json:"settings" db:"settings"`
+}
+
+func (n Novel) TableName() string {
+	return "novel"
+}
+
+func (n Novel) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+	switch ev {
+	case entity.EventBeforeInsert:
+		n.CreateAt = time.Now()
+		n.UpdateAt = time.Now()
+	case entity.EventBeforeUpdate:
+		n.UpdateAt = time.Now()
+	}
+
+	return nil
 }
 
 // Settings 章节格式

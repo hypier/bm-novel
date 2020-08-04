@@ -1,7 +1,10 @@
-package novel
+package chapter
 
 import (
+	"context"
 	"time"
+
+	"github.com/joyparty/entity"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -25,4 +28,21 @@ type Chapter struct {
 
 	CreateAt time.Time `json:"create_at" db:"create_at"`
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
+}
+
+func (c Chapter) TableName() string {
+
+	return "chapter"
+}
+
+func (c Chapter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+	switch ev {
+	case entity.EventBeforeInsert:
+		c.CreateAt = time.Now()
+		c.UpdateAt = time.Now()
+	case entity.EventBeforeUpdate:
+		c.UpdateAt = time.Now()
+	}
+
+	return nil
 }
