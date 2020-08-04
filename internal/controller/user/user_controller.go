@@ -41,14 +41,13 @@ func PostUsers(w http.ResponseWriter, r *http.Request) {
 
 	httpkit.MustScanJSON(&params, r.Body)
 
-	u := user.User{
+	u := &user.User{
 		UserName: params.UserName,
 		Roles:    params.RoleCode,
 		RealName: params.RealName,
 	}
 
-	_, err := service().Create(r.Context(), u)
-
+	err := service().Create(r.Context(), u)
 	if err == nil {
 		w.WriteHeader(201)
 		return

@@ -8,7 +8,7 @@ import (
 
 // IUserService 用户领域服务.
 type IUserService interface {
-	Create(ctx context.Context, user User) (*User, error)
+	Create(ctx context.Context, user *User) error
 	Edit(ctx context.Context, userID uuid.UUID, user User) error
 
 	ChangeInitPassword(ctx context.Context, userID uuid.UUID, password string) error

@@ -21,35 +21,29 @@ type Service struct {
 }
 
 // Create 创建用户
-func (s Service) Create(ctx context.Context, user User) (*User, error) {
+func (s Service) Create(ctx context.Context, user *User) error {
 	hashPassword, err := security.Hash(DefaultPassword)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	dbUser, err := s.Repo.FindByName(ctx, user.UserName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if dbUser != nil && dbUser.UserName == user.UserName {
-		return nil, web.WriteErrLogWithField(logrus.Fields{
+		return web.WriteErrLogWithField(logrus.Fields{
 			"userName": user.UserName,
 			"dbUserID": dbUser.UserID,
 		}, web.ErrUserConflict, "Create User, Duplicate userName")
 	}
 
-	u := &User{}
-	u.Password = string(hashPassword)
-	u.UserID = uuid.NewV4()
-	u.NeedChangePassword = true
-	u.UserName = user.UserName
-	u.Roles = user.Roles
-	u.RealName = user.RealName
+	user.Password = string(hashPassword)
+	user.UserID = uuid.NewV4()
+	user.NeedChangePassword = true
 
-	err = s.Repo.Create(ctx, u)
-
-	return u, err
+	return s.Repo.Create(ctx, user)
 }
 
 // Edit 编辑
