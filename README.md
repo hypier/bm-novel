@@ -1,6 +1,8 @@
 # 北冥有声小说 bm-novel
 
 - [API接口]
+- [HTML API接口]
+
 
 ## 功能
 
@@ -55,3 +57,5 @@ revive -config=revive.toml -formatter friendly bm-novel/...
 ```
 
 [API接口]: https://gitlab.haochang.tv/heyong/bm-novel/issues?scope=all&utf8=%E2%9C%93&state=opened&label_name[]=documentation
+
+[HTML API接口]: https://docs.apipost.cn/view/da19f06dec885005#2522365
