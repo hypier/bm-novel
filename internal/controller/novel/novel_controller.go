@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// GetNovels 获取小说列表
 func GetNovels(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
