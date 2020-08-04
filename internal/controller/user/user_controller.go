@@ -264,7 +264,7 @@ func getUserIDForURLParam(r *http.Request) (userID uuid.UUID, err error) {
 	id := chi.URLParam(r, "user_id")
 
 	if id == "" {
-		return userID, web.ErrUserNotFound
+		return userID, web.ErrNotFound
 	}
 
 	userID, err = uuid.FromString(id)

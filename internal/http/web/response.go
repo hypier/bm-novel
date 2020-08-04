@@ -14,10 +14,11 @@ var (
 	// ErrServerError 系统错误
 	ErrServerError = errors.New("Server Error")
 
-	// ErrUserConflict 用户名重复错误.
-	ErrUserConflict = errors.New("User Conflict")
-	// ErrUserNotFound 用户不存在.
-	ErrUserNotFound = errors.New("User Not Found")
+	// ErrConflict 资源名重复错误.
+	ErrConflict = errors.New("Conflict")
+	// ErrNotFound 资源不存在.
+	ErrNotFound = errors.New("Not Found")
+
 	// ErrUserLocked 用户被锁定.
 	ErrUserLocked = errors.New("User Locked")
 	// ErrPasswordIncorrect 用户名或密码错误.
@@ -33,13 +34,13 @@ func WriteHTTPStats(w http.ResponseWriter, err error) {
 	}
 
 	switch {
-	case errors.Is(err, ErrUserNotFound):
+	case errors.Is(err, ErrNotFound):
 		w.WriteHeader(404)
 	case errors.Is(err, ErrNotAcceptable):
 		w.WriteHeader(406)
 	case errors.Is(err, ErrUserLocked):
 		w.WriteHeader(423)
-	case errors.Is(err, ErrUserConflict):
+	case errors.Is(err, ErrConflict):
 		w.WriteHeader(409)
 	case errors.Is(err, ErrPasswordIncorrect):
 		w.WriteHeader(401)

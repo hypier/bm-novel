@@ -32,11 +32,11 @@ func (s Service) Create(ctx context.Context, user *User) error {
 		return err
 	}
 
-	if dbUser != nil && dbUser.UserName == user.UserName {
+	if dbUser != nil {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userName": user.UserName,
 			"dbUserID": dbUser.UserID,
-		}, web.ErrUserConflict, "Create User, Duplicate userName")
+		}, web.ErrConflict, "Create User, Duplicate userName")
 	}
 
 	user.Password = string(hashPassword)
@@ -58,7 +58,7 @@ func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 	if dbUser == nil {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userID": userID,
-		}, web.ErrUserNotFound, "Edit, User Not Found")
+		}, web.ErrNotFound, "Edit, User Not Found")
 	}
 
 	if dbUser.UserID != userID {
@@ -66,7 +66,7 @@ func (s Service) Edit(ctx context.Context, userID uuid.UUID, user User) error {
 			"userName": user.UserName,
 			"dbUserID": dbUser.UserID,
 			"userID":   userID,
-		}, web.ErrUserConflict, "Edit User, userID Conflict")
+		}, web.ErrConflict, "Edit User, userID Conflict")
 	}
 
 	dbUser.RealName = user.RealName
@@ -86,7 +86,7 @@ func (s Service) ChangeInitPassword(ctx context.Context, userID uuid.UUID, passw
 	if dbUser == nil {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userID": userID,
-		}, web.ErrUserNotFound, "ChangeInitPassword, User Not Found")
+		}, web.ErrNotFound, "ChangeInitPassword, User Not Found")
 	}
 
 	if !dbUser.NeedChangePassword {
@@ -118,7 +118,7 @@ func (s Service) ResetPassword(ctx context.Context, userID uuid.UUID) error {
 	if dbUser == nil {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userID": userID,
-		}, web.ErrUserNotFound, "ResetPassword, User Not Found")
+		}, web.ErrNotFound, "ResetPassword, User Not Found")
 	}
 
 	hashPassword, err := security.Hash(DefaultPassword)
@@ -142,7 +142,7 @@ func (s Service) Lock(ctx context.Context, userID uuid.UUID) error {
 	if dbUser == nil {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userID": userID,
-		}, web.ErrUserNotFound, "Lock, User Not Found")
+		}, web.ErrNotFound, "Lock, User Not Found")
 	}
 
 	if dbUser.IsLock {
@@ -168,7 +168,7 @@ func (s Service) Unlock(ctx context.Context, userID uuid.UUID) error {
 	if dbUser == nil {
 		return web.WriteErrLogWithField(logrus.Fields{
 			"userID": userID,
-		}, web.ErrUserNotFound, "Unlock, User Not Found")
+		}, web.ErrNotFound, "Unlock, User Not Found")
 	}
 
 	if !dbUser.IsLock {
@@ -194,7 +194,7 @@ func (s Service) Login(ctx context.Context, userName string, password string) (*
 	if dbUser == nil {
 		return nil, web.WriteErrLogWithField(logrus.Fields{
 			"userName": userName,
-		}, web.ErrUserNotFound, "Login, User Not Found")
+		}, web.ErrNotFound, "Login, User Not Found")
 	}
 
 	if dbUser.IsLock {

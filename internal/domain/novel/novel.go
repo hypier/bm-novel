@@ -9,6 +9,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type Novels []*Novel
+
 // Novel 小说
 type Novel struct {
 	// 小说ID
@@ -26,11 +28,10 @@ type Novel struct {
 	// 总字数
 	WordsCount int `json:"words_count" db:"words_count"`
 
-	CreateAt time.Time `json:"create_at" db:"create_at"`
-	UpdateAt time.Time `json:"update_at" db:"update_at"`
-
 	// 格式设置
 	Settings Settings `json:"settings" db:"settings"`
+
+	BaseEntity
 }
 
 func (n Novel) TableName() string {

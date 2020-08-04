@@ -108,7 +108,7 @@ func (u *Repository) FindByName(ctx context.Context, name string) (*user.User, e
 
 	logrus.WithFields(logrus.Fields{
 		"sql": strSQL,
-	}).Debug("Repository FindByName")
+	}).Debug("Repository FindByTitle")
 
 	users := &user.Users{}
 	err = u.db.SelectContext(ctx, users, strSQL, params...)

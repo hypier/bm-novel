@@ -13,7 +13,7 @@ import (
 type INovelService interface {
 
 	// 创建小说
-	Create(ctx context.Context, novel Novel) (*Novel, error)
+	Create(ctx context.Context, novel *Novel) error
 	// 删除小说
 	Delete(ctx context.Context, novelID uuid.UUID) error
 	// 指派责编
@@ -22,6 +22,14 @@ type INovelService interface {
 	SetFormat(ctx context.Context, novelID uuid.UUID, format Settings) error
 	// 上传源文
 	UploadDraft(ctx context.Context, novelID uuid.UUID, draft string) error
+}
+
+type INovelRepository interface {
+	FindList(ctx context.Context, novelName string, pageIndex int, pageSize int) (Novels, error)
+	FindOne(ctx context.Context, novelID uuid.UUID) (*Novel, error)
+	FindByTitle(ctx context.Context, title string) (*Novel, error)
+	Create(ctx context.Context, novel *Novel) error
+	Update(ctx context.Context, novel *Novel) error
 }
 
 // IChapterService 章节服务
