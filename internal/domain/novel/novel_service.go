@@ -10,11 +10,11 @@ type INovelService interface {
 	// 指派责编
 	AssignResponsibleEditor(userID string) error
 	// 设置章节解析格式
-	SetChapterFormat(format *ChapterFormat) error
+	SetChapterFormat(format *Setting) error
 	// 上传源文
 	UploadSource(source string) error
 	// 解析章节
-	ParseChapters(format *ChapterFormat) (*[]Chapter, error)
+	ParseChapters(format *Setting) (*[]Chapter, error)
 }
 
 // IChapterService 章节服务
@@ -46,9 +46,9 @@ type IParagraphService interface {
 // IRoleService 角色服务
 type IRoleService interface {
 	// 创建角色
-	Create(role *Role) error
+	Create(role *NovelRole) error
 	// 编辑角色
-	Edit(role *Role) error
+	Edit(role *NovelRole) error
 	// 删除角色
 	Delete(roleCode string) error
 }

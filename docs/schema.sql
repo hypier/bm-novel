@@ -118,7 +118,7 @@ create table public.episode
         constraint episode_pkey
             primary key,
     create_at timestamp(6) with time zone,
-    episode_name varchar(50),
+    episode_title varchar(50),
     episode_no integer,
     status smallint,
     update_at timestamp(6) with time zone,
@@ -134,7 +134,7 @@ comment on column public.episode.episode_id is '集数ID';
 
 comment on column public.episode.create_at is '创建时间';
 
-comment on column public.episode.episode_name is '集名';
+comment on column public.episode.episode_title is '集名';
 
 comment on column public.episode.episode_no is '集序号';
 
@@ -203,7 +203,7 @@ create table public.paragraph
         constraint fk_paragraph_role_id
             references public.novel_role,
     novel_id uuid
-        constraint fk_paragraph_novle_id
+        constraint fk_paragraph_novel_id
             references public.novel
 );
 
