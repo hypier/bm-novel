@@ -1,4 +1,4 @@
-package novel
+package counter
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Counter 小说计数器
 type Counter struct {
 	CountID uuid.UUID `json:"count_id" db:"count_id"`
 	// 已指派的章节数
@@ -19,11 +20,13 @@ type Counter struct {
 	NovelID uuid.UUID `json:"novel_id" db:"novel_id"`
 }
 
+// TableName 表名
 func (c Counter) TableName() string {
 
 	return "novel_counter"
 }
 
+// OnEntityEvent 事件
 func (c Counter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	panic("implement me")
 }

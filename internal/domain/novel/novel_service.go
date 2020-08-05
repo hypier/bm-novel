@@ -41,12 +41,21 @@ func (s Service) Delete(ctx context.Context, novelID uuid.UUID) error {
 
 // AssignResponsibleEditor 指派责编
 func (s Service) AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID, editorID uuid.UUID) error {
-	panic("implement me")
-}
+	dbNovel, err := s.Repo.FindOne(ctx, novelID)
 
-// SetFormat 设置格式
-func (s Service) SetFormat(ctx context.Context, novelID uuid.UUID, format Settings) error {
-	panic("implement me")
+	if err != nil {
+		return err
+	}
+
+	if dbNovel == nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"novelID": novelID,
+		}, web.ErrNotFound, "AssignResponsibleEditor, Novel Not Found")
+	}
+
+	dbNovel.ResponsibleEditorID = editorID
+	return s.Repo.Update(ctx, dbNovel)
+
 }
 
 // UploadDraft 上传原文

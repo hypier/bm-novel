@@ -18,8 +18,6 @@ type INovelService interface {
 	Delete(ctx context.Context, novelID uuid.UUID) error
 	// 指派责编
 	AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID, editorID uuid.UUID) error
-	// 设置解析格式
-	SetFormat(ctx context.Context, novelID uuid.UUID, format Settings) error
 	// 上传源文
 	UploadDraft(ctx context.Context, novelID uuid.UUID, draft string) error
 }

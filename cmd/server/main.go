@@ -83,7 +83,14 @@ func APIRouter() http.Handler {
 	r.Post("/users/session", user.PostUsersSession)
 
 	// 小说
-	r.Post("/novels", novel.PostNovels)
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(auth.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Use(auth.LoginAuthenticator)
+
+		r.Post("/novels", novel.PostNovels)
+		r.Put("/novels/{novel_id}/responsible_editor", novel.PutResponsibleEditor)
+	})
 
 	return r
 }

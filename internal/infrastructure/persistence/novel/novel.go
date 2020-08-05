@@ -31,7 +31,19 @@ func (r Repository) FindList(ctx context.Context, novelName string, pageIndex in
 }
 
 func (r Repository) FindOne(ctx context.Context, novelID uuid.UUID) (*novel.Novel, error) {
-	panic("implement me")
+	n := &novel.Novel{NovelID: novelID}
+	if err := entity.Load(ctx, n, r.db); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// 数据为空
+			return nil, nil
+		}
+
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"novelID": novelID,
+		}, err, "Novel FindOne exce SQL")
+	}
+
+	return n, nil
 }
 
 func (r Repository) FindByTitle(ctx context.Context, title string) (*novel.Novel, error) {
@@ -78,5 +90,11 @@ func (r Repository) Create(ctx context.Context, novel *novel.Novel) error {
 }
 
 func (r Repository) Update(ctx context.Context, novel *novel.Novel) error {
-	panic("implement me")
+	if err := entity.Update(ctx, novel, r.db); err != nil {
+		return web.WriteErrLogWithField(logrus.Fields{
+			"novel": &novel,
+		}, err, "Novel Update exce SQL")
+	}
+
+	return nil
 }
