@@ -30,6 +30,7 @@ func (s Service) Create(ctx context.Context, novel *Novel) error {
 		}, web.ErrConflict, "Create Novel, Duplicate novelTitle")
 	}
 
+	novel.NovelID = uuid.NewV4()
 	return s.Repo.Create(ctx, novel)
 }
 

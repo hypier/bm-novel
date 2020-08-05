@@ -2,6 +2,7 @@ package main
 
 import (
 	"bm-novel/internal/config"
+	"bm-novel/internal/controller/novel"
 	"bm-novel/internal/controller/user"
 	"bm-novel/internal/http/auth"
 	"bm-novel/internal/infrastructure/postgres"
@@ -51,6 +52,7 @@ func APIRouter() http.Handler {
 
 	r.Use(httpkit.Recoverer(logrus.New()))
 
+	// 用户
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(auth.TokenAuth))
 		r.Use(jwtauth.Authenticator)
@@ -78,8 +80,10 @@ func APIRouter() http.Handler {
 		})
 
 	})
-
 	r.Post("/users/session", user.PostUsersSession)
+
+	// 小说
+	r.Post("/novels", novel.PostNovels)
 
 	return r
 }

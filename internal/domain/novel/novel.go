@@ -9,36 +9,30 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Novels 小说集合
 type Novels []*Novel
 
 // Novel 小说
 type Novel struct {
 	// 小说ID
 	NovelID uuid.UUID `json:"novel_id" db:"novel_id,primaryKey"`
-	// 已指派的章节数
-	AssignedChaptersCount int `json:"assigned_chapters_count"`
-	// 总章节数
-	ChaptersCount int `json:"chapters_count"`
 	// 主编ID
 	ChiefEditorID uuid.UUID `json:"chief_editor_id" db:"chief_editor_id"`
 	// 小说标题
 	NovelTitle string `json:"novel_title" db:"novel_title"`
 	// 责编ID
 	ResponsibleEditorID uuid.UUID `json:"responsible_editor_id" db:"responsible_editor_id"`
-	// 总字数
-	WordsCount int `json:"words_count" db:"words_count"`
-
-	// 格式设置
-	Settings Settings `json:"settings" db:"settings"`
 
 	BaseEntity
 }
 
-func (n Novel) TableName() string {
+// TableName 表名
+func (n *Novel) TableName() string {
 	return "novel"
 }
 
-func (n Novel) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+// OnEntityEvent 事件
+func (n *Novel) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:
 		n.CreateAt = time.Now()
