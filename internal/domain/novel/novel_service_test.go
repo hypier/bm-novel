@@ -93,10 +93,41 @@ func TestService_Create(t *testing.T) {
 		}
 	}
 
-	//e4 := l.PushBack("a4")
-	//e1 := l.PushFront("a1")
-	//l.InsertBefore("a3", e4)
-	//l.InsertAfter("a2", e1)
+}
 
-	//sort.Sort(l)
+type v1 struct {
+	index int
+	code  string
+}
+
+func Test1(t *testing.T) {
+	vl := []v1{
+		{20, "a"},
+		{23, "b"},
+		{22, "e"},
+		{23, "22"},
+		{37, "jjj"},
+		{38, "ss"},
+		{39, "sd"},
+		{40, "jh"},
+		{41, "34"},
+		{50, "89"}}
+
+	// 需要插入值
+	w := "iii"
+	// 插入位置
+	prev := 20
+	// 取大于20的5条,排序取
+	vl2 := vl[1:6]
+
+	end := 0
+	for i, x := range vl2 {
+		n := prev + i + 1
+		if x.index > n {
+			end = n
+			break
+		}
+	}
+
+	fmt.Println(w, end, vl2)
 }
