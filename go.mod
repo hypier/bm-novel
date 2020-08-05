@@ -19,5 +19,6 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
+	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )

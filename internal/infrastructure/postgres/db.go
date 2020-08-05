@@ -4,9 +4,9 @@ import (
 	"bm-novel/internal/config"
 	"fmt"
 
-	"github.com/pkg/errors"
-
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 // DefaultDB 数据库连接
