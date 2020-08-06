@@ -5,6 +5,7 @@ import (
 	"bm-novel/internal/domain/novel/paragraph"
 	"bm-novel/internal/domain/novel/role"
 	"context"
+	"io"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -19,7 +20,7 @@ type INovelService interface {
 	// 指派责编
 	AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID, editorID uuid.UUID) error
 	// 上传源文
-	UploadDraft(ctx context.Context, novelID uuid.UUID, draft string) error
+	UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Reader) error
 }
 
 type INovelRepository interface {

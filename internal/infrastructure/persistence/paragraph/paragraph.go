@@ -34,6 +34,10 @@ func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) 
 	return nil
 }
 
+func (r Repository) BatchCreate(ctx context.Context, paragraphs *paragraph.Paragraphs) error {
+	return nil
+}
+
 // FindAll 获取所有权限点
 func (r *Repository) FindAll(ctx context.Context) (paragraph.Paragraphs, error) {
 

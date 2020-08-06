@@ -80,6 +80,29 @@ func PutResponsibleEditor(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// PostDraft 上传原文
+func PostDraft(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+	novelID, err := getNovelIDForURLParam(r)
+	if err != nil {
+		web.WriteHTTPStats(w, err)
+		return
+	}
+
+	file, _, err := r.FormFile("draft")
+	if err != nil {
+		web.WriteHTTPStats(w, err)
+		return
+	}
+	defer file.Close()
+
+	err = service().UploadDraft(r.Context(), novelID, file)
+	if err != nil {
+		web.WriteHTTPStats(w, err)
+		return
+	}
+}
+
 // getNovelIDForURLParam NovelID
 func getNovelIDForURLParam(r *http.Request) (novelID uuid.UUID, err error) {
 	id := chi.URLParam(r, "novel_id")

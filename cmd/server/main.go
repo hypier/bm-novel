@@ -90,6 +90,7 @@ func APIRouter() http.Handler {
 
 		r.Post("/novels", novel.PostNovels)
 		r.Put("/novels/{novel_id}/responsible_editor", novel.PutResponsibleEditor)
+		r.Post("/novels/{novel_id}/draft", novel.PostDraft)
 	})
 
 	return r
