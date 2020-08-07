@@ -28,7 +28,7 @@ func New() *Repository {
 }
 
 func (r Repository) BatchCreate(ctx context.Context, cs *chapter.Chapters) error {
-	return r.saveRedis(ctx, cs)
+	return r.saveDB(ctx, cs)
 }
 
 func (r Repository) saveRedis(ctx context.Context, cs *chapter.Chapters) error {

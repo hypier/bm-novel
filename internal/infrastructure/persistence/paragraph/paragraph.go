@@ -45,7 +45,7 @@ func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) 
 }
 
 func (r Repository) BatchCreate(ctx context.Context, ps *paragraph.Paragraphs) error {
-	return r.saveRedis(ctx, ps)
+	return r.saveDB(ctx, ps)
 }
 
 func (r Repository) saveRedis(ctx context.Context, ps *paragraph.Paragraphs) error {

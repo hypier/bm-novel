@@ -81,6 +81,16 @@ func counter(value, step int) func() int {
 
 var pCounter func() int
 
+func findChapterLine(data []byte) (begin, end int) {
+	p1 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)`
+	pos := regexp.MustCompile(p1).FindSubmatchIndex(data)
+	if len(pos) == 0 {
+		return 0, 0
+	}
+
+	return pos[0], pos[1]
+}
+
 // UploadDraft 上传原文
 func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Reader) error {
 	logrus.Debug("小说解析开始")
@@ -100,18 +110,69 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 	}
 
 	r := bufio.NewReader(file)
+	scanner := bufio.NewScanner(r)
+	buf := make([]byte, 5000)
+	scanner.Buffer(buf, bufio.MaxScanTokenSize)
+
+	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		if atEOF && len(data) == 0 {
+			return 0, nil, nil
+		}
+
+		begin, end := findChapterLine(data)
+
+		s2 := regexp.MustCompile(`[“”"]`)
+		pos := s2.FindAllIndex(data, 2)
+
+		if end > 0 {
+
+			if len(pos) > 0 {
+				if begin < pos[0][0] {
+					return end, data[0:end], nil
+				} else {
+					if len(pos) < 1 {
+						if begin < pos[1][0] {
+							return begin, data[0:begin], nil
+						}
+						return begin, data[0:begin], nil
+					}
+
+				}
+			}
+
+		}
+
+		// todo 半个引号未处理
+		if len(pos) > 1 {
+			index := pos[0][0]
+
+			// 首字为引号
+			if index <= 3 {
+				index = pos[1][1]
+			}
+
+			return index, data[0:index], nil
+		}
+
+		if !atEOF && !utf8.FullRune(data) {
+			// Incomplete; get more bytes.
+			return 0, nil, nil
+		}
+
+		return 0, nil, nil
+	}
+	scanner.Split(split)
 
 	pCounter = counter(0, 1)
 	cs := &chapter.Chapters{}
 	ps := &paragraph.Paragraphs{}
 	var c *chapter.Chapter
-	for {
-		line, _, err := r.ReadLine()
-		if err != nil {
-			break
-		}
+	for scanner.Scan() {
+		dec := bytes.NewBuffer(scanner.Bytes())
 
-		dec := bytes.NewBuffer(line)
+		if len(bytes.TrimSpace(dec.Bytes())) == 0 {
+			continue
+		}
 
 		if isChapter(dec) {
 			c = &chapter.Chapter{NovelID: novelID, ChapterID: uuid.NewV4()}

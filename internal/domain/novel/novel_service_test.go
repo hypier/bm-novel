@@ -35,29 +35,83 @@ func openFile() io.Reader {
 func TestService_UploadDraft(t *testing.T) {
 	file := openFile()
 	r := bufio.NewReader(file)
+	scanner := bufio.NewScanner(r)
+	buf := make([]byte, 5000)
+	scanner.Buffer(buf, bufio.MaxScanTokenSize)
+
+	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		if atEOF && len(data) == 0 {
+			return 0, nil, nil
+		}
+
+		begin, end := findChapterLine(data)
+
+		s2 := regexp.MustCompile(`[“”"]`)
+		pos := s2.FindAllIndex(data, 2)
+
+		if end > 0 {
+
+			if len(pos) > 0 {
+				if begin < pos[0][0] {
+					return end, data[0:end], nil
+				} else {
+					if len(pos) < 1 || begin < pos[1][0] {
+						return begin, data[0:begin], nil
+					}
+
+				}
+			}
+
+		}
+
+		// todo 半个引号未处理
+		if len(pos) > 1 {
+			index := pos[0][0]
+
+			// 首字为引号
+			if index <= 3 {
+				index = pos[1][1]
+			}
+
+			return index, data[0:index], nil
+		}
+
+		if !atEOF && !utf8.FullRune(data) {
+			// Incomplete; get more bytes.
+			return 0, nil, nil
+		}
+
+		return 0, nil, nil
+	}
+
+	scanner.Split(split)
 
 	novelID := uuid.NewV4()
-
 	cs := &chapter.Chapters{}
 	ps := &paragraph.Paragraphs{}
 	var c *chapter.Chapter
-	for {
-		line, _, err := r.ReadLine()
-		if err != nil {
-			break
-		}
 
-		dec := bytes.NewBuffer(line)
+	for scanner.Scan() {
+
+		dec := bytes.NewBuffer(scanner.Bytes())
+		content := strings.TrimSpace(dec.String())
+		if len(content) == 0 {
+			continue
+		}
 
 		if isChapter(dec) {
 			c = &chapter.Chapter{NovelID: novelID, ChapterID: uuid.NewV4()}
-			// todo 是章节但没有序号的处理
-			parseChapter(dec, c)
-			*cs = append(*cs, c)
+
+			if parseChapter(dec, c) {
+				*cs = append(*cs, c)
+			} else {
+				parseParagraph(dec, ps, c)
+			}
 		} else {
 			parseParagraph(dec, ps, c)
 		}
 
+		//break
 	}
 
 	for _, p := range *ps {
