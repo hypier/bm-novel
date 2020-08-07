@@ -31,6 +31,18 @@ type INovelRepository interface {
 	Update(ctx context.Context, novel *Novel) error
 }
 
+type IChapterRepository interface {
+	Create(ctx context.Context, chapter *chapter.Chapter) error
+	BatchCreate(ctx context.Context, chapters *chapter.Chapters) error
+	Update(ctx context.Context, chapter *chapter.Chapter) error
+}
+
+type IParagraphRepository interface {
+	Create(ctx context.Context, paragraph *paragraph.Paragraph) error
+	BatchCreate(ctx context.Context, paragraphs *paragraph.Paragraphs) error
+	Update(ctx context.Context, paragraph *paragraph.Paragraph) error
+}
+
 // IChapterService 章节服务
 type IChapterService interface {
 	// 保存章节

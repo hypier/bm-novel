@@ -4,7 +4,9 @@ import (
 	"bm-novel/internal/domain/novel"
 	"bm-novel/internal/http/auth"
 	"bm-novel/internal/http/web"
+	cp "bm-novel/internal/infrastructure/persistence/chapter"
 	rp "bm-novel/internal/infrastructure/persistence/novel"
+	pp "bm-novel/internal/infrastructure/persistence/paragraph"
 	"net/http"
 	"sync"
 
@@ -21,7 +23,7 @@ var (
 
 func service() *novel.Service {
 	once.Do(func() {
-		ns = &novel.Service{Repo: rp.New()}
+		ns = &novel.Service{Repo: rp.New(), ChapterRepo: cp.New(), ParagraphRepo: pp.New()}
 	})
 
 	return ns

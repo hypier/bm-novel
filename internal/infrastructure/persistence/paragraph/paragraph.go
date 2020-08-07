@@ -5,6 +5,7 @@ import (
 	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
+	"fmt"
 
 	"github.com/doug-martin/goqu/v9"
 
@@ -23,6 +24,10 @@ func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
 }
 
+func (r Repository) Update(ctx context.Context, paragraph *paragraph.Paragraph) error {
+	panic("implement me")
+}
+
 // Create 创建
 func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) error {
 	if _, err := entity.Insert(ctx, paragraph, r.db); err != nil {
@@ -34,7 +39,28 @@ func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) 
 	return nil
 }
 
-func (r Repository) BatchCreate(ctx context.Context, paragraphs *paragraph.Paragraphs) error {
+func (r Repository) BatchCreate(ctx context.Context, ps *paragraph.Paragraphs) error {
+	p := &paragraph.Paragraph{}
+
+	//beginx, err := r.db.Beginx()
+	//if err != nil {
+	//	fmt.Println("Beginx error:", err)
+	//	panic(err)
+	//}
+
+	insert, err := entity.PrepareInsert(ctx, p, r.db)
+	if err != nil {
+		return err
+	}
+
+	for _, p2 := range *ps {
+		_, err := insert.ExecContext(ctx, p2)
+		if err != nil {
+			fmt.Println("Exec error:", err)
+			panic(err)
+		}
+	}
+
 	return nil
 }
 

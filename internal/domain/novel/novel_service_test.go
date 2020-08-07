@@ -1,10 +1,14 @@
 package novel
 
 import (
+	"bm-novel/internal/config"
 	"bm-novel/internal/domain/novel/chapter"
 	"bm-novel/internal/domain/novel/paragraph"
+	pr "bm-novel/internal/infrastructure/persistence/paragraph"
+	"bm-novel/internal/infrastructure/postgres"
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -16,6 +20,11 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 )
+
+func init() {
+	config.LoadConfigForTest()
+	postgres.InitDB()
+}
 
 func openFile() io.Reader {
 	f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\间谍的战争-已完结.txt")
@@ -58,6 +67,17 @@ func TestService_UploadDraft(t *testing.T) {
 	//for _, c2 := range *cs {
 	//	fmt.Println(c2.ChapterID, c2.ChapterTitle)
 	//}
+}
+
+func TestService_UploadDraft2(t *testing.T) {
+	p := &paragraph.Paragraph{NovelID: uuid.NewV4()}
+	ps := &paragraph.Paragraphs{}
+	*ps = append(*ps, p)
+
+	ctx, _ := context.WithCancel(context.Background())
+	err := pr.New().BatchCreate(ctx, ps)
+
+	fmt.Println(err)
 }
 
 func TestService_UploadDraft1(t *testing.T) {

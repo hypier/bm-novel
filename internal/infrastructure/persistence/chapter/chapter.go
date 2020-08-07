@@ -21,6 +21,14 @@ func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
 }
 
+func (r Repository) BatchCreate(ctx context.Context, chapters *chapter.Chapters) error {
+	panic("implement me")
+}
+
+func (r Repository) Update(ctx context.Context, chapter *chapter.Chapter) error {
+	panic("implement me")
+}
+
 // Create 创建
 func (r Repository) Create(ctx context.Context, chapter *chapter.Chapter) error {
 	if _, err := entity.Insert(ctx, chapter, r.db); err != nil {

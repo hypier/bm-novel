@@ -4,12 +4,9 @@ import (
 	"bm-novel/internal/domain/novel/chapter"
 	"bm-novel/internal/domain/novel/paragraph"
 	"bm-novel/internal/http/web"
-	cr "bm-novel/internal/infrastructure/persistence/chapter"
-	pr "bm-novel/internal/infrastructure/persistence/paragraph"
 	"bufio"
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -25,7 +22,9 @@ import (
 
 // Service 小说服务
 type Service struct {
-	Repo INovelRepository
+	Repo          INovelRepository
+	ChapterRepo   IChapterRepository
+	ParagraphRepo IParagraphRepository
 }
 
 // Create 创建小说
@@ -104,25 +103,24 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 
 		if isChapter(dec) {
 			c = &chapter.Chapter{NovelID: novelID, ChapterID: uuid.NewV4()}
-			// todo 是章节但没有序号的处理
-			parseChapter(dec, c)
-			*cs = append(*cs, c)
+
+			if parseChapter(dec, c) {
+				*cs = append(*cs, c)
+			} else {
+				parseParagraph(dec, ps, c)
+			}
 		} else {
 			parseParagraph(dec, ps, c)
 		}
 
 	}
 
-	for _, c2 := range *cs {
-		if err := cr.New().Create(ctx, c2); err != nil {
-			fmt.Println(err)
-		}
+	if err = s.ChapterRepo.BatchCreate(ctx, cs); err != nil {
+		return err
 	}
 
-	for _, p := range *ps {
-		if err := pr.New().Create(ctx, p); err != nil {
-			fmt.Println(err)
-		}
+	if err = s.ParagraphRepo.BatchCreate(ctx, ps); err != nil {
+		return err
 	}
 
 	return nil

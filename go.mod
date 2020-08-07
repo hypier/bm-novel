@@ -10,7 +10,7 @@ require (
 	github.com/go-chi/jwtauth v4.0.4+incompatible
 	github.com/go-redis/redis/v8 v8.0.0-beta.7
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/joyparty/entity v0.1.0
+	github.com/joyparty/entity v0.2.2
 	github.com/joyparty/httpkit v0.0.0-20200715085111-3d21287b2aca
 	github.com/lib/pq v1.2.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
@@ -19,6 +19,5 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
-	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
