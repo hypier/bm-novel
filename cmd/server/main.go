@@ -10,8 +10,6 @@ import (
 	"flag"
 	"net/http"
 
-	"github.com/joyparty/httpkit"
-
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-chi/chi"
@@ -50,7 +48,7 @@ func main() {
 func APIRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(httpkit.Recoverer(logrus.New()))
+	//r.Use(httpkit.Recoverer(logrus.New()))
 
 	// 用户
 	r.Group(func(r chi.Router) {

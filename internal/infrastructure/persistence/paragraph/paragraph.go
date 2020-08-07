@@ -4,8 +4,13 @@ import (
 	"bm-novel/internal/domain/novel/paragraph"
 	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
+	"bm-novel/internal/infrastructure/redis"
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
+
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/doug-martin/goqu/v9"
 
@@ -40,6 +45,35 @@ func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) 
 }
 
 func (r Repository) BatchCreate(ctx context.Context, ps *paragraph.Paragraphs) error {
+	return r.saveRedis(ctx, ps)
+}
+
+func (r Repository) saveRedis(ctx context.Context, ps *paragraph.Paragraphs) error {
+
+	var values []interface{}
+	var novelID uuid.UUID
+	for i, p := range *ps {
+		if i == 0 {
+			novelID = p.NovelID
+		}
+
+		marshal, err := json.Marshal(p)
+		if err != nil {
+			logrus.Warnf("putCache marshal marshal err, %s", err)
+			continue
+		}
+
+		field := p.Index
+		values = append(values, field)
+		values = append(values, marshal)
+	}
+
+	key := fmt.Sprintf("novel:paragraph:%s", novelID.String())
+	redis.GetChcher().HMPut(key, time.Hour, values)
+	return nil
+}
+
+func (r Repository) saveDB(ctx context.Context, ps *paragraph.Paragraphs) error {
 	p := &paragraph.Paragraph{}
 
 	insert, err := entity.PrepareInsert(ctx, p, r.db)
@@ -54,7 +88,6 @@ func (r Repository) BatchCreate(ctx context.Context, ps *paragraph.Paragraphs) e
 			panic(err)
 		}
 	}
-
 	return nil
 }
 

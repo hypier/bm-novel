@@ -83,6 +83,7 @@ var pCounter func() int
 
 // UploadDraft 上传原文
 func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Reader) error {
+	logrus.Debug("小说解析开始")
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
 	defer cancel()
 
@@ -139,6 +140,10 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 }
 
 func parseParagraph(dec *bytes.Buffer, ps *paragraph.Paragraphs, c *chapter.Chapter) {
+	if c == nil {
+		return
+	}
+
 	str := dec.String()
 
 	s2 := regexp.MustCompile(`['"”]`)
@@ -214,6 +219,25 @@ func parseChapterNoVolume(dec *bytes.Buffer, c *chapter.Chapter) bool {
 	return true
 }
 
+func parseChapterNoVolume2(dec *bytes.Buffer, c *chapter.Chapter) bool {
+	p2 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]*)([\w\W].*)`
+
+	s2 := regexp.MustCompile(p2)
+
+	all := s2.FindSubmatch(dec.Bytes())
+	if all == nil || len(all) != 2 {
+		return false
+	}
+
+	if index, ok := cNumberToInt(string(all[1])); ok {
+		c.ChapterNo = index
+	}
+
+	c.ChapterTitle = strings.TrimSpace(string(all[2]))
+
+	return true
+}
+
 func isChapter(dec *bytes.Buffer) bool {
 	s1 := regexp.MustCompile(`^[\w 　]`)
 	if s1.Match(dec.Bytes()) || len(dec.Bytes()) == 0 {
@@ -222,11 +246,17 @@ func isChapter(dec *bytes.Buffer) bool {
 
 	p2 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+).+[集章回话节 、]([\w\W].*)`
 	s1 = regexp.MustCompile(p2)
-	if !s1.Match(dec.Bytes()) {
-		return false
+	if s1.Match(dec.Bytes()) {
+		return true
 	}
 
-	return true
+	p2 = `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+).+`
+	s1 = regexp.MustCompile(p2)
+	if s1.Match(dec.Bytes()) {
+		return true
+	}
+
+	return false
 }
 
 func parseChapter(dec *bytes.Buffer, c *chapter.Chapter) bool {
@@ -236,6 +266,10 @@ func parseChapter(dec *bytes.Buffer, c *chapter.Chapter) bool {
 	}
 
 	if parseChapterNoVolume(dec, c) {
+		return true
+	}
+
+	if parseChapterNoVolume2(dec, c) {
 		return true
 	}
 

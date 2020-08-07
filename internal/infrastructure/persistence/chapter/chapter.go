@@ -4,8 +4,13 @@ import (
 	"bm-novel/internal/domain/novel/chapter"
 	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
+	"bm-novel/internal/infrastructure/redis"
 	"context"
+	"encoding/json"
 	"fmt"
+	"time"
+
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
@@ -23,6 +28,35 @@ func New() *Repository {
 }
 
 func (r Repository) BatchCreate(ctx context.Context, cs *chapter.Chapters) error {
+	return r.saveRedis(ctx, cs)
+}
+
+func (r Repository) saveRedis(ctx context.Context, cs *chapter.Chapters) error {
+
+	var values []interface{}
+	var novelID uuid.UUID
+	for i, p := range *cs {
+		if i == 0 {
+			novelID = p.NovelID
+		}
+
+		marshal, err := json.Marshal(p)
+		if err != nil {
+			logrus.Warnf("putCache marshal marshal err, %s", err)
+			continue
+		}
+
+		field := p.ChapterID.String()
+		values = append(values, field)
+		values = append(values, marshal)
+	}
+
+	key := fmt.Sprintf("novel:chapter:%s", novelID.String())
+	redis.GetChcher().HMPut(key, time.Hour, values)
+	return nil
+}
+
+func (r Repository) saveDB(ctx context.Context, cs *chapter.Chapters) error {
 	c := &chapter.Chapter{}
 
 	insert, err := entity.PrepareInsert(ctx, c, r.db)
@@ -37,7 +71,6 @@ func (r Repository) BatchCreate(ctx context.Context, cs *chapter.Chapters) error
 			panic(err)
 		}
 	}
-
 	return nil
 }
 
