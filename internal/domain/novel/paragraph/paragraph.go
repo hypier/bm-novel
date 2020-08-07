@@ -42,17 +42,17 @@ type Paragraph struct {
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 }
 
-func (p Paragraph) TableName() string {
+func (p *Paragraph) TableName() string {
 	return "paragraph"
 }
 
-func (p Paragraph) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+func (p *Paragraph) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:
 		p.CreateAt = time.Now()
 		p.UpdateAt = time.Now()
 	case entity.EventBeforeUpdate:
-		//p.UpdateAt = time.Now()
+		p.UpdateAt = time.Now()
 	}
 
 	return nil

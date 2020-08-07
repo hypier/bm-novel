@@ -186,9 +186,6 @@ func parseChapterNoVolume(dec *bytes.Buffer, c *chapter.Chapter) bool {
 	p2 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+).+[集章回话节 、]([\w\W].*)`
 
 	s2 := regexp.MustCompile(p2)
-	//if !s2.Match(dec.Bytes()) {
-	//	return false
-	//}
 
 	all := s2.FindSubmatch(dec.Bytes())
 	if all == nil || len(all) != 3 {
@@ -207,6 +204,12 @@ func parseChapterNoVolume(dec *bytes.Buffer, c *chapter.Chapter) bool {
 func isChapter(dec *bytes.Buffer) bool {
 	s1 := regexp.MustCompile(`^[\w 　]`)
 	if s1.Match(dec.Bytes()) || len(dec.Bytes()) == 0 {
+		return false
+	}
+
+	p2 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+).+[集章回话节 、]([\w\W].*)`
+	s1 = regexp.MustCompile(p2)
+	if !s1.Match(dec.Bytes()) {
 		return false
 	}
 

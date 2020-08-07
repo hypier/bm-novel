@@ -42,12 +42,6 @@ func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) 
 func (r Repository) BatchCreate(ctx context.Context, ps *paragraph.Paragraphs) error {
 	p := &paragraph.Paragraph{}
 
-	//beginx, err := r.db.Beginx()
-	//if err != nil {
-	//	fmt.Println("Beginx error:", err)
-	//	panic(err)
-	//}
-
 	insert, err := entity.PrepareInsert(ctx, p, r.db)
 	if err != nil {
 		return err

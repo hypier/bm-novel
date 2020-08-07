@@ -34,12 +34,12 @@ type Chapter struct {
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 }
 
-func (c Chapter) TableName() string {
+func (c *Chapter) TableName() string {
 
 	return "chapter"
 }
 
-func (c Chapter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+func (c *Chapter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:
 		c.CreateAt = time.Now()

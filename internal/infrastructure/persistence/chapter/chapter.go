@@ -5,6 +5,7 @@ import (
 	"bm-novel/internal/http/web"
 	"bm-novel/internal/infrastructure/postgres"
 	"context"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
@@ -21,8 +22,23 @@ func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
 }
 
-func (r Repository) BatchCreate(ctx context.Context, chapters *chapter.Chapters) error {
-	panic("implement me")
+func (r Repository) BatchCreate(ctx context.Context, cs *chapter.Chapters) error {
+	c := &chapter.Chapter{}
+
+	insert, err := entity.PrepareInsert(ctx, c, r.db)
+	if err != nil {
+		return err
+	}
+
+	for _, p2 := range *cs {
+		_, err := insert.ExecContext(ctx, p2)
+		if err != nil {
+			fmt.Println("Exec error:", err)
+			panic(err)
+		}
+	}
+
+	return nil
 }
 
 func (r Repository) Update(ctx context.Context, chapter *chapter.Chapter) error {
