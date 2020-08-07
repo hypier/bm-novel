@@ -16,15 +16,15 @@ type Paragraph struct {
 	// 段落ID
 	ParagraphID uuid.UUID `json:"paragraph_id" db:"paragraph_id,primaryKey"`
 	// 序号
-	Index int `json:"index" db:"-"`
+	Index int `json:"index" db:"index"`
 	// 子序号
 	SubIndex int `json:"sub_index" db:"-"`
 	// 内容
 	Content string `json:"content" db:"content"`
 	// 下一个段落
-	Next uuid.UUID `json:"next" db:"next"`
+	Next uuid.UUID `json:"next" db:"-"`
 	// 上一个段落
-	Prev uuid.UUID `json:"prev" db:"prev"`
+	Prev uuid.UUID `json:"prev" db:"-"`
 	// 字数
 	WordsCount int `json:"words_count" db:"words_count"`
 

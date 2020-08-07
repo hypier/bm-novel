@@ -71,6 +71,16 @@ func (s Service) AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID,
 
 }
 
+func counter(value, step int) func() int {
+	num := value
+	return func() int {
+		num += step
+		return num
+	}
+}
+
+var pCounter func() int
+
 // UploadDraft 上传原文
 func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Reader) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
@@ -90,6 +100,7 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 
 	r := bufio.NewReader(file)
 
+	pCounter = counter(0, 1)
 	cs := &chapter.Chapters{}
 	ps := &paragraph.Paragraphs{}
 	var c *chapter.Chapter
@@ -123,6 +134,7 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 		return err
 	}
 
+	logrus.Debug("小说解析完成")
 	return nil
 }
 
@@ -148,6 +160,7 @@ func parseParagraph(dec *bytes.Buffer, ps *paragraph.Paragraphs, c *chapter.Chap
 			WordsCount:  wordsCount,
 			ChapterID:   c.ChapterID,
 			NovelID:     c.NovelID,
+			Index:       pCounter(),
 		}
 
 		c.WordsCount += wordsCount
