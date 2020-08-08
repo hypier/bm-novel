@@ -83,7 +83,7 @@ var pCounter func() int
 
 func findChapterLine(data []byte) (begin, end int) {
 	p1 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)`
-	pos := regexp.MustCompile(p1).FindSubmatchIndex(data)
+	pos := regexp.MustCompile(p1).FindIndex(data)
 	if len(pos) == 0 {
 		return 0, 0
 	}
