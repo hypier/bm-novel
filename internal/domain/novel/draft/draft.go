@@ -25,38 +25,51 @@ type Draft struct {
 	Paragraphs *paragraph.Paragraphs
 	Chapters   *chapter.Chapters
 	Novel      *novel.Novel
+	isChapter  bool
 }
 
 func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 
 	if cp.isNull() {
 		// 没有章节匹配
+		d.isChapter = false
 		return pp.getSpitePos()
 	}
 
 	i := compare(cp, pp.head)
 	if i <= 0 {
 		// 章节在前
+		d.isChapter = true
 		return cp.end, nil
 	}
 
 	i = compare(cp, pp.tail)
 	if i <= 0 {
 		// 章节位于中间
+		d.isChapter = false
 		return cp.begin, nil
 	}
 
 	// 章节在后
+	d.isChapter = false
 	return pp.getSpitePos()
 }
 
+// 可提取匹配表达式
 func (d *Draft) chapterPosition(data []byte) position {
+
 	pos := regexp.MustCompile(PatternChapter).FindIndex(data)
 	if len(pos) < 2 {
+		// 没有匹配到章节内容
 		return *null()
 	}
 
 	if pos[0] > 9 {
+		// 匹配内容在文中，不是章节
+		return *null()
+	}
+
+	if bytes.Index(data, []byte(`“`)) == 0 {
 		return *null()
 	}
 
@@ -109,12 +122,7 @@ func (d *Draft) Parser(file io.Reader) {
 			continue
 		}
 
-		if strings.Index(string(content), "觉得记性太好也是麻烦") > 0 {
-			fmt.Println(11111)
-		}
-
-		cp := d.chapterPosition(dec.Bytes())
-		if !cp.isNull() {
+		if d.isChapter {
 			if c, err := d.parseChapter(dec); err == nil {
 				d.addChapter(c)
 				fmt.Println(c.ChapterNo, c.ChapterTitle)
@@ -144,6 +152,7 @@ func (d *Draft) addParagraph(p *paragraph.Paragraph) {
 	*d.Paragraphs = append(*d.Paragraphs, p)
 }
 
+// 可提取匹配表达式，
 func (d *Draft) parseChapter(dec *bytes.Buffer) (*chapter.Chapter, error) {
 	c := &chapter.Chapter{}
 
