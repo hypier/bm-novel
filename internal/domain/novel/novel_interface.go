@@ -2,6 +2,7 @@ package novel
 
 import (
 	"bm-novel/internal/domain/novel/chapter"
+	nc "bm-novel/internal/domain/novel/counter"
 	"bm-novel/internal/domain/novel/paragraph"
 	"bm-novel/internal/domain/novel/role"
 	"context"
@@ -29,6 +30,12 @@ type INovelRepository interface {
 	FindByTitle(ctx context.Context, title string) (*Novel, error)
 	Create(ctx context.Context, novel *Novel) error
 	Update(ctx context.Context, novel *Novel) error
+}
+
+type INovelCounterRepository interface {
+	FindOne(ctx context.Context, novelID uuid.UUID) (*nc.NovelCounter, error)
+	Create(ctx context.Context, counter *nc.NovelCounter) error
+	Update(ctx context.Context, counter *nc.NovelCounter) error
 }
 
 type IChapterRepository interface {

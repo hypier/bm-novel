@@ -1,9 +1,12 @@
 package draft
 
 import (
+	nc "bm-novel/internal/domain/novel/counter"
 	"io"
 	"os"
 	"testing"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func openFile() io.Reader {
@@ -15,6 +18,6 @@ func openFile() io.Reader {
 
 func TestDraft_Parser(t *testing.T) {
 	draft := &Draft{}
-
-	draft.Parser(openFile())
+	c := &nc.NovelCounter{NovelID: uuid.NewV4()}
+	draft.Parser(c, openFile())
 }

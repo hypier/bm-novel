@@ -89,3 +89,11 @@ func cNumberToInt(s string) (int, bool) {
 
 	return total, true
 }
+
+func counter(value, step int) func() int {
+	num := value
+	return func() int {
+		num += step
+		return num
+	}
+}

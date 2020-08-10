@@ -7,8 +7,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// Counter 小说计数器
-type Counter struct {
+// NovelCounter 小说计数器
+type NovelCounter struct {
 	CountID uuid.UUID `json:"count_id" db:"count_id"`
 	// 已指派的章节数
 	AssignedChaptersCount int `json:"assigned_chapters_count" db:"assigned_chapters_count"`
@@ -21,12 +21,12 @@ type Counter struct {
 }
 
 // TableName 表名
-func (c Counter) TableName() string {
+func (c NovelCounter) TableName() string {
 
 	return "novel_counter"
 }
 
 // OnEntityEvent 事件
-func (c Counter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+func (c NovelCounter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	panic("implement me")
 }

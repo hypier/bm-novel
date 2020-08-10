@@ -1,8 +1,8 @@
 package draft
 
 import (
-	"bm-novel/internal/domain/novel"
 	"bm-novel/internal/domain/novel/chapter"
+	nc "bm-novel/internal/domain/novel/counter"
 	"bm-novel/internal/domain/novel/paragraph"
 	"bufio"
 	"bytes"
@@ -11,6 +11,9 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"unicode/utf8"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -23,9 +26,23 @@ var (
 
 type Draft struct {
 	Paragraphs *paragraph.Paragraphs
-	Chapters   *chapter.Chapters
-	Novel      *novel.Novel
-	isChapter  bool
+	Chapters   []*chapter.Chapter
+	Counter    *nc.NovelCounter
+
+	isChapter bool
+	pCounter  func() int
+}
+
+func (d *Draft) getLastChapter() *chapter.Chapter {
+	if d.Chapters == nil {
+		// 初始化
+		return &chapter.Chapter{
+			NovelID:      d.Counter.NovelID,
+			ChapterID:    uuid.NewV4(),
+			ChapterTitle: "未命名"}
+	}
+
+	return d.Chapters[len(d.Chapters)-1]
 }
 
 func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
@@ -103,11 +120,8 @@ func (d *Draft) split(data []byte, atEOF bool) (advance int, token []byte, err e
 	return 0, nil, nil
 }
 
-func (d *Draft) SetNovel(novel *novel.Novel) {
-	// 确认当前章数
-}
-
-func (d *Draft) Parser(file io.Reader) {
+func (d *Draft) Parser(counter *nc.NovelCounter, file io.Reader) {
+	d.Counter = counter
 	r := bufio.NewReader(file)
 
 	scanner := bufio.NewScanner(r)
@@ -138,17 +152,29 @@ func (d *Draft) Parser(file io.Reader) {
 
 func (d *Draft) addChapter(c *chapter.Chapter) {
 	if d.Chapters == nil {
-		d.Chapters = &chapter.Chapters{}
+		d.Chapters = chapter.Chapters{}
 	}
 
-	*d.Chapters = append(*d.Chapters, c)
+	c.ChapterID = uuid.NewV4()
+	c.NovelID = d.Counter.NovelID
+	d.Counter.ChaptersCount += 1
+	d.Chapters = append(d.Chapters, c)
 }
 
 func (d *Draft) addParagraph(p *paragraph.Paragraph) {
 	if d.Paragraphs == nil {
 		d.Paragraphs = &paragraph.Paragraphs{}
+		d.pCounter = counter(d.Counter.ChaptersCount, 1)
 	}
 
+	p.ParagraphID = uuid.NewV4()
+	p.Index = d.pCounter()
+
+	p.WordsCount = utf8.RuneCountInString(p.Content)
+	d.getLastChapter().WordsCount += p.WordsCount
+	d.Counter.WordsCount += p.WordsCount
+
+	p.NovelID = d.Counter.NovelID
 	*d.Paragraphs = append(*d.Paragraphs, p)
 }
 
