@@ -24,6 +24,7 @@ var (
 	PatternChapterNoTitleWithVolume = fmt.Sprintf(`(?:^|\n)第%s卷.+%s.+%s\n`, patternNumber, patternNumber, patternUnit)
 	// PatternAll 全部匹配
 	PatternAll = fmt.Sprintf("%s|%s|%s|%s|%s", PatternChapterOnlyNo, PatternChapter, PatternChapterNoTitle, PatternChapterWithVolume, PatternChapterNoTitleWithVolume)
+	// PatternAll = `(?:^|\n).??([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)(?:[集章回话节卷 、])?.*?(([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)(?:[集章回话节卷 、])?)?(.*)\n`
 	// PatternParagraph 段落匹配
 	PatternParagraph = `[“"]|”(?:[。\.]\n)?`
 )

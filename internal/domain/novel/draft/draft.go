@@ -52,6 +52,11 @@ func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 		return pp.getSpitePos()
 	}
 
+	if pp.head.isNull() {
+		d.isChapter = true
+		return cp.end, nil
+	}
+
 	i := compare(cp, pp.head)
 	if i <= 0 {
 		// 章节在前

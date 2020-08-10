@@ -41,6 +41,7 @@ func BenchmarkDraft_Parser(b *testing.B) {
 }
 
 func TestDraft_Parser1(t *testing.T) {
+	logrus.SetLevel(logrus.DebugLevel)
 	counter := &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}
 	type fields struct {
 		Paragraphs *paragraph.Paragraphs
@@ -74,6 +75,16 @@ func TestDraft_Parser1(t *testing.T) {
 				paragraphsCount int
 			}{wordsCount: 3140187, chaptersCount: 1475, paragraphsCount: 74928},
 		},
+		//{
+		//	name: "002",
+		//	args: args{fineName: "C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\002.txt",
+		//		counter: counter},
+		//	want: struct {
+		//		wordsCount      int
+		//		chaptersCount   int
+		//		paragraphsCount int
+		//	}{wordsCount: 3140187, chaptersCount: 1475, paragraphsCount: 74928},
+		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
