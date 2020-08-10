@@ -13,6 +13,7 @@ import (
 
 func openFile() io.Reader {
 	//f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\庆余年-已完结.txt")
+	//f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\002.txt")
 	f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\间谍的战争-已完结.txt")
 	//f, _ := os.Open("/Users/barry/go/src/bm-novel/docs/间谍的战争-已完结.txt")
 	//defer f.Close()
@@ -26,4 +27,13 @@ func TestDraft_Parser(t *testing.T) {
 	draft.Parser(c, openFile())
 
 	t.Log(len(draft.Chapters))
+}
+
+func BenchmarkDraft_Parser(b *testing.B) {
+	logrus.SetLevel(logrus.DebugLevel)
+	draft := &Draft{}
+	c := &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}
+	draft.Parser(c, openFile())
+
+	b.Log(len(draft.Chapters))
 }

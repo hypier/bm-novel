@@ -74,6 +74,12 @@ func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 // 可提取匹配表达式
 func (d *Draft) chapterPosition(data []byte) position {
 
+	//if cp, err := chapterPositionAll(data); err == nil {
+	//	return cp
+	//} else if !errors.Is(err, ErrNotMatched) {
+	//	return *null()
+	//}
+
 	if cp, err := chapterPositionOnlyNo(data); err == nil {
 		return cp
 	} else if !errors.Is(err, ErrNotMatched) {
@@ -195,6 +201,12 @@ func (d *Draft) addParagraph(p *paragraph.Paragraph) {
 
 // 可提取匹配表达式，
 func (d *Draft) parseChapter(dec *bytes.Buffer) (*chapter.Chapter, error) {
+
+	//if cp, err := chapterParserAll(dec); err == nil {
+	//	return cp, nil
+	//} else if !errors.Is(err, ErrNotMatched) {
+	//	return nil, err
+	//}
 
 	if cp, err := chapterParserOnlyNo(dec); err == nil {
 		return cp, nil
