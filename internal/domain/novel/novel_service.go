@@ -1,11 +1,11 @@
 package novel
 
 import (
+	nc "bm-novel/internal/domain/novel/counter"
 	"bm-novel/internal/domain/novel/draft"
 	"bm-novel/internal/http/web"
 	"context"
 	"io"
-	"regexp"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -65,16 +65,6 @@ func (s Service) AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID,
 
 }
 
-func findChapterLine(data []byte) (begin, end int) {
-	p1 := `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)`
-	pos := regexp.MustCompile(p1).FindIndex(data)
-	if len(pos) == 0 {
-		return 0, 0
-	}
-
-	return pos[0], pos[1]
-}
-
 // UploadDraft 上传原文
 func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Reader) error {
 	logrus.Debug("小说解析开始")
@@ -87,8 +77,25 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 		return err
 	}
 
+	if counter == nil {
+		counter = &nc.NovelCounter{NovelID: novelID, CountID: uuid.NewV4()}
+	}
+
 	d := draft.Draft{}
 	d.Parser(counter, file)
+	logrus.Debug("小说解析结束")
+	if err = s.ChapterRepo.BatchCreate(ctx, &d.Chapters); err != nil {
+		return err
+	}
 
+	if err = s.ParagraphRepo.BatchCreate(ctx, d.Paragraphs); err != nil {
+		return err
+	}
+
+	//if err = s.Counter.Update(ctx, d.Counter); err != nil {
+	//	return err
+	//}
+
+	logrus.Debug("小说保存结束")
 	return nil
 }

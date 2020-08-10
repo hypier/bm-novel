@@ -9,7 +9,7 @@ import (
 
 // NovelCounter 小说计数器
 type NovelCounter struct {
-	CountID uuid.UUID `json:"count_id" db:"count_id"`
+	CountID uuid.UUID `json:"count_id" db:"count_id,primaryKey"`
 	// 已指派的章节数
 	AssignedChaptersCount int `json:"assigned_chapters_count" db:"assigned_chapters_count"`
 	// 总章节数
@@ -21,12 +21,13 @@ type NovelCounter struct {
 }
 
 // TableName 表名
-func (c NovelCounter) TableName() string {
+func (c *NovelCounter) TableName() string {
 
 	return "novel_counter"
 }
 
 // OnEntityEvent 事件
-func (c NovelCounter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
-	panic("implement me")
+func (c *NovelCounter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+
+	return nil
 }

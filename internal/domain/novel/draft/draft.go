@@ -12,17 +12,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/sirupsen/logrus"
-
 	uuid "github.com/satori/go.uuid"
 )
 
 var (
-	// PatternChapter 章节匹配
-	PatternChapter = `(?:^|\n)第([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)\n`
-	// PatternParagraph 段落匹配
-	PatternParagraph = `[“”"]`
-
 	// ErrNoPosition 没有切分位置
 	ErrNoPosition = errors.New("no position")
 	// ErrNotMatched 没有匹配内容
@@ -45,7 +38,7 @@ func (d *Draft) getLastChapter() *chapter.Chapter {
 		return &chapter.Chapter{
 			NovelID:      d.Counter.NovelID,
 			ChapterID:    uuid.NewV4(),
-			ChapterTitle: "未命名"}
+			ChapterTitle: "<未命名>"}
 	}
 
 	return d.Chapters[len(d.Chapters)-1]
@@ -81,13 +74,31 @@ func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 // 可提取匹配表达式
 func (d *Draft) chapterPosition(data []byte) position {
 
-	pos := regexp.MustCompile(PatternChapter).FindIndex(data)
-	if len(pos) < 2 {
-		// 没有匹配到章节内容
+	if cp, err := chapterPosition(data); err == nil {
+		return cp
+	} else if !errors.Is(err, ErrNotMatched) {
 		return *null()
 	}
 
-	return position{pos[0], pos[1]}
+	if cp, err := chapterPositionNoTitle(data); err == nil {
+		return cp
+	} else if !errors.Is(err, ErrNotMatched) {
+		return *null()
+	}
+
+	if cp, err := chapterPositionWithVolume(data); err == nil {
+		return cp
+	} else if !errors.Is(err, ErrNotMatched) {
+		return *null()
+	}
+
+	if cp, err := chapterPositionNoTitleWithVolume(data); err == nil {
+		return cp
+	} else if !errors.Is(err, ErrNotMatched) {
+		return *null()
+	}
+
+	return *null()
 }
 
 func (d *Draft) paragraphPosition(data []byte) positions {
@@ -130,14 +141,14 @@ func (d *Draft) Parser(counter *nc.NovelCounter, file io.Reader) {
 		dec := bytes.NewBuffer(scanner.Bytes())
 		content := dec.Bytes()
 
-		if len(content) == 0 {
+		if len(bytes.TrimSpace(content)) == 0 {
 			continue
 		}
 
 		if d.isChapter {
 			if c, err := d.parseChapter(dec); err == nil {
+				//logrus.Debugf("volume: %d, no: %d, title: %s ", c.Volume, c.ChapterNo, c.ChapterTitle)
 				d.addChapter(c)
-				logrus.Debug(c.ChapterNo, c.ChapterTitle)
 				continue
 			}
 		} else {
@@ -178,23 +189,32 @@ func (d *Draft) addParagraph(p *paragraph.Paragraph) {
 
 // 可提取匹配表达式，
 func (d *Draft) parseChapter(dec *bytes.Buffer) (*chapter.Chapter, error) {
-	c := &chapter.Chapter{}
 
-	s2 := regexp.MustCompile(PatternChapter)
-	all := s2.FindSubmatch(dec.Bytes())
-	if all == nil || len(all) < 4 {
-		return c, ErrNotMatched
+	if cp, err := chapterParser(dec); err == nil {
+		return cp, nil
+	} else if !errors.Is(err, ErrNotMatched) {
+		return nil, err
 	}
 
-	if index, ok := cNumberToInt(string(all[1])); ok {
-		c.ChapterNo = index
-	} else {
-		return c, ErrNotMatched
+	if cp, err := chapterParserNoTitle(dec); err == nil {
+		return cp, nil
+	} else if !errors.Is(err, ErrNotMatched) {
+		return nil, err
 	}
 
-	c.ChapterTitle = string(all[3])
+	if cp, err := chapterParserWithVolume(dec); err == nil {
+		return cp, nil
+	} else if !errors.Is(err, ErrNotMatched) {
+		return nil, err
+	}
 
-	return c, nil
+	if cp, err := chapterParserNoTitleWithVolume(dec); err == nil {
+		return cp, nil
+	} else if !errors.Is(err, ErrNotMatched) {
+		return nil, err
+	}
+
+	return nil, ErrNotMatched
 }
 
 func (d *Draft) parseParagraph(dec *bytes.Buffer) *paragraph.Paragraph {
