@@ -10,10 +10,10 @@ import (
 	"flag"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {

@@ -9,6 +9,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Paragraphs 段落集
 type Paragraphs []*Paragraph
 
 // Paragraph 段落
@@ -42,10 +43,12 @@ type Paragraph struct {
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 }
 
+// TableName 表
 func (p *Paragraph) TableName() string {
 	return "paragraph"
 }
 
+// OnEntityEvent 事件
 func (p *Paragraph) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:

@@ -29,6 +29,7 @@ func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
 }
 
+// Update 更新
 func (r Repository) Update(ctx context.Context, paragraph *paragraph.Paragraph) error {
 	panic("implement me")
 }
@@ -44,6 +45,7 @@ func (r Repository) Create(ctx context.Context, paragraph *paragraph.Paragraph) 
 	return nil
 }
 
+// BatchCreate 批量创建
 func (r Repository) BatchCreate(ctx context.Context, ps *paragraph.Paragraphs) error {
 	return r.saveDB(ctx, ps)
 }

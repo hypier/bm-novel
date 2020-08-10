@@ -27,6 +27,7 @@ func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
 }
 
+// BatchCreate 批量创建
 func (r Repository) BatchCreate(ctx context.Context, cs *chapter.Chapters) error {
 	return r.saveDB(ctx, cs)
 }
@@ -74,6 +75,7 @@ func (r Repository) saveDB(ctx context.Context, cs *chapter.Chapters) error {
 	return nil
 }
 
+// Update 更新
 func (r Repository) Update(ctx context.Context, chapter *chapter.Chapter) error {
 	panic("implement me")
 }

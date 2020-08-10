@@ -185,9 +185,7 @@ func TestInsert(t *testing.T) {
 	fmt.Println(pos, sub)
 }
 
-func getIndex(list *paragraph.Paragraphs, prev pos) (int, int) {
-	end := 0
-	sub := 0
+func getIndex(list *paragraph.Paragraphs, prev pos) (end int, sub int) {
 	for _, x := range *list {
 		n := prev.index + 1
 		if x.Index > n {

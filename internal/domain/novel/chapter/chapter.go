@@ -9,6 +9,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Chapters 章节集
 type Chapters []*Chapter
 
 // Chapter 章节
@@ -34,11 +35,13 @@ type Chapter struct {
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 }
 
+// TableName 表
 func (c *Chapter) TableName() string {
 
 	return "chapter"
 }
 
+// OnEntityEvent 事件
 func (c *Chapter) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:

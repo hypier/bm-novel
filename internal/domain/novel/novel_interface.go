@@ -24,6 +24,7 @@ type INovelService interface {
 	UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Reader) error
 }
 
+// INovelRepository 小说仓库
 type INovelRepository interface {
 	FindList(ctx context.Context, novelName string, pageIndex int, pageSize int) (Novels, error)
 	FindOne(ctx context.Context, novelID uuid.UUID) (*Novel, error)
@@ -32,18 +33,21 @@ type INovelRepository interface {
 	Update(ctx context.Context, novel *Novel) error
 }
 
+// INovelCounterRepository 计数器
 type INovelCounterRepository interface {
 	FindOne(ctx context.Context, novelID uuid.UUID) (*nc.NovelCounter, error)
 	Create(ctx context.Context, counter *nc.NovelCounter) error
 	Update(ctx context.Context, counter *nc.NovelCounter) error
 }
 
+// IChapterRepository 章节仓库
 type IChapterRepository interface {
 	Create(ctx context.Context, chapter *chapter.Chapter) error
 	BatchCreate(ctx context.Context, chapters *chapter.Chapters) error
 	Update(ctx context.Context, chapter *chapter.Chapter) error
 }
 
+// IParagraphRepository 段落仓库
 type IParagraphRepository interface {
 	Create(ctx context.Context, paragraph *paragraph.Paragraph) error
 	BatchCreate(ctx context.Context, paragraphs *paragraph.Paragraphs) error

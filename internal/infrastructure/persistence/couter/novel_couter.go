@@ -24,6 +24,7 @@ func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
 }
 
+// FindOne 查询
 func (r *Repository) FindOne(ctx context.Context, novelID uuid.UUID) (*nc.NovelCounter, error) {
 	c := &nc.NovelCounter{NovelID: novelID}
 	if err := entity.Load(ctx, c, r.db); err != nil {
@@ -40,6 +41,7 @@ func (r *Repository) FindOne(ctx context.Context, novelID uuid.UUID) (*nc.NovelC
 	return c, nil
 }
 
+// Create 创建
 func (r *Repository) Create(ctx context.Context, counter *nc.NovelCounter) error {
 	if _, err := entity.Insert(ctx, counter, r.db); err != nil {
 		return web.WriteErrLogWithField(logrus.Fields{
@@ -50,6 +52,7 @@ func (r *Repository) Create(ctx context.Context, counter *nc.NovelCounter) error
 	return nil
 }
 
+// Update 更新
 func (r *Repository) Update(ctx context.Context, counter *nc.NovelCounter) error {
 	if err := entity.Update(ctx, counter, r.db); err != nil {
 		return web.WriteErrLogWithField(logrus.Fields{

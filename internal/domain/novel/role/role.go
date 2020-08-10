@@ -28,11 +28,13 @@ type Role struct {
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 }
 
-func (r Role) TableName() string {
+// TableName 表
+func (r *Role) TableName() string {
 	return "novel_role"
 }
 
-func (r Role) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+// OnEntityEvent 事件
+func (r *Role) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:
 		r.CreateAt = time.Now()

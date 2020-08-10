@@ -29,11 +29,13 @@ type Episode struct {
 	UpdateAt time.Time `json:"update_at" db:"update_at"`
 }
 
-func (e Episode) TableName() string {
+// TableName 表
+func (e *Episode) TableName() string {
 	return "episode"
 }
 
-func (e Episode) OnEntityEvent(ctx context.Context, ev entity.Event) error {
+// OnEntityEvent 事件
+func (e *Episode) OnEntityEvent(ctx context.Context, ev entity.Event) error {
 	switch ev {
 	case entity.EventBeforeInsert:
 		e.CreateAt = time.Now()
