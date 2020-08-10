@@ -6,9 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sirupsen/logrus"
-
 	uuid "github.com/satori/go.uuid"
+	"github.com/sirupsen/logrus"
 )
 
 func openFile() io.Reader {
@@ -21,6 +20,8 @@ func openFile() io.Reader {
 func TestDraft_Parser(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
 	draft := &Draft{}
-	c := &nc.NovelCounter{NovelID: uuid.NewV4()}
+	c := &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}
 	draft.Parser(c, openFile())
+
+	t.Log(len(draft.Chapters))
 }

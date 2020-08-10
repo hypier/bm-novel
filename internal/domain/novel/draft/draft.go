@@ -7,7 +7,6 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"regexp"
 	"strings"
@@ -20,7 +19,7 @@ import (
 
 var (
 	// PatternChapter 章节匹配
-	PatternChapter = `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)\n`
+	PatternChapter = `(?:^|\n)第([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)\n`
 	// PatternParagraph 段落匹配
 	PatternParagraph = `[“”"]`
 
@@ -33,7 +32,7 @@ var (
 // Draft 草稿
 type Draft struct {
 	Paragraphs *paragraph.Paragraphs
-	Chapters   []*chapter.Chapter
+	Chapters   chapter.Chapters
 	Counter    *nc.NovelCounter
 
 	isChapter bool
@@ -82,25 +81,11 @@ func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 // 可提取匹配表达式
 func (d *Draft) chapterPosition(data []byte) position {
 
-	i := bytes.Index(data, []byte("六章 蜕变"))
-	if i >= 0 {
-		fmt.Print("")
-	}
-
 	pos := regexp.MustCompile(PatternChapter).FindIndex(data)
 	if len(pos) < 2 {
 		// 没有匹配到章节内容
 		return *null()
 	}
-
-	//if pos[0] > 9 {
-	//	// 匹配内容在文中，不是章节
-	//	return *null()
-	//}
-
-	//if bytes.Index(data, []byte(`“`)) == 0 {
-	//	return *null()
-	//}
 
 	return position{pos[0], pos[1]}
 }
