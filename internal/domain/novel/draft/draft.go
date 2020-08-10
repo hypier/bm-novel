@@ -189,7 +189,7 @@ func (d *Draft) addParagraph(p *paragraph.Paragraph) {
 	}
 
 	p.ParagraphID = uuid.NewV4()
-	p.Index = d.pCounter()
+	p.ChapterIndex = d.pCounter()
 
 	p.WordsCount = utf8.RuneCountInString(p.Content)
 	d.getLastChapter().WordsCount += p.WordsCount

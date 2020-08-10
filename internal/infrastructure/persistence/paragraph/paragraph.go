@@ -65,7 +65,7 @@ func (r Repository) saveRedis(ctx context.Context, ps *paragraph.Paragraphs) err
 			continue
 		}
 
-		field := p.Index
+		field := p.ChapterIndex
 		values = append(values, field)
 		values = append(values, marshal)
 	}

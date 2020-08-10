@@ -1,6 +1,7 @@
 package role
 
 import (
+	"bm-novel/internal/domain/novel/base"
 	"context"
 	"time"
 
@@ -24,8 +25,7 @@ type Role struct {
 	// 角色名
 	RoleName string `json:"role_name" db:"role_name"`
 
-	CreateAt time.Time `json:"create_at" db:"create_at"`
-	UpdateAt time.Time `json:"update_at" db:"update_at"`
+	base.Entity
 }
 
 // TableName 表

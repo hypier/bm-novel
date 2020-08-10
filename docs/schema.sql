@@ -2,6 +2,7 @@ CREATE TABLE "chapter"
 (
     "chapter_id"    uuid                                       NOT NULL,
     "chapter_no"    int4                                       NOT NULL,
+    "volume"        int4,
     "chapter_title" varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
     "create_at"     timestamptz(6),
     "feature_code"  int4,
@@ -9,12 +10,14 @@ CREATE TABLE "chapter"
     "update_at"     timestamptz(6),
     "words_count"   int4,
     "novel_id"      uuid,
+    "is_delete"     bool,
     CONSTRAINT "chapter_pkey" PRIMARY KEY ("chapter_id")
 );
 ALTER TABLE "chapter"
     OWNER TO "postgres";
 COMMENT ON COLUMN "chapter"."chapter_id" IS '章节ID';
 COMMENT ON COLUMN "chapter"."chapter_no" IS '章节序号';
+COMMENT ON COLUMN "chapter"."volume" IS '卷号';
 COMMENT ON COLUMN "chapter"."chapter_title" IS '章节标题';
 COMMENT ON COLUMN "chapter"."create_at" IS '创建时间';
 COMMENT ON COLUMN "chapter"."feature_code" IS '标识 1 正确章 2 重复章 3 缺失章 4 错序章';
@@ -34,6 +37,7 @@ CREATE TABLE "episode"
     "update_at"     timestamptz(6),
     "words_count"   int4,
     "novel_id"      uuid,
+    "is_delete"     bool,
     CONSTRAINT "episode_pkey" PRIMARY KEY ("episode_id")
 );
 ALTER TABLE "episode"
@@ -56,7 +60,7 @@ CREATE TABLE "novel"
     "novel_title"           varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
     "responsible_editor_id" uuid,
     "update_at"             timestamptz(6),
-    "settings"              jsonb,
+    "is_delete"             bool,
     CONSTRAINT "novel_pkey" PRIMARY KEY ("novel_id"),
     CONSTRAINT "uk_novel_novel_title" UNIQUE ("novel_title")
 );
@@ -68,7 +72,7 @@ COMMENT ON COLUMN "novel"."create_at" IS '创建时间';
 COMMENT ON COLUMN "novel"."novel_title" IS '标题';
 COMMENT ON COLUMN "novel"."responsible_editor_id" IS '责编';
 COMMENT ON COLUMN "novel"."update_at" IS '更新时间';
-COMMENT ON COLUMN "novel"."settings" IS '格式设置';
+COMMENT ON COLUMN "novel"."is_delete" IS '是否删除';
 COMMENT ON TABLE "novel" IS '小说';
 
 CREATE TABLE "novel_counts"
@@ -78,6 +82,9 @@ CREATE TABLE "novel_counts"
     "chapters_count"          int4,
     "words_count"             int4,
     "novel_id"                uuid,
+    "create_at"               timestamptz(6),
+    "update_at"               timestamptz(6),
+    "is_delete"               bool,
     PRIMARY KEY ("count_id")
 );
 COMMENT ON COLUMN "novel_counts"."count_id" IS '计数ID';
@@ -95,6 +102,7 @@ CREATE TABLE "novel_role"
     "role_class" varchar(20) COLLATE "pg_catalog"."default",
     "role_name"  varchar(20) COLLATE "pg_catalog"."default",
     "update_at"  timestamptz(6),
+    "is_delete"  bool,
     CONSTRAINT "novel_role_pkey" PRIMARY KEY ("role_id")
 );
 ALTER TABLE "novel_role"
@@ -111,17 +119,18 @@ COMMENT ON TABLE "novel_role" IS '角色';
 
 CREATE TABLE "paragraph"
 (
-    "paragraph_id" uuid NOT NULL,
-    "content"      varchar(5000) COLLATE "pg_catalog"."default",
-    "create_at"    timestamptz(6),
-    "next"         uuid,
-    "prev"         uuid,
-    "update_at"    timestamptz(6),
-    "words_count"  int4,
-    "chapter_id"   uuid,
-    "episode_id"   uuid,
-    "role_id"      uuid,
-    "novel_id"     uuid,
+    "paragraph_id"  uuid NOT NULL,
+    "content"       varchar(5000) COLLATE "pg_catalog"."default",
+    "create_at"     timestamptz(6),
+    "chapter_index" int4,
+    "episode_index" int4,
+    "update_at"     timestamptz(6),
+    "words_count"   int4,
+    "chapter_id"    uuid,
+    "episode_id"    uuid,
+    "role_id"       uuid,
+    "novel_id"      uuid,
+    "is_delete"     bool,
     CONSTRAINT "paragraph_pkey" PRIMARY KEY ("paragraph_id")
 );
 ALTER TABLE "paragraph"
@@ -129,8 +138,8 @@ ALTER TABLE "paragraph"
 COMMENT ON COLUMN "paragraph"."paragraph_id" IS '段落ID';
 COMMENT ON COLUMN "paragraph"."content" IS '段落内容';
 COMMENT ON COLUMN "paragraph"."create_at" IS '创建时间';
-COMMENT ON COLUMN "paragraph"."next" IS '下一个';
-COMMENT ON COLUMN "paragraph"."prev" IS '上一个';
+COMMENT ON COLUMN "paragraph"."chapter_index" IS '下一个';
+COMMENT ON COLUMN "paragraph"."episode_index" IS '上一个';
 COMMENT ON COLUMN "paragraph"."update_at" IS '更新时间';
 COMMENT ON COLUMN "paragraph"."words_count" IS '字数';
 COMMENT ON COLUMN "paragraph"."chapter_id" IS '章节ID';
@@ -138,54 +147,6 @@ COMMENT ON COLUMN "paragraph"."episode_id" IS '集数ID';
 COMMENT ON COLUMN "paragraph"."role_id" IS '角色ID';
 COMMENT ON COLUMN "paragraph"."novel_id" IS '小说ID';
 COMMENT ON TABLE "paragraph" IS '段落';
-
-CREATE TABLE "permission"
-(
-    "pid"    uuid                                       NOT NULL,
-    "name"   varchar(20) COLLATE "pg_catalog"."default" NOT NULL,
-    "uri"    varchar(50) COLLATE "pg_catalog"."default" NOT NULL,
-    "method" varchar(10) COLLATE "pg_catalog"."default" NOT NULL,
-    "roles"  varchar[][] COLLATE "pg_catalog"."default",
-    CONSTRAINT "permission_pk" PRIMARY KEY ("pid")
-);
-ALTER TABLE "permission"
-    OWNER TO "postgres";
-COMMENT ON COLUMN "permission"."pid" IS '权限ID';
-COMMENT ON COLUMN "permission"."name" IS '权限名';
-COMMENT ON COLUMN "permission"."uri" IS 'URI地址';
-COMMENT ON COLUMN "permission"."method" IS '方法';
-COMMENT ON COLUMN "permission"."roles" IS '角色列表';
-COMMENT ON TABLE "permission" IS '权限';
-
-CREATE TABLE "user"
-(
-    "user_id"              uuid                                       NOT NULL,
-    "user_name"            varchar(32) COLLATE "pg_catalog"."default" NOT NULL,
-    "password"             varchar(64) COLLATE "pg_catalog"."default" NOT NULL,
-    "roles"                varchar[][] COLLATE "pg_catalog"."default" NOT NULL,
-    "real_name"            varchar(16) COLLATE "pg_catalog"."default" NOT NULL,
-    "create_at"            timestamptz(6),
-    "update_at"            timestamptz(6),
-    "is_lock"              bool,
-    "need_change_password" bool,
-    CONSTRAINT "user_pkey" PRIMARY KEY ("user_id")
-);
-ALTER TABLE "user"
-    OWNER TO "postgres";
-CREATE UNIQUE INDEX "user_user_name_uindex" ON "user" USING btree (
-                                                                   "user_name" COLLATE "pg_catalog"."default"
-                                                                   "pg_catalog"."text_ops" ASC NULLS LAST
-    );
-COMMENT ON COLUMN "user"."user_id" IS '用户ID';
-COMMENT ON COLUMN "user"."user_name" IS '用户名';
-COMMENT ON COLUMN "user"."password" IS '密码';
-COMMENT ON COLUMN "user"."roles" IS '角色列表';
-COMMENT ON COLUMN "user"."real_name" IS '姓名';
-COMMENT ON COLUMN "user"."create_at" IS '创建时间';
-COMMENT ON COLUMN "user"."update_at" IS '更新时间';
-COMMENT ON COLUMN "user"."is_lock" IS '是否锁定';
-COMMENT ON COLUMN "user"."need_change_password" IS '是否需要修改密码';
-COMMENT ON TABLE "user" IS '用户';
 
 ALTER TABLE "chapter"
     ADD CONSTRAINT "fk_chapter_novel_id" FOREIGN KEY ("novel_id") REFERENCES "novel" ("novel_id") ON DELETE NO ACTION ON UPDATE NO ACTION;

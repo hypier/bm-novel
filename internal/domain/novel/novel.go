@@ -1,6 +1,7 @@
 package novel
 
 import (
+	"bm-novel/internal/domain/novel/base"
 	"context"
 	"time"
 
@@ -21,9 +22,9 @@ type Novel struct {
 	// 小说标题
 	NovelTitle string `json:"novel_title" db:"novel_title"`
 	// 责编ID
-	ResponsibleEditorID uuid.UUID `json:"responsible_editor_id" db:"responsible_editor_id"`
+	ResponsibleEditorID uuid.NullUUID `json:"responsible_editor_id" db:"responsible_editor_id"`
 
-	BaseEntity
+	base.Entity
 }
 
 // TableName 表名

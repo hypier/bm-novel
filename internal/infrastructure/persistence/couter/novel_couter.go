@@ -7,6 +7,8 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/doug-martin/goqu/v9"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/joyparty/entity"
 	"github.com/pkg/errors"
@@ -22,6 +24,40 @@ type Repository struct {
 // New 创建持久化对象
 func New() *Repository {
 	return &Repository{db: postgres.DefaultDB}
+}
+
+// FindByNovelID 通过novelID查询
+func (r *Repository) FindByNovelID(ctx context.Context, novelID uuid.UUID) (*nc.NovelCounter, error) {
+	c := nc.NovelCounter{}
+
+	strSQL, params, err := goqu.From(c.TableName()).Where(goqu.Ex{"novel_id": novelID}).ToSQL()
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"sql": strSQL,
+	}).Debug("Repository FindByNovelID")
+
+	users := &nc.NovelCounters{}
+	err = r.db.SelectContext(ctx, users, strSQL, params...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// 数据为空
+			return nil, nil
+		}
+
+		return nil, web.WriteErrLogWithField(logrus.Fields{
+			"strSQL":  strSQL,
+			"novelID": novelID,
+		}, err, "Counter FindByNovelID exce SQL")
+	}
+
+	for _, v := range *users {
+		return v, nil
+	}
+
+	return nil, err
 }
 
 // FindOne 查询

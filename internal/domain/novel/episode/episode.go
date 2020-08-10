@@ -1,6 +1,7 @@
 package episode
 
 import (
+	"bm-novel/internal/domain/novel/base"
 	"context"
 	"time"
 
@@ -25,8 +26,7 @@ type Episode struct {
 	// 小说ID
 	NovelID uuid.UUID `json:"novel_id" db:"novel_id"`
 
-	CreateAt time.Time `json:"create_at" db:"create_at"`
-	UpdateAt time.Time `json:"update_at" db:"update_at"`
+	base.Entity
 }
 
 // TableName 表

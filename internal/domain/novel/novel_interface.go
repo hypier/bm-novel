@@ -35,7 +35,8 @@ type INovelRepository interface {
 
 // INovelCounterRepository 计数器
 type INovelCounterRepository interface {
-	FindOne(ctx context.Context, novelID uuid.UUID) (*nc.NovelCounter, error)
+	FindOne(ctx context.Context, counterID uuid.UUID) (*nc.NovelCounter, error)
+	FindByNovelID(ctx context.Context, novelID uuid.UUID) (*nc.NovelCounter, error)
 	Create(ctx context.Context, counter *nc.NovelCounter) error
 	Update(ctx context.Context, counter *nc.NovelCounter) error
 }

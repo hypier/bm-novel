@@ -1,11 +1,15 @@
 package counter
 
 import (
+	"bm-novel/internal/domain/novel/base"
 	"context"
 
 	"github.com/joyparty/entity"
 	uuid "github.com/satori/go.uuid"
 )
+
+// NovelCounters 计数器集合
+type NovelCounters []*NovelCounter
 
 // NovelCounter 小说计数器
 type NovelCounter struct {
@@ -18,6 +22,8 @@ type NovelCounter struct {
 	WordsCount int `json:"words_count" db:"words_count"`
 	// 小说ID
 	NovelID uuid.UUID `json:"novel_id" db:"novel_id"`
+
+	base.Entity
 }
 
 // TableName 表名

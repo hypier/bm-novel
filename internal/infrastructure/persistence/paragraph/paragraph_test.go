@@ -22,7 +22,7 @@ func TestRepository_Create(t *testing.T) {
 	repo := New()
 
 	for i := 20; i < 1000; i += 20 {
-		p := &paragraph.Paragraph{ParagraphID: uuid.NewV4(), Index: i, SubIndex: 0}
+		p := &paragraph.Paragraph{ParagraphID: uuid.NewV4(), ChapterIndex: i, EpisodeIndex: 0}
 
 		err := repo.Create(ctx, p)
 		if err != nil {
@@ -163,7 +163,7 @@ type pos struct {
 }
 
 func TestInsert(t *testing.T) {
-	p := &paragraph.Paragraph{ParagraphID: uuid.NewV4(), Index: 0, SubIndex: 0}
+	p := &paragraph.Paragraph{ParagraphID: uuid.NewV4(), ChapterIndex: 0, EpisodeIndex: 0}
 	prev := pos{20, 3}
 
 	// 取大于20的5条,排序取
@@ -178,8 +178,8 @@ func TestInsert(t *testing.T) {
 	//	return
 	//}
 
-	p.Index = pos
-	p.SubIndex = sub
+	p.ChapterIndex = pos
+	p.EpisodeIndex = sub
 	_ = repo.Create(ctx, p)
 
 	fmt.Println(pos, sub)
@@ -188,12 +188,12 @@ func TestInsert(t *testing.T) {
 func getIndex(list *paragraph.Paragraphs, prev pos) (end int, sub int) {
 	for _, x := range *list {
 		n := prev.index + 1
-		if x.Index > n {
+		if x.ChapterIndex > n {
 			end = n
 			break
-		} else if x.Index == n {
+		} else if x.ChapterIndex == n {
 			end = n
-			sub = x.SubIndex + 1
+			sub = x.EpisodeIndex + 1
 			break
 		}
 	}

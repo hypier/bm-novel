@@ -38,7 +38,13 @@ func (s Service) Create(ctx context.Context, novel *Novel) error {
 	}
 
 	novel.NovelID = uuid.NewV4()
-	return s.Repo.Create(ctx, novel)
+	err = s.Repo.Create(ctx, novel)
+	if err != nil {
+		return err
+	}
+
+	counter := &nc.NovelCounter{CountID: uuid.NewV4(), NovelID: novel.NovelID}
+	return s.Counter.Create(ctx, counter)
 }
 
 // Delete 删除小说
@@ -60,7 +66,7 @@ func (s Service) AssignResponsibleEditor(ctx context.Context, novelID uuid.UUID,
 		}, web.ErrNotFound, "AssignResponsibleEditor, Novel Not Found")
 	}
 
-	dbNovel.ResponsibleEditorID = editorID
+	dbNovel.ResponsibleEditorID = uuid.NullUUID{UUID: editorID}
 	return s.Repo.Update(ctx, dbNovel)
 
 }
@@ -71,14 +77,14 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 	ctx, cancel := context.WithTimeout(context.Background(), 1200*time.Second)
 	defer cancel()
 
-	counter, err := s.Counter.FindOne(ctx, novelID)
+	counter, err := s.Counter.FindByNovelID(ctx, novelID)
 
 	if err != nil {
 		return err
 	}
 
 	if counter == nil {
-		counter = &nc.NovelCounter{NovelID: novelID, CountID: uuid.NewV4()}
+		return web.ErrNotFound
 	}
 
 	d := draft.Draft{}
@@ -92,9 +98,9 @@ func (s Service) UploadDraft(ctx context.Context, novelID uuid.UUID, file io.Rea
 		return err
 	}
 
-	//if err = s.Counter.Update(ctx, d.Counter); err != nil {
-	//	return err
-	//}
+	if err = s.Counter.Update(ctx, d.Counter); err != nil {
+		return err
+	}
 
 	logrus.Debug("小说保存结束")
 	return nil
