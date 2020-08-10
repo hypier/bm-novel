@@ -19,7 +19,7 @@ var (
 	PatternChapterNoTitleWithVolume = `(?:^|\n)第([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)卷.+([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+).+([集章回话节 、])\n`
 
 	// PatternParagraph 段落匹配
-	PatternParagraph = `[“”"]`
+	PatternParagraph = `[“"]|”(?:[。\.]\n)?`
 )
 
 func chapterPosition(data []byte) (position, error) {
