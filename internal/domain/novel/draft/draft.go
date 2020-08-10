@@ -17,13 +17,18 @@ import (
 )
 
 var (
-	PatternChapter   = `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)\n`
+	// PatternChapter 章节匹配
+	PatternChapter = `([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)([集章回话节 、])([\w\W].*)\n`
+	// PatternParagraph 段落匹配
 	PatternParagraph = `[“”"]`
 
+	// ErrNoPosition 没有切分位置
 	ErrNoPosition = errors.New("no position")
+	// ErrNotMatched 没有匹配内容
 	ErrNotMatched = errors.New("not matched")
 )
 
+// Draft 草稿
 type Draft struct {
 	Paragraphs *paragraph.Paragraphs
 	Chapters   []*chapter.Chapter
@@ -120,6 +125,7 @@ func (d *Draft) split(data []byte, atEOF bool) (advance int, token []byte, err e
 	return 0, nil, nil
 }
 
+// Parser 解析
 func (d *Draft) Parser(counter *nc.NovelCounter, file io.Reader) {
 	d.Counter = counter
 	r := bufio.NewReader(file)
@@ -157,7 +163,7 @@ func (d *Draft) addChapter(c *chapter.Chapter) {
 
 	c.ChapterID = uuid.NewV4()
 	c.NovelID = d.Counter.NovelID
-	d.Counter.ChaptersCount += 1
+	d.Counter.ChaptersCount++
 	d.Chapters = append(d.Chapters, c)
 }
 
