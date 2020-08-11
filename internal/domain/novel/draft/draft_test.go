@@ -74,7 +74,7 @@ func TestDraft_Parser1(t *testing.T) {
 				wordsCount      int
 				chaptersCount   int
 				paragraphsCount int
-			}{wordsCount: 3139991, chaptersCount: 1476, paragraphsCount: 74928},
+			}{wordsCount: 3139991, chaptersCount: 1475, paragraphsCount: 74923},
 		},
 		//{
 		//	name: "002",

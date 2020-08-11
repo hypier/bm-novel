@@ -14,15 +14,17 @@ var (
 	patternUnit   = `(?:[集章回话节 、])`
 	patternTitle  = `(.*)`
 
-	// PatternAll 全部匹配
-	PatternAll = fmt.Sprintf(`\n[^“]??(?:%s卷.*?)?%s%s?%s\n`, patternNumber, patternNumber, patternUnit, patternTitle)
+	// ChapterPatternAll 全部匹配
+	ChapterPatternAll = fmt.Sprintf(`\n[^“]??(?:%s卷.*?)?%s%s?%s\n`, patternNumber, patternNumber, patternUnit, patternTitle)
+	// ChapterPatternHead 首行匹配
+	ChapterPatternHead = fmt.Sprintf(`^[^“]??(?:%s卷.*?)?%s%s?%s\n`, patternNumber, patternNumber, patternUnit, patternTitle)
 	// PatternParagraph 段落匹配
 	PatternParagraph = `[“"]|”(?:[。\.]\n)?`
 )
 
-func chapterPositionAll(data []byte) (position, error) {
+func chapterPositionAll(data []byte, pattern string) (position, error) {
 
-	pos := regexp.MustCompile(PatternAll).FindIndex(data)
+	pos := regexp.MustCompile(pattern).FindIndex(data)
 	if len(pos) < 2 {
 		// 没有匹配到章节内容
 		return *null(), ErrNotMatched
@@ -31,10 +33,10 @@ func chapterPositionAll(data []byte) (position, error) {
 	return position{pos[0], pos[1]}, nil
 }
 
-func chapterParserAll(dec *bytes.Buffer) (*chapter.Chapter, error) {
+func chapterParserAll(dec *bytes.Buffer, pattern string) (*chapter.Chapter, error) {
 	c := &chapter.Chapter{}
 
-	s2 := regexp.MustCompile(PatternAll)
+	s2 := regexp.MustCompile(pattern)
 	all := s2.FindSubmatch(dec.Bytes())
 	if all == nil || len(all) < 2 {
 		return nil, ErrNotMatched

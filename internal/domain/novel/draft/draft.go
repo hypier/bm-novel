@@ -12,8 +12,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/sirupsen/logrus"
-
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -30,8 +28,9 @@ type Draft struct {
 	Chapters   chapter.Chapters
 	Counter    *nc.NovelCounter
 
-	isChapter bool
-	pCounter  func() int
+	chapterPattern string
+	isChapter      bool
+	pCounter       func() int
 }
 
 func (d *Draft) getLastChapter() *chapter.Chapter {
@@ -81,7 +80,7 @@ func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 // 可提取匹配表达式
 func (d *Draft) chapterPosition(data []byte) position {
 
-	if cp, err := chapterPositionAll(data); err == nil {
+	if cp, err := chapterPositionAll(data, d.chapterPattern); err == nil {
 		return cp
 	} else if !errors.Is(err, ErrNotMatched) {
 		return *null()
@@ -120,6 +119,7 @@ func (d *Draft) split(data []byte, atEOF bool) (advance int, token []byte, err e
 // Parser 解析
 func (d *Draft) Parser(counter *nc.NovelCounter, file io.Reader) {
 	d.Counter = counter
+	d.chapterPattern = ChapterPatternHead
 	r := bufio.NewReader(file)
 
 	scanner := bufio.NewScanner(r)
@@ -136,8 +136,9 @@ func (d *Draft) Parser(counter *nc.NovelCounter, file io.Reader) {
 
 		if d.isChapter {
 			if c, err := d.parseChapter(dec); err == nil {
-				logrus.Debugf("volume: %d, no: %d, title: %s ", c.Volume, c.ChapterNo, c.ChapterTitle)
+				//logrus.Debugf("volume: %d, no: %d, title: %s ", c.Volume, c.ChapterNo, c.ChapterTitle)
 				d.addChapter(c)
+				d.chapterPattern = ChapterPatternAll
 				continue
 			}
 		} else {
@@ -179,7 +180,7 @@ func (d *Draft) addParagraph(p *paragraph.Paragraph) {
 // 可提取匹配表达式，
 func (d *Draft) parseChapter(dec *bytes.Buffer) (*chapter.Chapter, error) {
 
-	if cp, err := chapterParserAll(dec); err == nil {
+	if cp, err := chapterParserAll(dec, d.chapterPattern); err == nil {
 		return cp, nil
 	} else if !errors.Is(err, ErrNotMatched) {
 		return nil, err
