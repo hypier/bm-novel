@@ -23,13 +23,14 @@ var (
 	// PatternChapterNoTitleWithVolume 章节带卷
 	PatternChapterNoTitleWithVolume = fmt.Sprintf(`(?:^|\n)第%s卷.+%s.+%s\n`, patternNumber, patternNumber, patternUnit)
 	// PatternAll 全部匹配
-	PatternAll = fmt.Sprintf("%s|%s|%s|%s|%s", PatternChapterOnlyNo, PatternChapter, PatternChapterNoTitle, PatternChapterWithVolume, PatternChapterNoTitleWithVolume)
-	// PatternAll = `(?:^|\n).??([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)(?:[集章回话节卷 、])?.*?(([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)(?:[集章回话节卷 、])?)?(.*)\n`
+	//PatternAll = fmt.Sprintf("%s|%s|%s|%s|%s", PatternChapterOnlyNo, PatternChapter, PatternChapterNoTitle, PatternChapterWithVolume, PatternChapterNoTitleWithVolume)
+	PatternAll = `\n[^“]??(?:([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)卷.*)?([零一二两三四五六七八九十百千万亿壹贰叁肆伍陆柒捌玖拾佰仟1-9]+)(?:[集章回话节卷 、])?(.*)\n`
 	// PatternParagraph 段落匹配
 	PatternParagraph = `[“"]|”(?:[。\.]\n)?`
 )
 
 func chapterPositionAll(data []byte) (position, error) {
+
 	pos := regexp.MustCompile(PatternAll).FindIndex(data)
 	if len(pos) < 2 {
 		// 没有匹配到章节内容
@@ -48,7 +49,13 @@ func chapterParserAll(dec *bytes.Buffer) (*chapter.Chapter, error) {
 		return c, ErrNotMatched
 	}
 
-	if index, ok := cNumberToInt(string(all[1])); ok {
+	if all[1] != nil {
+		if index, ok := cNumberToInt(string(all[1])); ok {
+			c.Volume = index
+		}
+	}
+
+	if index, ok := cNumberToInt(string(all[2])); ok {
 		c.ChapterNo = index
 	} else {
 		return c, ErrNotMatched
