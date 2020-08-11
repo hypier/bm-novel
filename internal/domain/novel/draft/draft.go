@@ -88,37 +88,6 @@ func (d *Draft) chapterPosition(data []byte) position {
 	}
 
 	return *null()
-	//if cp, err := chapterPositionOnlyNo(data); err == nil {
-	//	return cp
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return *null()
-	//}
-	//
-	//if cp, err := chapterPosition(data); err == nil {
-	//	return cp
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return *null()
-	//}
-	//
-	//if cp, err := chapterPositionNoTitle(data); err == nil {
-	//	return cp
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return *null()
-	//}
-	//
-	//if cp, err := chapterPositionWithVolume(data); err == nil {
-	//	return cp
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return *null()
-	//}
-	//
-	//if cp, err := chapterPositionNoTitleWithVolume(data); err == nil {
-	//	return cp
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return *null()
-	//}
-	//
-	//return *null()
 }
 
 func (d *Draft) paragraphPosition(data []byte) positions {
@@ -216,37 +185,6 @@ func (d *Draft) parseChapter(dec *bytes.Buffer) (*chapter.Chapter, error) {
 		return nil, err
 	}
 	return nil, ErrNotMatched
-	//if cp, err := chapterParserOnlyNo(dec); err == nil {
-	//	return cp, nil
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return nil, err
-	//}
-	//
-	//if cp, err := chapterParser(dec); err == nil {
-	//	return cp, nil
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return nil, err
-	//}
-	//
-	//if cp, err := chapterParserNoTitle(dec); err == nil {
-	//	return cp, nil
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return nil, err
-	//}
-	//
-	//if cp, err := chapterParserWithVolume(dec); err == nil {
-	//	return cp, nil
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return nil, err
-	//}
-	//
-	//if cp, err := chapterParserNoTitleWithVolume(dec); err == nil {
-	//	return cp, nil
-	//} else if !errors.Is(err, ErrNotMatched) {
-	//	return nil, err
-	//}
-	//
-	//return nil, ErrNotMatched
 }
 
 func (d *Draft) parseParagraph(dec *bytes.Buffer) *paragraph.Paragraph {
