@@ -54,13 +54,24 @@ func (d *Draft) getSplitPosition(cp position, pp positions) (int, error) {
 	}
 
 	if pp.head.isNull() {
+		if cp.begin > 0 {
+			// 章节前还有内容
+			d.isChapter = false
+			return cp.begin, nil
+		}
 		d.isChapter = true
 		return cp.end, nil
 	}
 
 	i := compare(cp, pp.head)
 	if i <= 0 {
-		// 章节在前
+		// 章节在前段落前
+		if cp.begin > 0 {
+			// 章节前还有内容
+			d.isChapter = false
+			return cp.begin, nil
+		}
+
 		d.isChapter = true
 		return cp.end, nil
 	}
@@ -108,6 +119,10 @@ func (d *Draft) split(data []byte, atEOF bool) (advance int, token []byte, err e
 
 	cp := d.chapterPosition(data)
 	pp := d.paragraphPosition(data)
+
+	if cp.isNull() && pp.head.isNull() && atEOF && len(data) > 0 {
+		return len(data), data, nil
+	}
 
 	if pos, err := d.getSplitPosition(cp, pp); err == nil {
 		return pos, data[0:pos], nil

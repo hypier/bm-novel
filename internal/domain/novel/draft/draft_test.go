@@ -16,7 +16,7 @@ import (
 func openFile() io.Reader {
 	//f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\庆余年-已完结.txt")
 	//f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\002.txt")
-	f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\间谍的战争-已完结.txt")
+	f, _ := os.Open("C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\002.txt")
 	//f, _ := os.Open("/Users/barry/go/src/bm-novel/docs/庆余年-已完结.txt")
 	//defer f.Close()
 	return f
@@ -42,8 +42,9 @@ func BenchmarkDraft_Parser(b *testing.B) {
 }
 
 func TestDraft_Parser1(t *testing.T) {
+
 	logrus.SetLevel(logrus.DebugLevel)
-	counter := &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}
+
 	type fields struct {
 		Paragraphs *paragraph.Paragraphs
 		Chapters   chapter.Chapters
@@ -52,8 +53,7 @@ func TestDraft_Parser1(t *testing.T) {
 		pCounter   func() int
 	}
 	type args struct {
-		counter *nc.NovelCounter
-		//file    io.Reader
+		counter  *nc.NovelCounter
 		fineName string
 	}
 	tests := []struct {
@@ -69,23 +69,33 @@ func TestDraft_Parser1(t *testing.T) {
 		{
 			name: "间谍的战争",
 			args: args{fineName: "C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\间谍的战争-已完结.txt",
-				counter: counter},
+				counter: &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}},
 			want: struct {
 				wordsCount      int
 				chaptersCount   int
 				paragraphsCount int
-			}{wordsCount: 3139991, chaptersCount: 1475, paragraphsCount: 74923},
+			}{wordsCount: 3249412, chaptersCount: 1475, paragraphsCount: 75261},
 		},
-		//{
-		//	name: "002",
-		//	args: args{fineName: "C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\002.txt",
-		//		counter: counter},
-		//	want: struct {
-		//		wordsCount      int
-		//		chaptersCount   int
-		//		paragraphsCount int
-		//	}{wordsCount: 3140187, chaptersCount: 1475, paragraphsCount: 74928},
-		//},
+		{
+			name: "九龙圣祖",
+			args: args{fineName: "C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\九龙圣祖-2020.6.3日更新.txt",
+				counter: &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}},
+			want: struct {
+				wordsCount      int
+				chaptersCount   int
+				paragraphsCount int
+			}{wordsCount: 10280050, chaptersCount: 3270, paragraphsCount: 91871},
+		},
+		{
+			name: "002",
+			args: args{fineName: "C:\\Users\\yuepaidui20200612\\iCloudDrive\\Documents\\工作\\joyparty\\北冥有声\\002.txt",
+				counter: &nc.NovelCounter{NovelID: uuid.NewV4(), CountID: uuid.NewV4()}},
+			want: struct {
+				wordsCount      int
+				chaptersCount   int
+				paragraphsCount int
+			}{wordsCount: 243, chaptersCount: 7, paragraphsCount: 11},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -114,6 +124,7 @@ func TestDraft_Parser1(t *testing.T) {
 			if tt.want.paragraphsCount != paragraphsCount {
 				t.Errorf("draft.Parser paragraphsCount %v, want %v", paragraphsCount, tt.want.paragraphsCount)
 			}
+
 		})
 	}
 }

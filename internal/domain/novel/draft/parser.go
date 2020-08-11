@@ -19,7 +19,7 @@ var (
 	// ChapterPatternHead 首行匹配
 	ChapterPatternHead = fmt.Sprintf(`^[^“]??(?:%s卷.*?)?%s%s?%s\n`, patternNumber, patternNumber, patternUnit, patternTitle)
 	// PatternParagraph 段落匹配
-	PatternParagraph = `[“"]|”(?:[。\.]\n)?`
+	PatternParagraph = `[“"]|”(?:[。\.][\n\r])?`
 )
 
 func chapterPositionAll(data []byte, pattern string) (position, error) {
